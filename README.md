@@ -2,50 +2,148 @@
 
 **Smarter AI. Less Compute. Same Ambition.**
 
-HUMAIN Hackathon — Challenge 2: Deliver AI with Less Compute.
+**HUMAIN Hackathon | Challenge 2: Deliver AI with Less Compute**
 
-## Goal
-Implement and evaluate a quality-aware controller for **text classification** and **text-to-image generation**. We aim to reduce inference resources without violating task-specific quality requirements. No performance improvements are claimed before benchmarks.
+## Overview
 
-## Current status
-- ✅ Small-first text routing, confidence escalation, event traces (real controller logic)
-- ✅ Image fast / quality mode dispatch (backend callbacks)
+NIMBO is a quality-aware, multimodal AI optimization agent designed to reduce inference costs and computational resource consumption across text classification and text-to-image generation.
+
+Rather than relying on a fixed execution strategy, NIMBO dynamically selects an appropriate inference path based on task requirements, resource efficiency, and quality constraints.
+
+The objective is to demonstrate how adaptive optimization can make AI systems more computationally efficient while maintaining reliable output quality.
+
+## Key Capabilities
+
+- **Adaptive Inference Routing:** Selects execution strategies based on task requirements and model confidence.
+- **Text Optimization:** Routes classification requests through lightweight models, with escalation when confidence is insufficient.
+- **Image Generation Optimization:** Supports fast-preview and quality-focused generation paths using diffusion-based techniques.
+- **Quality-Aware Decisions:** Evaluates outputs against task-specific quality requirements.
+- **Performance Monitoring:** Tracks inference latency, memory consumption, routing decisions, and optimization overhead.
+- **Explainable Agent Workflow:** Records optimization decisions and execution events for transparent analysis and visualization.
+
+## Architecture
+
+```text
+                User Request
+                     |
+                     v
+             NIMBO Controller
+                     |
+           Task Identification
+                     |
+             Strategy Selection
+                     |
+          +----------+----------+
+          |                     |
+          v                     v
+     Text Pipeline        Image Pipeline
+          |                     |
+    Small Model           Fast Diffusion
+          |                     |
+   Confidence Check       Quality Evaluation
+          |                     |
+   Large Model Fallback   Quality Mode
+          |                     |
+          +----------+----------+
+                     |
+                     v
+           Performance Evaluation
+                     |
+                     v
+           Result + Execution Trace
+```
+
+## Technology Stack
+
+| Component | Technology |
+|---|---|
+| Agent Controller | Python |
+| Text Models | BERT / DistilBERT |
+| Text Optimization | ONNX Runtime, Model Routing |
+| Image Generation | Stable Diffusion |
+| Image Optimization | LCM-LoRA |
+| Model Framework | PyTorch, Hugging Face |
+| Backend | FastAPI (planned) |
+| Frontend | React (planned) |
+| GPU Environment | NVIDIA T4 |
+
+## Evaluation Metrics
+
+NIMBO evaluates optimization effectiveness through measurable performance indicators.
+
+**Text Classification**
+- Accuracy and Macro F1
+- Inference latency (p50/p95)
+- Peak memory consumption
+- Model escalation rate
+
+**Image Generation**
+- Generation latency
+- Peak GPU memory consumption
+- Prompt adherence
+- Perceived image quality
+
+**System Efficiency**
+- Computational resource savings
+- Optimization overhead
+- Quality preservation
+- End-to-end execution time
+
+Performance improvements will be reported based on measured benchmarks using comparable execution environments.
+
+## Implementation Status
+
+- ✅ Adaptive text routing and confidence-based escalation
+- ✅ Agent execution traces
+- ✅ Image generation mode selection
 - ✅ Unit tests and GitHub Actions
-- 🧪 Optional text model loading integration (requires suitable matched checkpoints)
-- 🧪 Colab T4 experiment for SD1.5 vs LCM-LoRA
-- ⬜ Image quality gate, calibrated text thresholds, UI/robot, production backend
+- 🧪 Text model integration and benchmarking
+- 🧪 Stable Diffusion and LCM-LoRA evaluation
+- ⬜ Automated image quality verification
+- ⬜ Interactive agent visualization
+- ⬜ Integrated API and dashboard
 
-**Warning:** `nimbo.demo` uses *synthetic model outputs* only to test control flow. Do not present these as inference benchmarks. The image Colab script runs actual models when executed on a compatible GPU.
+The current demonstration uses simulated model outputs to validate routing behavior. Actual inference performance will be evaluated separately using pretrained models.
 
-## Run locally (no GPU needed)
+## Getting Started
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
+
 pip install -e '.[dev]'
+
 pytest -q
 python -m nimbo.demo
 ```
 
-## Architecture
-```
-Request -> NIMBO Controller -> Task-specific execution backend -> Trace + Result
-                       | text: small-first -> confidence gate -> large fallback
-                       | image: preview -> few-step diffusion; quality -> baseline
-```
+## Research References
 
-## Benchmarks to report
-Text: macro F1, accuracy, p50/p95 latency, peak memory, fallback rate.
-Image: repeated latency on same T4, peak CUDA allocated memory, prompt adherence and human quality rating. Record any agent overhead and retries.
+NIMBO draws on established research and optimization techniques in efficient AI inference.
 
-## Research references
-- [Google Imagen (Diffusion)](https://imagen.research.google/)
-- [Stability AI — ADD](https://stability.ai/research/adversarial-diffusion-distillation)
-- [Hugging Face — LCM-LoRA](https://huggingface.co/docs/diffusers/main/using-diffusers/inference_with_lcm_lora)
-- [UC Berkeley — RouteLLM](https://sky.cs.berkeley.edu/project/routellm/)
+1. [Google Research — Imagen](https://imagen.research.google/)  
+   Diffusion-based text-to-image generation.
 
-## Roadmap
-1. Choose two text classifiers trained on same labels and evaluate on held-out data.
-2. Calibrate confidence threshold, run same-hardware reference and adaptive benchmarks.
-3. Run T4 diffusion notebook/script, compare latency + quality.
-4. Connect real inference backends via FastAPI, stream traces to animated NIMBO UI.
-5. Add Arabic tokenizer efficiency study separately; do not claim Arabic accuracy without Arabic evaluation.
+2. [Stability AI — Adversarial Diffusion Distillation](https://stability.ai/research/adversarial-diffusion-distillation)  
+   Accelerating image generation through diffusion distillation.
+
+3. [Hugging Face — LCM-LoRA](https://huggingface.co/docs/diffusers/main/using-diffusers/inference_with_lcm_lora)  
+   Efficient few-step diffusion inference.
+
+4. [UC Berkeley — RouteLLM](https://sky.cs.berkeley.edu/project/routellm/)  
+   Cost-aware routing between language models.
+
+## Development Roadmap
+
+- Integrate pretrained text classifiers and evaluate inference efficiency.
+- Implement and benchmark confidence-based adaptive routing.
+- Evaluate diffusion optimization using Stable Diffusion and LCM-LoRA.
+- Connect inference backends to the NIMBO controller.
+- Develop an interactive agent interface to visualize optimization decisions.
+- Extend evaluation to multilingual workloads, including Arabic NLP.
+
+---
+
+**NIMBO | HUMAIN Hackathon 2026**
+
+*Smarter AI. Less Compute. Same Ambition.*
