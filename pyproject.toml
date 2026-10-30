@@ -11,6 +11,7 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = ["pytest>=7"]
+ui = ["streamlit>=1.35"]
 text = ["transformers>=4.40,<5", "torch>=2.2", "datasets>=2.19,<5"]
 
 [tool.setuptools.packages.find]
