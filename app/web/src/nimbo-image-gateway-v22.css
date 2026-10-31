@@ -1,0 +1,31 @@
+/* NIMBO v22 local image gateway — readable side-by-side human assessment */
+.nim22ImageMode{display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:16px;border:1px solid rgba(92,220,235,.32);background:rgba(16,66,89,.38);margin:16px 0}
+.nim22ImageMode strong{font-size:16px;color:#aaf3fc}
+.nim22ImageMode label{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:650;line-height:1.5;cursor:pointer;color:inherit}
+.nim22ImageMode input{width:18px;height:18px;accent-color:#69dbff}
+.nim22ImageMode p{font-size:14px;line-height:1.6;margin:3px 0 0;opacity:.9}
+.nim22ImageEvidence{display:flex;flex-direction:column;gap:16px;padding:18px 0;margin:8px 0 18px}
+.nim22ImageEvidence h3{font-size:22px;margin:0;color:inherit}
+.nim22ImageEvidence .nim22Sub{font-size:15px;opacity:.85;margin:0;line-height:1.55}
+.nim22ImagePair{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.nim22ImagePair figure{margin:0;border-radius:15px;overflow:hidden;background:#092844;border:1px solid #4b8dab}
+.nim22ImagePair img{width:100%;height:auto;aspect-ratio:1;display:block;object-fit:contain}
+.nim22ImagePair figcaption{padding:12px 14px;color:#e9f8ff;display:flex;gap:4px;flex-direction:column}
+.nim22ImagePair figcaption b{font-size:16px;line-height:1.5}
+.nim22ImagePair figcaption small{font-size:14px;color:#a9d7e9}
+.nim22ImageReview{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;padding:16px;background:#15334d;border:1px solid #497b99;border-radius:14px}
+.nim22ImageReview label{display:flex;flex-direction:column;gap:8px;color:#eff9ff;font-size:15px;font-weight:600}
+.nim22ImageReview select{width:100%;min-height:46px;border:1px solid #78a9c8;color:#132e4b;background:white;border-radius:10px;padding:8px;font-size:15px}
+.nim22ImageReview button{align-self:end;min-height:46px;border-radius:10px;border:1px solid #80d7ed;background:#236bd4;color:white;font-size:15px;font-weight:700;cursor:pointer;padding:10px 13px}
+.nim22ImageReview button:disabled{opacity:.45;cursor:not-allowed}
+.nim22ReviewFeedback{font-size:15px!important;color:#a7ffdf!important;line-height:1.6}
+.nim22ImageEvidence .nim22Times{padding:12px;border-radius:12px;border:1px solid #39728b;color:#cff1fc;font-weight:650;font-size:16px;line-height:1.6}
+@media(max-width:680px){.nim22ImageEvidence h3{font-size:19px}.nim22ImagePair{grid-template-columns:1fr}}
+.nim22ImageMode input[type="number"]{width:125px;border:1px solid #79a9c1;border-radius:9px;background:#ebf9ff;color:#07334d;font-size:16px;padding:8px 10px;max-width:100%}
+.nim22ImageEvidenceSummary{margin:16px 0;padding:18px 20px;border-radius:15px;border:1px solid #53a5bf;background:#103852;color:#e8faff;display:flex;gap:10px;flex-direction:column}
+.nim22ImageEvidenceSummary strong{font-size:19px}
+.nim22ImageEvidenceSummary p{font-size:15px;line-height:1.5;margin:0}
+.nim22ImageEvidenceSummary div{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.nim22ImageEvidenceSummary span{background:#164663;padding:13px;border-radius:9px;font-size:15px;line-height:1.55}
+.nim22ImageEvidenceSummary span b{font-size:21px;display:block}
+.nim22ImageEvidenceSummary small{font-size:13px;color:#b5dcea;line-height:1.5}

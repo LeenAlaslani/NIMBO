@@ -1,0 +1,80 @@
+{
+  "run_id": "heldout_cff50858e9a24db2",
+  "timestamp_utc": "2026-10-31T06:06:14.449768+00:00",
+  "validation": "heldout_repeated_v21",
+  "model_id": "lvwerra/distilbert-imdb",
+  "model_revision": "0fc02cd68445b599a9cb2da2368050e7fb31d29a",
+  "partition_digest": "10fd80603eaad484728ac6c00c2c702932b903c9f11c08ebfdc175b7e914ac68",
+  "hardware": {
+    "machine": "arm64",
+    "processor": "arm",
+    "system": "Darwin"
+  },
+  "python_version": "3.11.9",
+  "pytorch_version": "2.15.0",
+  "onnxruntime_version": "1.31.1",
+  "inputs": 800,
+  "rounds": 3,
+  "measurements_per_path": 2400,
+  "baseline_mean_ms": 28.5501,
+  "candidate_mean_ms": 17.7637,
+  "baseline_p95_ms": 36.6819,
+  "candidate_p95_ms": 23.6119,
+  "baseline_accuracy": 0.9175,
+  "candidate_accuracy": 0.9175,
+  "prediction_agreement_fraction": 1.0,
+  "mean_latency_reduction_fraction": 0.37781,
+  "local_pipeline_speedup_fraction": 0.37163,
+  "rounds_detail": [
+    {
+      "round": 1,
+      "baseline_forward_mean_ms": 27.4698,
+      "candidate_forward_mean_ms": 18.0707,
+      "baseline_local_pipeline_mean_ms": 27.9574,
+      "candidate_local_pipeline_mean_ms": 18.5558
+    },
+    {
+      "round": 2,
+      "baseline_forward_mean_ms": 29.3646,
+      "candidate_forward_mean_ms": 17.6885,
+      "baseline_local_pipeline_mean_ms": 29.8712,
+      "candidate_local_pipeline_mean_ms": 18.1868
+    },
+    {
+      "round": 3,
+      "baseline_forward_mean_ms": 28.816,
+      "candidate_forward_mean_ms": 17.532,
+      "baseline_local_pipeline_mean_ms": 29.3272,
+      "candidate_local_pipeline_mean_ms": 18.0235
+    }
+  ],
+  "approval": "eligible_for_review",
+  "gate": {
+    "eligible": true,
+    "quality_pass": true,
+    "latency_pass": true,
+    "p95_pass": true,
+    "repeatability_pass": true,
+    "prediction_agreement": 1.0,
+    "mean_speedup_fraction": 0.37781,
+    "local_pipeline_speedup_fraction": 0.37163,
+    "accuracy_drop_fraction": 0.0,
+    "reason": "ELIGIBLE FOR MANUAL REVIEW; no variant has been deployed",
+    "constraints": {
+      "max_accuracy_drop": 0.01,
+      "min_prediction_agreement": 0.995,
+      "min_mean_speedup": 0.05,
+      "min_local_pipeline_speedup": 0.05,
+      "max_p95_regression": 0,
+      "require_faster_each_round": true
+    }
+  },
+  "exported_variant": false,
+  "claims_not_supported": [
+    "lower FLOPs",
+    "less electrical energy",
+    "reduced cloud spend",
+    "third-party audited quality",
+    "deployed in production"
+  ]
+}

@@ -1,0 +1,7 @@
+/* Compact status at VERA's genuine backend stage, not fake progress. */
+.nim27VerificationStrip{position:absolute;right:1.1rem;bottom:4rem;z-index:8;display:flex;flex-direction:column;gap:.35rem;max-width:min(340px,38%);pointer-events:none;background:rgba(3,26,49,.91);border:1px solid rgba(129,228,220,.45);border-radius:13px;padding:.8rem 1rem;box-shadow:0 8px 22px #02162680;color:#d8f4fa;font-size:13px}
+.nim27VerificationStrip strong{font-size:11px;letter-spacing:.09em;color:#80f1df}
+.nim27VerificationStrip span{line-height:1.4}
+.nim27MetriReceipt{display:flex;flex-direction:column;gap:.55rem;background:#123953;border:1px solid #3b7998;border-radius:12px;padding:1rem;margin:1rem 0;color:#e4f5fc;overflow-wrap:anywhere}
+.nim27MetriReceipt strong{color:#8ae6db}.nim27MetriReceipt small{color:#b4c7d7}
+@media(max-width:780px){.nim27VerificationStrip{bottom:3.5rem;right:.5rem;max-width:55%;font-size:11px}}

@@ -1,0 +1,320 @@
+/* NIMBO v11 is a playable scene; no vertical stack of dashboards inside Mission Control. */
+html,body,#root{height:auto!important;min-height:100%!important;overflow:auto!important}
+body{overflow-x:hidden!important}
+.shell{grid-template-columns:220px minmax(0,1fr)!important;min-height:100vh!important;height:auto!important;overflow:visible!important}
+.shell>aside{position:sticky;top:0;align-self:start;height:100vh;box-sizing:border-box;overflow-y:auto}
+.shell>main{padding:0!important;margin:0;min-width:0;height:auto!important;min-height:100vh;max-height:none!important;overflow:visible!important}
+.gameShell{--gameBg:#09182b;--gamePanel:#0d233b;--gamePanel2:#12334a;--gameStroke:#355977;--gameText:#e4f3ff;--gameMuted:#9db9ce;--gameTurquoise:#7ddfec;--gameShadow:0 20px 55px rgba(0,0,0,.3);color:var(--gameText);background:var(--gameBg);min-height:100vh;padding:24px clamp(16px,2.2vw,36px) 28px;box-sizing:border-box}
+.theme-day .gameShell{--gameBg:#dbeafa;--gamePanel:#eef7fd;--gamePanel2:#d9eaf5;--gameStroke:#a2bed5;--gameText:#1b3851;--gameMuted:#56748c;--gameTurquoise:#257eac;--gameShadow:0 14px 34px rgba(66,108,145,.17)}
+.gameShell button,.gameShell select{font:inherit;color:inherit;cursor:pointer}
+.gameShell button:disabled{opacity:.48;cursor:not-allowed}
+.gameHeadline{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;margin-bottom:15px}
+.gameEyebrow{font-size:10px;letter-spacing:2.3px;color:var(--gameTurquoise);font-weight:800}
+.gameHeadline h1{font-size:clamp(27px,3.2vw,52px);margin:5px 0 4px;line-height:1.04;letter-spacing:-1.4px}
+.gameHeadline p{color:var(--gameMuted);font-size:13px;margin:0;line-height:1.55}
+.gameHeadActions{display:flex;align-items:center;gap:12px;white-space:nowrap}
+.gameHeadActions button,.gameFooterBtns button,.gameFooterBtns select{border:1px solid var(--gameStroke);background:var(--gamePanel);border-radius:11px;padding:9px 12px;display:inline-flex;align-items:center;gap:7px;font-size:12px}
+.gameConnected{font-size:10px;color:#63c6a7;letter-spacing:1.2px;font-weight:800}
+.gameDeck{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin:0 0 14px}
+.gameDeck button{text-align:left;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:6px;border-radius:13px;padding:12px 13px;min-height:87px;background:var(--gamePanel);border:1px solid var(--gameStroke)}
+.gameDeck button:hover,.gameDeck button.selected{border-color:#81dcf0;background:var(--gamePanel2);box-shadow:0 0 0 1px rgba(104,209,236,.19)}
+.gameDeck button small{font-size:9px;color:var(--gameTurquoise);font-weight:800;letter-spacing:1px}
+.gameDeck button strong{font-size:12px;line-height:1.3}
+.gameDeck button span{font-size:10px;color:var(--gameMuted);line-height:1.3}
+.gameWorldFrame{border:1px solid var(--gameStroke);background:var(--gamePanel);border-radius:19px;overflow:hidden;box-shadow:var(--gameShadow)}
+.gameWorldTop,.gameWorldFooter{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;min-height:42px;font-size:10px;letter-spacing:1.2px;color:var(--gameMuted);font-weight:700}
+.gameWorldTop{border-bottom:1px solid var(--gameStroke)}
+.gameWorldFooter{border-top:1px solid var(--gameStroke);letter-spacing:0;font-size:11px;flex-wrap:wrap}
+.gameLiveDot,.gameSquare{display:inline-block;width:8px;height:8px;background:#55cfb5;border-radius:50%;margin-right:6px;box-shadow:0 0 12px rgba(85,207,181,.6)}
+.gameSquare{border-radius:2px;background:#8ccfff}
+.gameWorldStage{height:min(73vh,780px);min-height:540px;position:relative;overflow:hidden;background:#091a2e}
+.theme-day .gameWorldStage{background:#dbeaf5}
+.gameWorldStage>div:first-child{width:100%;height:100%}
+.gameMissionHUD,.gameTelemetryHUD,.gameFloatingStep{position:absolute;z-index:5;border:1px solid rgba(145,195,236,.32);background:rgba(9,26,47,.89);backdrop-filter:blur(13px);color:#e6f1ff;box-shadow:0 12px 36px rgba(0,0,0,.28)}
+.theme-day .gameMissionHUD,.theme-day .gameTelemetryHUD,.theme-day .gameFloatingStep{background:rgba(248,253,255,.94);color:#143450;border-color:rgba(110,158,193,.53);box-shadow:0 16px 38px rgba(63,105,136,.14)}
+.gameMissionHUD{left:15px;top:15px;width:min(284px,28%);border-radius:17px;padding:16px}
+.gameHudKicker{font-size:10px;letter-spacing:1.7px;color:#89d4ef;font-weight:800}
+.theme-day .gameHudKicker{color:#207ea9}
+.gameMissionHUD h2{font-size:19px;line-height:1.23;margin:9px 0}
+.gameMissionHUD p{font-size:12px;line-height:1.5;color:#a9c2d8;margin:0 0 12px}
+.theme-day .gameMissionHUD p{color:#53748d}
+.gameMissionHUD textarea{display:block;width:100%;min-height:83px;max-height:150px;resize:vertical;padding:10px 12px;border:1px solid rgba(140,190,226,.36);border-radius:11px;background:rgba(23,52,78,.8);color:#fff;font-size:11px;line-height:1.5;margin-bottom:10px;box-sizing:border-box}
+.theme-day .gameMissionHUD textarea{background:#fff;color:#1a3b54;border-color:#a5c1d9}
+.gamePrimary{border:0!important;background:linear-gradient(90deg,#657eec,#9778f2)!important;color:#fff!important;font-weight:800!important;border-radius:10px!important;padding:11px 14px!important;display:inline-flex!important;gap:7px!important;align-items:center!important;justify-content:center!important;width:100%;font-size:12px!important}
+.gameGuideRow{margin-top:12px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;color:#b8d2e4;font-size:10px}.gameGuideRow span{width:8px;height:8px;border-radius:50%}.theme-day .gameGuideRow{color:#51728a}
+.gameError{color:#ffb9a9!important;font-weight:700}
+.gameTelemetryHUD{right:15px;top:15px;width:min(300px,29%);border-radius:16px;padding:13px}
+.gameTelemetryTitle{display:flex;align-items:center;gap:7px;font-size:10px;letter-spacing:1px;margin-bottom:8px}.gameTelemetryTitle span{margin-left:auto;color:#7de4b4;font-size:9px;font-weight:800}
+.gameTelemetryHUD>p{font-size:11px;line-height:1.55;color:#a9c4d7}.theme-day .gameTelemetryHUD>p{color:#52748d}
+.gameTelemetryEvent{padding:8px 0;border-top:1px solid rgba(125,178,212,.2);display:grid;grid-template-columns:55px 62px minmax(0,1fr);gap:7px;align-items:start;font-size:10px;line-height:1.45}
+.gameTelemetryEvent small{color:#9cb3cb;font-size:9px}.theme-day .gameTelemetryEvent small{color:#567a95}.gameTelemetryEvent strong{color:#86dbef;font-size:9px}.theme-day .gameTelemetryEvent strong{color:#187ba8}.gameTelemetryEvent span{overflow-wrap:anywhere}
+.gameTelemetryResult{display:flex;gap:6px;align-items:center;padding-top:8px;color:#6defae;border-top:1px solid rgba(125,178,212,.25);font-size:10px}
+.theme-day .gameTelemetryResult{color:#167e57}
+.gameFloatingStep{left:50%;bottom:14px;transform:translateX(-50%);border-radius:999px;padding:8px 10px 8px 15px;display:flex;align-items:center;gap:11px}
+.gameFloatingStep>span{font-size:20px;color:#f0d38e}.gameFloatingStep>div{display:grid;gap:3px;white-space:nowrap}.gameFloatingStep small{font-size:9px;letter-spacing:1px;color:#8db3cf}.gameFloatingStep strong{font-size:12px}.gameFloatingStep button{border:0;background:#32688b;color:#fff;border-radius:999px;padding:8px 12px;display:flex;align-items:center;gap:4px;font-size:10px}
+.gameFooterBtns{display:flex;align-items:center;gap:8px}.gameFooterBtns select{padding:9px;background:var(--gamePanel);color:var(--gameText)}.gameFooterBtns button{white-space:nowrap}
+.gameUnderworld{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.gameUnderworld>div{border-radius:14px;padding:14px 16px;background:var(--gamePanel);border:1px solid var(--gameStroke)}.gameUnderworld strong{font-size:12px}.gameUnderworld p{color:var(--gameMuted);line-height:1.5;font-size:11px;margin:7px 0 0}
+.nim3dLabel{min-width:92px;text-align:center;padding:5px 8px;border-radius:9px;border:1px solid var(--botColor);background:rgba(5,21,39,.76);color:#e8f6ff;white-space:nowrap;box-shadow:0 6px 18px rgba(0,0,0,.18)}.nim3dLabel.active{background:rgba(7,31,52,.95);box-shadow:0 0 16px color-mix(in srgb,var(--botColor) 40%,transparent)}.nim3dLabel b{display:block;font-size:10px;letter-spacing:.7px}.nim3dLabel small{display:block;font-size:8px;color:#b5d5e9;margin-top:2px}
+.gameProofBackdrop{position:fixed;inset:0;background:rgba(0,8,22,.55);z-index:70;display:flex;justify-content:flex-end;backdrop-filter:blur(5px)}.gameProofDrawer{width:min(475px,100vw);height:100vh;overflow-y:auto;box-sizing:border-box;background:var(--gamePanel);color:var(--gameText);border-left:1px solid var(--gameStroke);padding:25px;box-shadow:-16px 0 52px rgba(0,0,0,.28)}.gameProofHeading{display:flex;align-items:start;justify-content:space-between;gap:10px}.gameProofHeading small{font-size:10px;letter-spacing:1.4px;color:var(--gameTurquoise)}.gameProofHeading h2{font-size:24px;margin:8px 0 20px}.gameProofHeading button{background:transparent;border:1px solid var(--gameStroke);border-radius:9px;padding:8px}.gameProofKPIs{display:grid;grid-template-columns:1fr 1fr;gap:9px}.gameProofKPIs>div{padding:13px;border-radius:11px;border:1px solid var(--gameStroke);background:var(--gamePanel2);min-width:0}.gameProofKPIs small{color:var(--gameMuted);display:block;margin-bottom:8px}.gameProofKPIs strong{font-size:13px;overflow-wrap:anywhere}.gameProofResult{border:1px solid var(--gameStroke);border-radius:13px;margin:15px 0;padding:16px;background:var(--gameBg)}.gameProofResult>small{display:block;color:var(--gameMuted);margin-bottom:10px}.gameProofResult>div{line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}.gameProofResult img{max-width:100%}.gameProofNote{border:1px solid #bb925a77;border-radius:13px;padding:11px;display:flex;gap:9px;align-items:flex-start;color:var(--gameMuted);font-size:12px;margin-bottom:16px}.gameProofNote p{margin:0;line-height:1.6}
+@media(max-width:1300px){.gameDeck{grid-template-columns:repeat(3,1fr)}.gameWorldStage{min-height:600px}.gameMissionHUD{width:260px}.gameTelemetryHUD{width:250px}}
+@media(max-width:950px){.shell{grid-template-columns:1fr!important}.shell>aside{position:static;height:auto;display:flex;flex-wrap:wrap;gap:8px}.shell>aside .logo{width:100%}.sidebarFoot{display:none}.gameMissionHUD{position:absolute;left:10px;top:10px;width:235px}.gameTelemetryHUD{right:10px;top:10px;width:225px}.gameDeck{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){.gameHeadline{flex-direction:column}.gameDeck{grid-template-columns:1fr 1fr}.gameWorldStage{min-height:840px;height:auto;display:flex;flex-direction:column}.gameWorldStage>div:first-child{height:460px;flex:none}.gameMissionHUD,.gameTelemetryHUD{position:relative;top:auto;left:auto;right:auto;width:auto;margin:8px 10px;transform:none;order:1}.gameFloatingStep{bottom:auto;left:auto;position:relative;transform:none;width:max-content;order:2;margin:10px}.gameUnderworld{grid-template-columns:1fr}.gameWorldFooter{align-items:flex-start}.gameDeck button{padding:10px;min-height:76px}.gameDeck button span{display:none}}
+.gameArtifactPreview{position:absolute;right:15px;bottom:76px;z-index:6;width:min(288px,26%);border:1px solid rgba(119,227,202,.5);border-radius:14px;padding:13px;background:rgba(9,30,46,.93);box-shadow:0 12px 35px rgba(0,0,0,.22);color:#e2f5ff;backdrop-filter:blur(12px)}
+.theme-day .gameArtifactPreview{background:rgba(248,254,255,.96);color:#183b58}
+.gameArtifactPreview small{font-size:10px;letter-spacing:1px;color:#78dabc;font-weight:800}.gameArtifactPreview p{line-height:1.45;font-size:11px;max-height:86px;overflow:hidden}.gameArtifactPreview button{border:0;padding:0;background:transparent;color:#8acdf4;font-size:11px;display:flex;align-items:center;gap:5px}.theme-day .gameArtifactPreview button{color:#187ea6}
+@media(max-width:650px){.gameArtifactPreview{position:relative;right:auto;bottom:auto;width:auto;margin:8px 10px;order:1}}
+
+/* NIMBO v12 immersive interaction and accessibility overhaul */
+.gameShell{font-size:16px;--gameBg:#07172a;--gamePanel:#102841;--gamePanel2:#183751;--gameStroke:#35617d;--gameText:#f0f7ff;--gameMuted:#b3cadd;--gameShadow:0 20px 58px rgba(0,0,0,.25)}
+.theme-day .gameShell{--gameBg:#e7eef7;--gamePanel:#fff;--gamePanel2:#dceaf6;--gameStroke:#8faec8;--gameText:#17364c;--gameMuted:#466783}
+.gameShell:fullscreen{width:100vw;height:100vh;max-width:none;padding:16px 24px;overflow:auto;background:var(--gameBg)}
+.gameShell:fullscreen .gameWorldStage{height:calc(100vh - 230px);min-height:650px}
+.gameShell:fullscreen .gameDeck{grid-template-columns:repeat(5,minmax(0,1fr))}
+.gameHeadline{align-items:center;margin-bottom:20px}
+.gameHeadline h1{font-size:clamp(42px,4vw,66px);font-weight:800;letter-spacing:-2.5px}
+.gameHeadline p{font-size:16px;line-height:1.5;margin-top:8px}
+.gameEyebrow{font-size:12px;letter-spacing:2.8px}
+.gameDeck{gap:12px;margin-bottom:16px}
+.gameDeck button{min-height:90px;border-radius:16px;padding:17px 16px;border-width:1px;transition:transform .2s,border-color .2s,background .2s;gap:9px}
+.gameDeck button:hover{transform:translateY(-2px)}
+.gameDeck button small{font-size:12px;letter-spacing:1px}
+.gameDeck button strong{font-size:16px;line-height:1.3}
+.gameDeck button.selected{box-shadow:inset 0 -3px 0 #80dbe9,0 10px 30px rgba(11,37,63,.15)}
+.gameHeadActions button,.gameFooterBtns button,.gameFooterBtns select{font-size:14px;padding:12px 15px;border-radius:12px;min-height:42px}
+.gameConnected{font-size:12px}
+.gameWorldStage{height:min(83vh,940px);min-height:720px}
+.gameWorldTop,.gameWorldFooter{font-size:13px;padding:15px 20px}
+.gameMissionHUD{left:22px;top:22px;width:min(352px,29%);padding:22px;border-radius:20px;box-shadow:0 18px 42px rgba(2,10,30,.24)}
+.gameHudKicker{font-size:12px}
+.gameMissionHUD h2{font-size:24px;margin:12px 0;line-height:1.16}
+.gameMissionHUD p{font-size:15px;line-height:1.55}
+.gameMissionHUD textarea{font-size:15px;line-height:1.6;padding:14px 16px;min-height:118px;max-height:210px}
+.gamePrimary{font-size:16px!important;padding:15px 17px!important;border-radius:12px!important}
+.gameGuideRow{font-size:13px;line-height:1.5}
+.gameTelemetryHUD{right:22px;top:22px;width:min(340px,28%);padding:18px;border-radius:18px}
+.gameTelemetryTitle{font-size:12px;margin-bottom:14px}
+.gameTelemetryTitle span{font-size:11px}
+.gameTelemetryHUD>p{font-size:14px;line-height:1.6}
+.gameTelemetryEvent{font-size:13px;grid-template-columns:68px 62px minmax(0,1fr);gap:9px;padding:10px 0}
+.gameTelemetryEvent small,.gameTelemetryEvent strong{font-size:11px}
+.gameTelemetryResult{font-size:13px;padding-top:12px}
+.gameFloatingStep{bottom:18px;border-radius:16px;padding:12px 18px;background:rgba(12,34,54,.88)}
+.gameFloatingStep small{font-size:11px}.gameFloatingStep strong{font-size:15px}
+.gameUnderworld{margin-top:18px}.gameUnderworld>div{padding:20px 22px;border-radius:18px}.gameUnderworld strong{font-size:16px}.gameUnderworld p{font-size:14px;line-height:1.7}
+.nim3dLabel{min-width:98px;padding:8px 11px;border-radius:12px;border-width:1px;pointer-events:none}
+.nim3dLabel b{font-size:14px;letter-spacing:1px}.nim3dLabel small{font-size:10px;margin-top:4px}
+.gameStoryPanel{position:absolute;bottom:90px;left:50%;transform:translateX(-50%);z-index:6;max-width:min(430px,34vw);width:100%;border:1px solid rgba(122,213,228,.44);background:rgba(10,32,55,.95);border-radius:18px;box-shadow:0 20px 42px rgba(2,14,33,.35);padding:18px 20px;backdrop-filter:blur(12px);color:#e8f6ff}
+.theme-day .gameStoryPanel{background:rgba(252,254,255,.96);color:#163752;border-color:#9bbbd1;box-shadow:0 18px 40px rgba(54,94,131,.18)}
+.gameStoryTop{display:flex;align-items:center;gap:9px;font-size:12px;letter-spacing:.6px}
+.gameStoryAvatar{display:block;width:10px;height:10px;border-radius:50%}
+.gameStoryTop small{margin-left:auto;font-size:11px;color:#94c0d8;letter-spacing:0}.theme-day .gameStoryTop small{color:#53758c}
+.gameStoryPanel h3{font-size:20px;line-height:1.2;margin:12px 0 9px}.gameStoryPanel p{font-size:15px;line-height:1.65;margin:0}
+.gameStoryNote{font-size:11px;color:#9ec5d8;padding-top:10px;margin-top:12px;border-top:1px solid rgba(143,205,234,.2)}.theme-day .gameStoryNote{color:#65869b}
+.gameProofDrawer{width:min(560px,100vw);padding:34px}.gameProofHeading h2{font-size:30px}.gameProofKPIs>div{padding:17px}.gameProofKPIs small{font-size:14px}.gameProofKPIs strong{font-size:18px}.gameProofResult>div{font-size:16px}.gameProofNote{font-size:14px}
+.gameArtifactPreview{bottom:90px}.gameArtifactPreview p{font-size:14px}.gameArtifactPreview button{font-size:13px}
+@media(max-width:1360px){.gameMissionHUD{width:290px}.gameTelemetryHUD{width:270px}.gameStoryPanel{max-width:360px;left:50%;bottom:86px}.gameWorldStage{min-height:760px}}
+@media(max-width:1050px){.gameWorldStage{height:840px}.gameMissionHUD{width:270px}.gameTelemetryHUD{width:255px}.gameStoryPanel{max-width:360px}.gameDeck{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:720px){.gameStoryPanel{position:relative;bottom:auto;left:auto;transform:none;max-width:none;margin:10px;order:1}.gameWorldStage{height:auto;min-height:900px}.gameWorldStage>div:first-child{height:470px}.gameMissionHUD,.gameTelemetryHUD{position:relative;left:auto;right:auto;top:auto;width:auto;margin:10px;order:1}.gameFloatingStep{position:relative;left:auto;bottom:auto;transform:none;order:2;margin:10px}.gameDeck{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* NIMBO v13 · Alive Workers / polished product shell */
+.gameShell{--gameBg:#08192e;--gamePanel:#102b46;--gamePanel2:#173650;--gameStroke:#315774;--gameText:#ecf5ff;--gameMuted:#a8bfd1;--gameTurquoise:#7ddae8;padding:30px clamp(20px,2.6vw,44px) 36px;background:radial-gradient(ellipse at 82% 0,rgba(56,122,169,.13),transparent 47%),var(--gameBg)}
+.theme-day .gameShell{--gameBg:#e9f1f7;--gamePanel:#fbfdff;--gamePanel2:#e0ecf7;--gameStroke:#a3c0d6;--gameText:#173751;--gameMuted:#587991;--gameTurquoise:#217ea8;background:radial-gradient(ellipse at 80% 0,rgba(174,214,237,.29),transparent 55%),var(--gameBg)}
+.gameShell .gameHeadline{margin:0 0 23px;gap:24px}
+.gameShell .gameHeadline h1{font-size:clamp(36px,3.7vw,55px);font-weight:800;letter-spacing:-1.9px;margin:7px 0 8px}
+.gameShell .gameHeadline p{font-size:15px;max-width:620px;line-height:1.5;color:var(--gameMuted)}
+.gameShell .gameEyebrow{font-size:11px;letter-spacing:2.1px}
+.gameHeadActions button{min-height:45px;font-size:14px;font-weight:650;box-shadow:none;background:var(--gamePanel);border:1px solid var(--gameStroke)}
+.gameDeck{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:10px;margin-bottom:19px;padding:1px 1px 8px;scrollbar-width:thin}
+.gameDeck button{flex:0 0 auto;min-height:66px;min-width:164px;max-width:220px;border-radius:13px;padding:12px 18px;background:var(--gamePanel);gap:5px;box-shadow:none;transition:background .2s,border-color .2s,transform .2s}
+.gameDeck button strong{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.gameDeck button small{font-size:10px;letter-spacing:.85px}
+.gameDeck button.selected{background:linear-gradient(125deg,rgba(108,149,232,.18),rgba(85,212,216,.1));box-shadow:inset 0 -3px 0 #67d9d7;border-color:#61bdcf}
+.theme-day .gameDeck button.selected{background:linear-gradient(125deg,#d8ecfb,#e6f7f7)}
+.gameWorldFrame{border-radius:22px;box-shadow:0 30px 80px rgba(0,10,27,.22);border-color:var(--gameStroke)}
+.gameWorldTop{min-height:57px;padding:12px 20px;font-size:12px;letter-spacing:1.3px;background:var(--gamePanel)}
+.gameWorldTopActions{display:flex;align-items:center;gap:18px}
+.gameWorldTopActions button{display:flex;align-items:center;gap:8px;background:rgba(123,187,235,.09);border:1px solid var(--gameStroke);color:var(--gameText);border-radius:11px;padding:10px 15px;min-height:40px;font-weight:700;font-size:13px}
+.gameWorldTopActions button:hover{background:rgba(123,187,235,.18);border-color:#6edbe2}
+.gameWorldStage{height:min(84vh,880px);min-height:690px}
+.gameMissionHUD{width:min(332px,27%);padding:21px;border-radius:19px;left:20px;top:18px}
+.gameMissionHUD h2{font-size:23px;letter-spacing:-.5px}
+.gameMissionHUD p{font-size:14px;line-height:1.6}
+.gameMissionHUD textarea{min-height:110px;font-size:14px;line-height:1.5;box-shadow:inset 0 1px 6px rgba(0,0,0,.08)}
+.gamePrimary{font-size:15px!important;padding:14px 17px!important;min-height:48px;box-shadow:0 8px 22px rgba(89,107,231,.23)}
+.gamePrimary:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px)}
+.gameTelemetryHUD{width:min(330px,27%);right:20px;top:18px;border-radius:19px}
+.gameTelemetryHUD .gameTelemetryEvent{font-size:12px;grid-template-columns:63px 58px minmax(0,1fr)}
+.gameTelemetryTitle{font-size:12px}
+.gameStoryPanel{left:50%;bottom:34px;max-width:min(490px,38vw);border-radius:21px;padding:23px 26px;box-shadow:0 22px 56px rgba(0,9,26,.42);background:rgba(9,32,53,.95)}
+.gameStoryPanel h3{font-size:23px;line-height:1.15;margin:14px 0 10px;letter-spacing:-.6px}
+.gameStoryPanel p{font-size:15px;line-height:1.62}
+.gameStoryTop{font-size:14px}.gameStoryTop small{font-size:12px}
+.gameStoryContinue{display:flex;justify-content:center;align-items:center;gap:9px;background:#78a5f5;color:#08203b!important;border:0;border-radius:12px;padding:13px 16px;margin-top:16px;width:100%;font-weight:800;font-size:14px;min-height:46px}
+.gameStoryContinue:hover{background:#9ac7ff}
+.gamePending{margin-top:10px;border-radius:12px;padding:13px;display:flex;align-items:center;gap:11px;background:rgba(112,179,234,.1);border:1px solid rgba(112,179,234,.22);color:#b7deed;font-size:13px}
+.gamePulse{width:11px;height:11px;border-radius:50%;background:#6bd8dc;box-shadow:0 0 0 5px rgba(107,216,220,.12);animation:nim13Pulse 1s ease-in-out infinite alternate}
+@keyframes nim13Pulse{to{transform:scale(.55);opacity:.4}}
+.gameThoughtDots{display:flex;gap:7px;margin-top:16px;align-items:center}.gameThoughtDots i{width:8px;height:8px;display:block;background:#8bccea;border-radius:50%;animation:nim13Think 1s infinite alternate}.gameThoughtDots i:nth-child(2){animation-delay:.24s}.gameThoughtDots i:nth-child(3){animation-delay:.48s}@keyframes nim13Think{to{transform:translateY(-5px);opacity:.3}}
+.gameFloatingStep{bottom:15px;padding:10px 15px;border-radius:13px;pointer-events:none;background:rgba(9,27,47,.91)}
+.gameWorldFooter{min-height:60px;padding:12px 19px;letter-spacing:0;font-size:13px;background:var(--gamePanel)}
+.gameFooterBtns button,.gameFooterBtns select{min-height:40px;padding:9px 14px;font-size:13px;font-weight:600}
+.gameArtifactPreview{bottom:98px;right:20px;max-width:250px;opacity:.96}
+.gameProofDrawer{width:min(610px,100vw)}
+.gameProofHeading h2{font-size:32px}
+.nim3dLabel{padding:8px 13px;border:1px solid color-mix(in srgb,var(--botColor) 50%,#fff 12%);border-radius:11px;box-shadow:0 8px 30px rgba(0,0,0,.26);background:rgba(9,23,40,.9);min-width:98px}
+.nim3dLabel b{font-size:13px;letter-spacing:1px}.nim3dLabel small{font-size:10px;color:#a9ccdb}
+.nim13Speech{display:grid;gap:5px;width:175px;max-width:175px;background:rgba(248,254,255,.97);border:2px solid var(--botColor);border-radius:16px 16px 16px 4px;padding:11px 13px;color:#143650;box-shadow:0 18px 38px rgba(0,0,0,.29);font-size:13px;line-height:1.3;white-space:normal;text-align:left;pointer-events:none;animation:nim13Appear .22s ease-out}
+.nim13Speech strong{color:#236080;font-size:11px;letter-spacing:1.3px}
+.nim13Speech span{font-weight:750;font-size:13px;line-height:1.3}
+.nim13Speech em{font-style:normal;letter-spacing:4px;color:#4a8aab;font-weight:900}
+@keyframes nim13Appear{from{transform:translateY(7px) scale(.95);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+/* Only the 3D lab enters immersive fullscreen. Navigation and other pages remain unchanged. */
+.gameWorldFrame:fullscreen{width:100vw;height:100vh;max-width:none;border:0;border-radius:0;margin:0;padding:0;display:flex;flex-direction:column;background:var(--gamePanel)}
+.gameWorldFrame:fullscreen .gameWorldTop{flex:0 0 58px;min-height:58px}
+.gameWorldFrame:fullscreen .gameWorldStage{height:auto;min-height:0;flex:1}
+.gameWorldFrame:fullscreen .gameWorldFooter{flex:0 0 60px;min-height:60px}
+.gameShell:fullscreen{height:auto;width:auto;overflow:visible}
+@media(max-width:1400px){.gameMissionHUD{width:min(320px,29%)}.gameTelemetryHUD{width:min(300px,28%)}.gameStoryPanel{max-width:420px;bottom:25px}}
+@media(max-width:1080px){.gameWorldStage{min-height:730px}.gameMissionHUD{width:270px}.gameTelemetryHUD{width:265px}.gameStoryPanel{max-width:340px}}
+@media(max-width:720px){.gameShell{padding:18px 13px 22px}.gameDeck{display:flex;grid-template-columns:none}.gameDeck button{min-width:176px}.gameStoryPanel{position:relative;max-width:none;margin:10px;left:auto;bottom:auto;transform:none;order:1}.gameWorldStage{height:auto;min-height:850px}.gameWorldStage>div:first-child{height:470px}.gameMissionHUD,.gameTelemetryHUD{width:auto;position:relative;left:auto;right:auto;top:auto;margin:10px;order:1}.gameWorldTopActions>span{display:none}.gameWorldFrame:fullscreen .gameWorldStage{min-height:0;overflow:auto}.gameWorldFrame:fullscreen .gameWorldTop{flex:0 0 58px}.gameWorldFrame:fullscreen .gameWorldFooter{flex:0 0 auto}}
+@media(prefers-reduced-motion:reduce){.gameDeck button,.gamePrimary,.nim13Speech,.gameThoughtDots i,.gamePulse{animation:none!important;transition:none!important}}
+
+/* NIMBO v14 — product clarity, station intelligence, and clean interaction surfaces */
+.gameShell{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.gameUtilityBar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:3px 0 12px}
+.gameUtilityBar>div{display:flex;align-items:center;gap:12px}.gameUtilityBar b{font-size:16px;letter-spacing:-.3px}.gameUtilityBar span{font-size:13px;color:var(--gameMuted)}
+.gameUtilityBar button,.gameInspectButton{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:var(--gamePanel2);color:var(--gameText);border:1px solid var(--gameStroke);border-radius:11px;padding:10px 15px;min-height:42px;font-size:13px;font-weight:700;transition:background .2s,border-color .2s}
+.gameUtilityBar button:hover,.gameInspectButton:hover{background:color-mix(in srgb,var(--gamePanel2) 75%,var(--gameTurquoise));border-color:var(--gameTurquoise)}
+.gameInspectButton{margin-top:10px;width:100%;min-height:40px}.gameDeck button.unavailable{opacity:.73}.gameDeck button.unavailable:hover{opacity:1}.gameDeck button.unavailable small{color:#f3cb89}
+.gameDeck button{min-height:67px;min-width:152px;max-width:190px;padding:11px 14px;gap:4px}.gameDeck button strong{font-size:14px}.gameDeck button small{font-size:10px}
+/* Keep reading controls on the right. Dialogue no longer obscures the floor or courier. */
+.gameStoryPanel{left:auto!important;right:22px!important;bottom:108px!important;transform:none!important;width:min(358px,26%)!important;max-width:358px!important;padding:18px 20px!important;box-shadow:0 16px 42px rgba(1,12,25,.36)!important;z-index:12}
+.gameStoryPanel h3{font-size:21px!important}.gameStoryPanel p{font-size:14px!important}.gameStoryContinue{font-size:14px}
+/* Result preview must not conflict with the dialogue panel. */
+.gameArtifactPreview{bottom:15px;right:20px;max-width:260px}
+.gameMissionHUD{width:min(310px,27%);padding:18px;top:18px;left:19px}.gameMissionHUD h2{font-size:21px}.gameMissionHUD p{font-size:13px}.gameMissionHUD textarea{min-height:95px;font-size:13px}.gamePrimary{min-height:45px;font-size:14px!important}
+.gameTelemetryHUD{right:19px;top:18px;width:min(310px,26%);max-height:260px;overflow:auto}.gameTelemetryEvent{grid-template-columns:54px 55px minmax(0,1fr);font-size:11px}.gameTelemetryEvent small,.gameTelemetryEvent strong{font-size:10px}
+.gameWorldStage{height:min(85vh,920px);min-height:740px}.gameFloatingStep{bottom:14px}.gameHeadline h1{font-size:clamp(38px,3.35vw,54px)}
+.gameV14Overlay{position:fixed;inset:0;background:rgba(1,9,24,.52);z-index:75;display:flex;justify-content:flex-end;backdrop-filter:blur(4px)}
+.gameV14Drawer{width:min(490px,100vw);height:100vh;overflow-y:auto;background:var(--gamePanel);color:var(--gameText);padding:29px;box-sizing:border-box;border-left:1px solid var(--gameStroke);box-shadow:-20px 0 65px rgba(0,0,0,.24)}
+.gameV14DrawerHeading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:22px}.gameV14DrawerHeading small{color:var(--gameTurquoise);letter-spacing:1.7px;font-size:11px;font-weight:800}.gameV14DrawerHeading h2{font-size:30px;margin:7px 0;letter-spacing:-.75px}.gameV14DrawerHeading p{margin:0;color:var(--gameMuted);font-size:14px;line-height:1.5}.gameV14DrawerHeading button{border:1px solid var(--gameStroke);background:transparent;color:var(--gameText);border-radius:10px;padding:10px;white-space:nowrap}
+.gameV14Status{color:var(--gameMuted);border:1px solid var(--gameStroke);background:var(--gamePanel2);border-radius:12px;padding:13px 15px;font-size:13px;line-height:1.5}
+.gameV14Facts{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:15px 0}.gameV14Facts>div{padding:17px;border-radius:13px;border:1px solid var(--gameStroke);background:var(--gamePanel2)}.gameV14Facts small{display:block;color:var(--gameMuted);font-size:12px;margin-bottom:8px}.gameV14Facts strong{font-size:15px;overflow-wrap:anywhere}.gameV14Note{line-height:1.7;color:var(--gameMuted);font-size:14px;border-left:3px solid var(--gameTurquoise);padding-left:14px;margin:21px 0}.gameV14Primary{border:0;background:#7195e8;color:white!important;font-weight:800;padding:15px 18px;border-radius:12px;width:100%}
+.gameV14Capability{display:grid;gap:6px;border:1px solid var(--gameStroke);padding:13px 16px;border-radius:12px;background:var(--gamePanel2);margin:9px 0}.gameV14Capability strong{font-size:15px}.gameV14Capability span{font-size:13px;color:var(--gameMuted);line-height:1.55}.gameV14Import{border:1px solid var(--gameStroke);border-radius:12px;padding:14px;margin:16px 0}.gameV14Import label{display:grid;gap:6px;font-weight:750}.gameV14Import small{font-weight:400;color:var(--gameMuted)}.gameV14Import input{margin:12px 0;max-width:100%;font-size:13px}.gameV14FileInfo{font-size:13px;color:var(--gameText);overflow-wrap:anywhere}.gameV14FileInfo pre{max-height:145px;overflow:auto;padding:9px;background:var(--gameBg);white-space:pre-wrap;font-size:11px;border-radius:8px}
+.gameWorldFrame:fullscreen .gameStoryPanel{max-width:390px!important;width:340px!important}.gameWorldFrame:fullscreen .gameWorldStage{min-height:0}.gameWorldFrame:fullscreen .gameMissionHUD{width:290px}
+@media(max-width:1250px){.gameStoryPanel{width:290px!important;max-width:290px!important;bottom:95px!important}.gameMissionHUD{width:275px}.gameTelemetryHUD{width:270px}.gameUtilityBar span{display:none}}
+@media(max-width:900px){.gameStoryPanel{position:relative!important;right:auto!important;bottom:auto!important;left:auto!important;transform:none!important;width:auto!important;max-width:none!important;margin:12px;order:1}.gameWorldStage{height:auto;min-height:800px;display:flex;flex-direction:column}.gameWorldStage>div:first-child{height:500px;flex:none}.gameMissionHUD,.gameTelemetryHUD,.gameArtifactPreview{position:relative;top:auto;left:auto;right:auto;bottom:auto;width:auto;max-width:none;margin:10px;order:1}.gameDeck{overflow-x:auto}.gameUtilityBar{flex-wrap:wrap}.gameFloatingStep{position:relative;margin:10px;transform:none;left:auto;bottom:auto;order:2;width:max-content}.gameWorldFrame:fullscreen .gameWorldStage{overflow-y:auto}}
+@media(prefers-reduced-motion:reduce){.gameV14Drawer button,.gameUtilityBar button{transition:none!important}}
+
+/* NIMBO v15 · company workflow + higher-contrast mission board */
+.gameShell .gameHeadline{margin-bottom:22px}.gameWorldFrame{min-height:610px}.gameWorldStage{height:min(85vh,900px);min-height:700px}.gameShell .gameMissionHUD{font-size:15px}.gameShell .gameMissionHUD textarea{font-size:15px}.gameShell .gameDeck{display:none}.gameShell .gameUtilityBar{display:none}.gameShell .gameStoryPanel{right:25px!important;bottom:90px!important}.nim15TopNav{display:flex;align-items:center;gap:15px;background:var(--gamePanel);border:1px solid var(--gameStroke);border-radius:15px;padding:14px 18px;margin:0 0 18px}.nim15TopNav button{border:1px solid var(--gameStroke);background:var(--gamePanel2);border-radius:11px;padding:12px 16px;font-size:14px;font-weight:750}.nim15TopNav div{display:grid;gap:3px}.nim15TopNav div strong{font-size:16px}.nim15TopNav div span{color:var(--gameMuted);font-size:12px}.nim15TopNav>span{margin-left:auto;font-size:10px;letter-spacing:1px;color:var(--gameTurquoise);font-weight:800}.nim15ComparisonProof{margin-top:14px;padding:17px;border:1px solid var(--gameStroke);border-radius:14px;background:var(--gamePanel2);overflow-wrap:anywhere}.nim15ComparisonProof>strong{font-size:15px}.nim15ComparisonProof p{font-size:12px;color:var(--gameMuted);margin-bottom:4px}.nim15ComparisonProof b{display:block;font-size:17px}.gameWorldFrame:fullscreen .gameV14Overlay,.gameWorldFrame:fullscreen .gameProofBackdrop{position:absolute;inset:0;z-index:120}.gameWorldFrame:fullscreen .gameV14Drawer,.gameWorldFrame:fullscreen .gameProofDrawer{height:100%;max-height:100%;overflow-y:auto}@media(max-width:780px){.nim15TopNav{flex-wrap:wrap}.nim15TopNav>span{margin-left:0}}
+
+.nim15EvalBadge{position:absolute;z-index:8;left:50%;bottom:100px;transform:translateX(-50%);min-width:280px;max-width:430px;display:grid;gap:5px;text-align:center;background:rgba(10,36,56,.94);color:#eaffff;border:1px solid rgba(106,229,209,.65);border-radius:16px;padding:14px 20px;box-shadow:0 12px 36px rgba(0,10,24,.28);pointer-events:none}.nim15EvalBadge strong{font-size:14px}.nim15EvalBadge span{font-size:13px;font-variant-numeric:tabular-nums}.nim15EvalBadge small{font-size:11px;color:#b2d6df}.theme-day .nim15EvalBadge{background:rgba(236,255,255,.96);color:#11495d}.theme-day .nim15EvalBadge small{color:#466a78}
+
+/* NIMBO v16 — legibility and a live mission status wall */
+.nim16MissionWall{position:absolute;left:50%;top:20px;transform:translateX(-50%);width:min(605px,42%);border-radius:18px;border:1px solid rgba(128,217,238,.47);background:rgba(5,24,43,.93);backdrop-filter:blur(14px);box-shadow:0 16px 55px rgba(1,11,33,.36),0 0 30px rgba(63,161,212,.11);padding:14px 18px;z-index:4;color:#eff9ff;pointer-events:none}
+.nim16WallTop{display:flex;justify-content:space-between;gap:10px;align-items:center;font-weight:850;font-size:12px;letter-spacing:1.4px;color:#8ee6f1}.nim16WallTop strong{font-size:10px;letter-spacing:1px;color:#a3f8cc}
+.nim16WallProgress{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin:13px 0}.nim16WallProgress>div{height:26px;display:grid;place-items:center;border-radius:6px;background:#17324f;border:1px solid #234762;min-width:0}.nim16WallProgress>div.reached{background:#255878;border-color:#71e3eb;box-shadow:inset 0 0 6px #5ab8cc55}.nim16WallProgress span{font-size:9px;letter-spacing:.4px;font-weight:800}
+.nim16WallBody{display:grid;grid-template-columns:1.35fr .72fr .95fr;gap:9px}.nim16WallBody>div{min-width:0}.nim16WallBody small{display:block;font-size:10px;color:#86b2c5;margin-bottom:4px}.nim16WallBody b{font-size:13px;overflow-wrap:anywhere;line-height:1.35;display:block}
+.nim16WallSignal{margin-top:11px;border-top:1px solid #305778;padding-top:8px;font-size:12px;color:#d4eafa;line-height:1.3;animation:nim16Slide .35s ease}.nim16WallSignal span{margin-right:8px;color:#85f6cd}
+@keyframes nim16Slide{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.nim16BatchMission{display:grid;gap:7px;background:rgba(51,111,153,.15);border:1px solid var(--gameStroke);border-radius:14px;padding:13px 14px;font-size:13px;line-height:1.35}.nim16BatchMission strong{font-size:15px;color:var(--gameText)}.nim16BatchMission span{color:var(--gameTurquoise);font-weight:700}.nim16BatchMission small{color:var(--gameMuted);overflow-wrap:anywhere}.nim16BatchMission em{font-style:normal;font-size:11px;color:var(--gameMuted)}
+.nim3dLabel{min-width:86px;padding:6px 9px}.nim3dLabel b{font-size:12px}.nim3dLabel small{font-size:9px}
+@media(max-width:1270px){.nim16MissionWall{width:min(480px,41%);top:85px}.nim16WallBody{grid-template-columns:1fr 1fr}.nim16WallBody>div:last-child{display:none}}
+@media(max-width:760px){.nim16MissionWall{position:relative;top:auto;left:auto;transform:none;width:auto;margin:8px 10px;order:1}.nim16WallProgress{display:none}}
+/* v17: one in-world board, improved information hierarchy. */
+.nim16MissionWall{display:none!important}
+.gameShell{font-size:15px}
+.gameHeadline p{font-size:15px}
+.gameHeadActions button,.gameFooterBtns button,.gameFooterBtns select{font-size:14px}
+.gameMissionHUD{width:min(310px,25%);padding:19px}
+.gameMissionHUD h2{font-size:22px}
+.gameMissionHUD p{font-size:14px}
+.gameHudKicker{font-size:12px}
+.gameGuideRow,.gameMissionHUD .gamePending{font-size:13px}
+.gameMissionHUD button,.gameInspectButton,.gameStoryContinue{font-size:14px!important;min-height:43px}
+.gameTelemetryHUD{width:min(300px,23%);padding:15px}
+.gameTelemetryTitle{font-size:12px}.gameTelemetryTitle span{font-size:11px}
+.gameTelemetryEvent{grid-template-columns:63px 66px minmax(0,1fr);font-size:12px;gap:6px}
+.gameTelemetryEvent small,.gameTelemetryEvent strong{font-size:11px}
+.gameTelemetryHUD>p,.gameTelemetryResult{font-size:13px}
+.nim3dLabel{min-width:88px;padding:5px 9px;background:rgba(7,27,44,.85)}.nim3dLabel b{font-size:12px}.nim3dLabel small{font-size:10px}
+.gameWorldTop,.gameWorldFooter{font-size:13px;letter-spacing:.35px}
+.gameStoryPanel{right:18px!important;bottom:22px!important;width:min(342px,25%)!important;padding:16px!important}
+.gameStoryPanel h3{font-size:19px!important}.gameStoryPanel p{font-size:14px!important}
+.nim15EvalBadge{display:none!important} /* duplicate measurements now appear on the main physical board */
+.gameV14Status{font-size:15px}.gameV14Facts small{font-size:14px}.gameV14Facts strong{font-size:17px}.gameV14Note{font-size:15px}
+.gameProofKPIs small,.gameProofResult>small{font-size:13px}.gameProofKPIs strong{font-size:17px}
+.gameProofResult>div,.gameProofNote{font-size:15px}.gameProofHeading h2{font-size:29px}
+.gameV14Drawer,.gameProofDrawer{width:min(560px,100vw)}
+.nim16BatchMission{font-size:14px;line-height:1.55}.nim16BatchMission small{font-size:12px}
+@media(max-width:1270px){.gameMissionHUD{width:275px}.gameTelemetryHUD{width:265px}.gameStoryPanel{width:270px!important}}
+@media(max-width:900px){.gameMissionHUD,.gameTelemetryHUD{width:auto}.gameStoryPanel{width:auto!important}}
+
+/* NIMBO v18: visible improvement in the real working 3D lab, not a static mockup */
+.gameWorldStage{height:min(89vh,980px);min-height:790px}
+.gameShell .gameMissionHUD{width:min(360px,25%);top:20px;left:20px;padding:20px;border-radius:20px;box-shadow:0 22px 55px rgba(2,14,41,.18)}
+.gameShell .gameMissionHUD h2{font-size:23px;line-height:1.23;margin:10px 0 12px}
+.gameShell .gameMissionHUD p{font-size:15px;line-height:1.6}
+.gameShell .gameMissionHUD .nim16BatchMission{font-size:15px;line-height:1.55;padding:15px;gap:9px}
+.gameShell .nim16BatchMission span{font-size:15px;overflow-wrap:anywhere}
+.gameShell .nim16BatchMission small{font-size:13px;line-height:1.45}
+.gameShell .nim16BatchMission em{font-size:12px;line-height:1.45}
+.gameShell .gameMissionHUD button{font-size:15px!important;min-height:46px}
+.gameShell .gameTelemetryHUD{right:20px;top:20px;width:min(290px,22%);max-height:355px;border-radius:18px;box-shadow:0 20px 55px rgba(0,12,35,.17)}
+.gameShell .gameTelemetryHUD .gameTelemetryEvent{grid-template-columns:63px 63px minmax(0,1fr);gap:7px;font-size:12px;line-height:1.5}
+.gameShell .gameTelemetryEvent small,.gameShell .gameTelemetryEvent strong{font-size:11px}
+.gameShell .gameStoryPanel{width:330px!important;right:20px!important;max-width:330px!important;bottom:62px!important;border-radius:18px}
+.gameShell .gameStoryPanel h3{font-size:21px!important}
+.gameShell .gameStoryPanel p{font-size:15px!important}
+.nim3dLabel{padding:6px 9px!important;border:1px solid rgba(124,202,238,.65)!important;border-radius:12px!important;min-width:75px!important;background:rgba(7,25,52,.93)!important}
+.nim3dLabel b{font-size:13px!important;letter-spacing:.6px}
+.nim3dLabel small{font-size:10px!important;line-height:1.25}
+.nim13Speech{font-size:13px;max-width:180px}
+.theme-day .gameShell{--gameBg:#edf5ff;--gamePanel:#fff;--gamePanel2:#e8f2fd;--gameStroke:#a7c7e5;--gameText:#112c54;--gameMuted:#45698b;--gameTurquoise:#087ac2}
+.theme-day .gameWorldTop,.theme-day .gameWorldFooter{background:#f9fcff;color:#23456a}
+.theme-day .gameWorldFrame{border-color:#a2c5e4;box-shadow:0 20px 55px rgba(33,84,146,.15)}
+.theme-day .gameStoryPanel,.theme-day .gameMissionHUD,.theme-day .gameTelemetryHUD{background:rgba(255,255,255,.965)!important;color:#123457!important;backdrop-filter:blur(15px)}
+.theme-day .gameMissionHUD h2,.theme-day .gameTelemetryTitle b{color:#0e315e}
+.theme-day .gameMissionHUD p,.theme-day .gameTelemetryHUD>p{color:#365f85}
+.theme-day .gamePrimary,.theme-day .gameStoryContinue{background:linear-gradient(100deg,#167ef4,#7d50ed)!important;color:#fff!important}
+.nim18WorkerProfile{background:linear-gradient(115deg,rgba(52,140,234,.1),rgba(94,220,218,.07));border:1px solid var(--gameStroke);border-radius:17px;padding:17px 19px;margin:18px 0;display:grid;gap:8px}
+.nim18WorkerProfile span{color:var(--gameTurquoise);font-size:12px;font-weight:850;letter-spacing:1.7px}
+.nim18WorkerProfile h3{font-size:21px;margin:0;color:var(--gameText)}
+.nim18WorkerProfile p{font-size:15px;color:var(--gameMuted);line-height:1.65;margin:0}
+.nim18WorkerProfile small{font-size:13px;color:var(--gameText);font-weight:650;margin-top:5px}
+.gameProofKPIs strong,.gameV14Facts strong{overflow-wrap:anywhere;word-break:normal}
+@media(max-width:1370px){.gameShell .gameMissionHUD{width:290px}.gameShell .gameTelemetryHUD{width:270px}.gameShell .gameStoryPanel{width:300px!important}}
+@media(max-width:900px){.gameShell .gameMissionHUD,.gameShell .gameTelemetryHUD{width:auto}.gameShell .gameStoryPanel{position:relative!important;width:auto!important;max-width:none!important;right:auto!important;bottom:auto!important}}
+/* NIMBO v19 | Living worker labels and camera/readability improvements */
+.nim19Name{
+ --worker-accent:#72e6ff;min-width:84px;display:flex;flex-direction:column;gap:2px;align-items:center;
+ padding:6px 10px;border:1px solid color-mix(in srgb,var(--worker-accent) 64%,transparent);
+ border-radius:12px;background:rgba(4,24,44,.88);box-shadow:0 10px 22px rgba(0,10,28,.26),0 0 11px color-mix(in srgb,var(--worker-accent) 23%,transparent);
+ white-space:nowrap;pointer-events:none;color:#f6fbff;text-align:center;
+}
+.nim19Name strong{font-size:13px;line-height:1.1;letter-spacing:.065em}
+.nim19Name span{font-size:10px;color:#c4ddec;line-height:1.2}
+.nim19Name.isActive{background:rgba(8,40,62,.97);border-width:2px}
+.nim19Speech{
+ --worker-accent:#8fddff;position:relative;min-width:112px;max-width:210px;
+ background:rgba(247,253,255,.97);border:2px solid var(--worker-accent);
+ border-radius:14px;padding:9px 11px;box-shadow:0 11px 25px rgba(0,22,42,.28),0 0 18px color-mix(in srgb,var(--worker-accent) 22%,transparent);
+ display:flex;flex-direction:column;gap:4px;color:#12324b;line-height:1.3;text-align:left;
+}
+.nim19Speech:after{content:'';position:absolute;bottom:-9px;left:calc(50% - 8px);width:14px;height:14px;transform:rotate(45deg);background:#f7fdff;border-right:2px solid var(--worker-accent);border-bottom:2px solid var(--worker-accent)}
+.nim19Speech strong{font-size:10px;color:#336d91;letter-spacing:.08em}
+.nim19Speech span{font-size:13px;font-weight:750}
+.nim19Speech.isThinking{animation:nim19Breathe 1.8s ease-in-out infinite}
+@keyframes nim19Breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.gameWorldTopActions button{min-height:40px;font-size:14px;padding:8px 13px;border-radius:10px}
+.gameWorldStage{isolation:isolate}
+.gameMissionHUD .nim16BatchMission,.gameMissionHUD textarea{font-size:clamp(14px,1.1vw,17px)!important;line-height:1.55}
+.gameMissionHUD .nim16BatchMission span{font-size:clamp(14px,1.1vw,17px)}
+.gameMissionHUD .nim16BatchMission small{font-size:13px;overflow-wrap:anywhere}
+.gameTelemetryEvent span{font-size:12px}
+.gameStoryPanel{box-shadow:0 20px 62px rgba(0,10,40,.28)}
+@media (max-width:850px){.nim19Name span{font-size:9px}.nim19Name strong{font-size:11px}.gameWorldTopActions button{font-size:12px;padding:7px 9px}}
+
+/* Step21: show human-readable route instead of breaking a raw identifier mid-word. */
+.gameProofKPIs strong.gameProofReadableRoute{overflow-wrap:normal;word-break:normal;hyphens:auto;line-height:1.35}

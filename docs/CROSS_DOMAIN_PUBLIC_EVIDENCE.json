@@ -1,0 +1,51 @@
+{
+  "schema_version": "nimbo.public_cross_domain.v1",
+  "source_run_id": "heldout_7830c2ff573a47ae",
+  "onnx_artifact_sha256": "a4d615ada60cd7e9c4869939bf0039c42e717fdad77db0875279ceedaca39c6a",
+  "model_revision": "0fc02cd68445b599a9cb2da2368050e7fb31d29a",
+  "dataset": {
+    "id": "cardiffnlp/tweet_eval",
+    "config": "sentiment",
+    "split": "test",
+    "revision": "b0f6bf8397168a983b87508f0dfd24094eb4e360",
+    "parquet_path": "sentiment/test/0000.parquet",
+    "parquet_sha256": "6021687f63cafdc4001dbb11dc9e207b997a17566ff98e739047a9eb686acc03",
+    "selection_seed": 20261031,
+    "selection_digest": "97260cfd078504e07f2fb5e8af12ff7cadee24cc187136cfb1a7ca3f44270094",
+    "count": 800,
+    "negative_count": 400,
+    "positive_count": 400,
+    "neutral_included": false
+  },
+  "setup": {
+    "baseline": "PyTorch FP32",
+    "candidate": "ONNX FP32",
+    "baseline_threads": 4,
+    "candidate_threads": 2,
+    "rounds": 3,
+    "provider": "CPUExecutionProvider"
+  },
+  "baseline_accuracy": 0.82875,
+  "candidate_accuracy": 0.82875,
+  "prediction_agreement_fraction": 1.0,
+  "baseline_wall_mean_ms": 10.8946,
+  "candidate_wall_mean_ms": 4.1629,
+  "baseline_process_cpu_mean_ms": 15.6045,
+  "candidate_process_cpu_mean_ms": 7.3772,
+  "warm_forward_latency_reduction_fraction": 0.61789,
+  "process_cpu_time_reduction_fraction": 0.52724,
+  "decision": "REVIEW_ONLY_CROSS_DOMAIN_PASS",
+  "review_only": true,
+  "production_deployed": false,
+  "independent_external_audit": false,
+  "energy_joules": null,
+  "flops": null,
+  "cloud_cost_usd": null,
+  "limitations": [
+    "TweetEval sentiment is originally 3-class; neutral excluded using fixed protocol",
+    "New to NIMBO experiment, not necessarily unseen by pretrained model",
+    "Local machine one experiment; no confidence interval or broad hardware guarantee",
+    "Process CPU time includes multiple process threads; not electrical energy",
+    "Not deployed; no production HTTP or billing claim"
+  ]
+}

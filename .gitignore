@@ -1,0 +1,38 @@
+# Local environment, compiled assets, credentials and private runtime data
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+*.egg-info/
+node_modules/
+dist/
+build/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+.DS_Store
+# Keep backups offline
+**/backup_*/
+**/backup_before_*/
+*.bak
+# Weights and generated model binaries
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.onnx
+checkpoints/
+models/
+# Local run data are private by default. Public summary generated explicitly.
+results/*
+!results/judging/
+results/judging/*
+!results/judging/LATEST_HELDOUT_EVIDENCE.md
+!results/judging/LATEST_HELDOUT_EVIDENCE.json
+# Other local secrets and data
+*.sqlite
+*.db

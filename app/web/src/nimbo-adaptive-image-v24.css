@@ -1,0 +1,13 @@
+.nim24AdaptivePanel{display:flex;flex-direction:column;gap:14px;border:1px solid #5cafd2;background:#102c44;border-radius:16px;padding:18px;color:#eafbff;font-size:16px;line-height:1.55}
+.nim24Head{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;color:#95e5ff;font-size:14px;letter-spacing:.07em;font-weight:750}
+.nim24Head strong{color:#8cf2d0;font-size:15px}.nim24Intro{margin:0;font-size:16px!important;opacity:1!important}
+.nim24Metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}.nim24Metrics>div{background:#19435d;border:1px solid #3c7692;padding:14px;border-radius:12px}
+.nim24Metrics span{display:block;font-size:14px;color:#b5dcee}.nim24Metrics b{display:block;font-size:22px;overflow-wrap:anywhere}
+.nim24Actions{display:flex;flex-direction:column;gap:11px;padding:14px;border:1px solid #4e8ea8;border-radius:12px;background:#173b54}.nim24Actions h4{margin:0;font-size:18px}
+.nim24Actions button{width:100%;max-width:100%;background:#276fdc;color:#fff;border:1px solid #75c4ef;border-radius:10px;min-height:49px;cursor:pointer;font-size:15px;font-weight:750;padding:10px;white-space:normal;text-align:center}
+.nim24Actions button.nim24Secondary{background:#25425d;border-color:#8ca9c2}.nim24Actions button:disabled{opacity:.55;cursor:wait}
+.nim24Verdict,.nim24Info{padding:12px;border-radius:10px;background:#154d4c;margin:0!important}.nim24Info{color:#a2f5da}.nim24Error{color:#ffd6c9;font-weight:650}
+.nim24AdaptivePanel small{font-size:13px;line-height:1.6;color:#b5d6e6}
+.nim22ImageEvidence:has(.nim24AdaptivePanel)>.nim22ImageReview{display:none}
+.nim22ImageEvidence:has(.nim24AdaptivePanel)>.nim22Sub:last-of-type{display:none}
+@media(max-width:600px){.nim24AdaptivePanel{padding:12px}.nim24Metrics{grid-template-columns:1fr}}
