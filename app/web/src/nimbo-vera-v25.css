@@ -1,0 +1,18 @@
+.nim25Panel{background:#102c44;color:#edfaff;border:1px solid #57aecd;border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:14px;font:inherit}
+.nim25Header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;color:#8fe4ff;font-weight:750;letter-spacing:.045em;font-size:14px}
+.nim25Header b{color:#9ef6d7}.nim25Intro{margin:0!important;font-size:16px!important;line-height:1.5;color:#e5f5fc!important}
+.nim25Metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.nim25Metrics>div{min-width:0;background:#1a4560;border:1px solid #447d96;border-radius:12px;padding:12px}
+.nim25Metrics small{font-size:13px;color:#b0d2e5;display:block}.nim25Metrics strong{display:block;font-size:19px;overflow-wrap:anywhere;margin-top:4px}
+.nim25Verdict{background:#173b54;border:1px solid #5e9db7;padding:13px;border-radius:13px;line-height:1.45}
+.nim25Verdict strong{color:#a8f0e5;display:block}.nim25Verdict p{margin:6px 0!important}.nim25CheckStats{display:flex;flex-direction:column;gap:3px;font-size:13px;color:#bfd6e6;margin-bottom:7px}
+.nim25Verdict small,.nim25Foot{color:#b4c9d8;font-size:12px;line-height:1.5}
+.nim25Actions{padding:13px;background:#163c55;border:1px solid #508ba7;border-radius:12px;display:flex;flex-direction:column;gap:9px}
+.nim25Actions h4{font-size:17px;margin:0;color:#edffff}.nim25Actions p{font-size:13px;margin:0;color:#bcd9e9}
+.nim25Actions button{background:#2573dd;color:white;font-weight:700;min-height:48px;padding:10px;border-radius:10px;border:1px solid #7bc8fc;cursor:pointer;font-size:14px;text-align:center;white-space:normal}
+.nim25Actions button.secondary{background:#274560;border-color:#86a5c0}.nim25Actions button.tertiary{background:transparent;border:1px dashed #78b4ce;font-weight:500;min-height:40px}
+.nim25Actions button:disabled{opacity:.5;cursor:wait}
+.nim25Outcome{display:flex;flex-direction:column;gap:5px;background:#154d4a;border:1px solid #4aab93;padding:13px;border-radius:12px;color:#c6f9e4;font-size:13px}
+.nim25Outcome strong{font-size:15px}.nim25Outcome.fail{background:#472a35;color:#ffe5e7;border-color:#df8080}
+.nim25Progress,.nim25Info{background:#164351;padding:10px;border-radius:9px;margin:0!important;font-size:13px!important;color:#9dece4!important}.nim25Error{color:#ffd6c9;font-weight:700;font-size:14px}
+@media (max-width:620px){.nim25Metrics{grid-template-columns:1fr}.nim25Panel{padding:12px}}

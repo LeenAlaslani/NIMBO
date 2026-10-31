@@ -1,0 +1,46 @@
+.nim20Trial{display:grid;gap:12px;border:1px solid var(--gameStroke);background:var(--gamePanel2);padding:15px;border-radius:15px;color:var(--gameText)}.nim20Trial strong{font-size:16px;overflow-wrap:anywhere}.nim20Trial p{font-size:14px;line-height:1.5;color:var(--gameMuted);margin:0}.nim20Trial label{display:grid;gap:7px;font-size:14px;font-weight:700}.nim20Trial select{padding:12px;border-radius:10px;border:1px solid var(--gameStroke);background:var(--gameBg);color:var(--gameText);font-size:14px}.nim20Trial small{font-size:13px;color:var(--gameMuted);line-height:1.5}
+
+/* NIMBO_V20_MODEL_PROGRESS_FIX_2 */
+.nim20LiveProgress{max-width:min(740px,92vw);width:min(740px,92vw);max-height:88vh;overflow:auto;box-sizing:border-box;}
+.nim20LiveProgress .gameV14DrawerHeading{align-items:flex-start;}
+.nim20LiveStatus{display:flex;align-items:center;gap:12px;border:1px solid var(--gameStroke,#416581);background:var(--gamePanel2,#193450);color:var(--gameText,#e8f2ff);border-radius:14px;padding:15px;font-size:17px;margin:15px 0 10px;}
+.nim20LiveDot{display:inline-block;flex:none;width:12px;height:12px;border-radius:50%;background:#77d9ae;}
+.nim20Running{animation:nim20Breathe 1.6s ease-in-out infinite;}
+@keyframes nim20Breathe{50%{opacity:.3;transform:scale(.72)}}
+.nim20LiveHint{font-size:15px;line-height:1.6;color:var(--gameMuted,#a5bad3);margin:0 0 15px;}
+.nim20LiveTimeline{display:grid;gap:8px;max-height:42vh;overflow-y:auto;}
+.nim20LiveTimeline>p{font-size:15px;color:var(--gameMuted,#a5bad3);padding:14px;}
+.nim20LiveEvent{display:grid;grid-template-columns:65px 105px minmax(0,1fr);align-items:start;gap:12px;border:1px solid var(--gameStroke,#416581);border-radius:10px;background:var(--gamePanel2,#193450);padding:12px;color:var(--gameText,#e8f2ff);font-size:14px;line-height:1.5;}
+.nim20LiveEvent>span{font-variant-numeric:tabular-nums;color:var(--gameMuted,#b0c2d5)}
+.nim20LiveEvent>strong{font-size:12px;letter-spacing:.4px;color:#70ddf2;overflow-wrap:anywhere}
+.nim20LiveEvent>p{margin:0;overflow-wrap:anywhere;color:var(--gameText,#e8f2ff)}
+.nim20LiveError{border:1px solid #d36e70;color:#ffb5b5;background:#501b2a;padding:12px;border-radius:10px;overflow-wrap:anywhere}
+@media(max-width:620px){.nim20LiveEvent{grid-template-columns:55px minmax(0,1fr)}.nim20LiveEvent>p{grid-column:1/-1}}
+
+.nim20GateSummary{background:var(--gamePanel2,#18334f);color:var(--gameText,#e9f4ff);border:1px solid #4a7e97;border-radius:16px;padding:18px;margin:12px 0 18px}
+.nim20GateHead{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap}
+.nim20GateHead span{font-size:12px;letter-spacing:1px;color:#81d8e9;font-weight:700}
+.nim20GateHead strong{font-size:15px;color:#a6f6d8}
+.nim20GateReason{font-size:15px;line-height:1.5;margin:12px 0}
+.nim20GateMetrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.nim20GateMetrics>div{border:1px solid #395e7b;background:rgba(10,32,53,.4);padding:12px;border-radius:10px;min-width:0;display:grid;gap:5px}
+.nim20GateMetrics small{font-size:13px;color:#b6cbd9}
+.nim20GateMetrics b{font-size:20px;overflow-wrap:anywhere}
+.nim20GateDisclaimer{margin:15px 0 0;font-size:13px;line-height:1.6;color:#b6cbd9}
+@media(max-width:520px){.nim20GateMetrics{grid-template-columns:1fr}}
+
+/* NIMBO_V21_INDEPENDENT_VALIDATION */
+.nim21Validation{padding:18px 20px;margin:12px 0;border:1px solid #36a6b5;background:rgba(37,167,181,.11);border-radius:16px;display:grid;gap:8px;font-size:15px;line-height:1.6}
+.nim21Validation strong{font-size:17px;color:var(--gameText,#ebf4ff)}
+.nim21Validation p{margin:0;color:var(--gameText,#dceaf9)}
+.nim21Validation small{font-size:13px;color:var(--gameMuted,#a0b8cc)}
+.nim21GateSummary{border:1px solid #56aab4;padding:18px;background:var(--gamePanel2,#14314b);border-radius:16px;display:grid;gap:13px;color:var(--gameText,#edf5ff)}
+.nim21Decision{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;align-items:center}
+.nim21Decision span{font-size:13px;letter-spacing:1px;color:#7de4ee;font-weight:750}
+.nim21Decision strong{font-size:17px;color:#7de4b6}
+.nim21GateSummary p{font-size:14px;margin:0;line-height:1.6}
+.nim21MetricGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.nim21MetricGrid>div{background:rgba(5,30,47,.3);border:1px solid #386782;padding:13px;border-radius:10px;min-width:0;display:grid;gap:5px}
+.nim21MetricGrid small{font-size:13px;color:#a7c7d7}
+.nim21MetricGrid b{font-size:21px;overflow-wrap:anywhere}
+@media(max-width:540px){.nim21MetricGrid{grid-template-columns:1fr}}

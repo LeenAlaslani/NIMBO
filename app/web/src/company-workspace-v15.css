@@ -1,0 +1,39 @@
+/* NIMBO Company Workspace v15 */
+.nim15Workspace{--nm-surface:var(--gamePanel);--nm-surface-alt:var(--gamePanel2);color:var(--gameText);padding:8px 0 30px}
+.nim15Heading{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:24px}
+.nim15Heading span:first-child{display:block;color:var(--gameTurquoise);font-size:12px;font-weight:850;letter-spacing:2.1px}
+.nim15Heading h2{font-size:clamp(28px,2.8vw,44px);line-height:1.08;letter-spacing:-1.6px;margin:9px 0 8px}
+.nim15Heading p{color:var(--gameMuted);font-size:16px;margin:0;max-width:650px;line-height:1.6}
+.nim15Env{border:1px solid var(--gameStroke);background:var(--gamePanel);display:flex!important;align-items:center;gap:10px;padding:12px 15px;border-radius:15px;font-size:12px!important;letter-spacing:0!important;color:var(--gameText)!important}
+.nim15Workflow{display:grid;grid-template-columns:minmax(0,1.07fr) minmax(0,1fr) minmax(0,.9fr);gap:18px}
+.nim15Block{background:linear-gradient(165deg,var(--gamePanel),var(--gamePanel2));border:1px solid var(--gameStroke);border-radius:24px;padding:25px;display:flex;flex-direction:column;gap:18px;min-width:0;box-shadow:0 17px 45px rgba(0,10,28,.09)}
+.nim15BlockTop{display:flex;gap:13px;align-items:flex-start}.nim15BlockTop>b{display:grid;place-items:center;flex:0 0 40px;height:40px;background:rgba(108,211,227,.13);border:1px solid rgba(108,211,227,.34);color:var(--gameTurquoise);border-radius:13px;font-size:14px}.nim15Block h3{font-size:23px;margin:0 0 6px;letter-spacing:-.65px}.nim15BlockTop p{margin:0;color:var(--gameMuted);font-size:14px}
+.nim15Segments{display:grid;gap:9px}.nim15Segments button,.nim15SelectGrid label,.nim15Goals button{border:1px solid var(--gameStroke);background:var(--gameBg);color:var(--gameText);border-radius:15px;min-height:58px;padding:14px 16px;text-align:left;font-size:15px;font-weight:700;cursor:pointer;transition:border-color .18s,background .18s,transform .18s}.nim15Segments button small{display:block;color:#e4bc82;font-size:12px;margin-top:5px}.nim15Segments button:hover,.nim15SelectGrid label:hover,.nim15Goals button:hover{border-color:var(--gameTurquoise)}.nim15Segments button.active,.nim15Goals button.active,.nim15SelectGrid label:has(input:checked){border-color:var(--gameTurquoise);background:rgba(105,218,218,.10);box-shadow:inset 3px 0 0 var(--gameTurquoise)}
+.nim15Field{display:grid;gap:9px}.nim15Field>label,.nim15Models label{font-size:14px;font-weight:700;color:var(--gameText)}.nim15Field>label small{font-weight:400;color:var(--gameMuted)}.nim15Field textarea,.nim15Field select,.nim15Models select{background:var(--gameBg);border:1px solid var(--gameStroke);border-radius:12px;color:var(--gameText);padding:14px 15px;outline:none;width:100%;box-sizing:border-box;font-size:14px;line-height:1.5}.nim15Field textarea:focus,.nim15Field select:focus,.nim15Models select:focus{border-color:var(--gameTurquoise)}.nim15File{padding:14px;border:1px dashed var(--gameStroke);border-radius:13px}.nim15File label{display:flex;gap:8px;align-items:center}.nim15File input{max-width:100%;color:var(--gameText);font-size:13px}.nim15File p{font-size:12px;color:var(--gameMuted);line-height:1.5;margin:0}.nim15File input::file-selector-button{background:var(--gamePanel2);border:1px solid var(--gameStroke);border-radius:9px;color:var(--gameText);padding:9px 11px;margin-right:8px}
+.nim15SelectGrid{display:grid;gap:9px}.nim15SelectGrid label{display:block;cursor:pointer}.nim15SelectGrid input{margin-right:8px;accent-color:var(--gameTurquoise)}.nim15SelectGrid label small{display:block;margin:6px 0 0 25px;color:var(--gameMuted);font-weight:400;font-size:12px}
+.nim15Models{display:grid;gap:14px}.nim15Models label{display:grid;gap:7px}.nim15Models select{font-size:12px;min-width:0}.nim15Hint{display:flex;align-items:center;gap:8px;color:var(--gameMuted);font-size:12px}.nim15Info{padding:15px;border-radius:13px;border:1px solid var(--gameStroke);color:var(--gameMuted);font-size:14px;line-height:1.5;display:flex;gap:10px}
+.nim15Goals{display:grid;gap:10px}.nim15Goals button{display:flex;gap:10px;align-items:center;min-height:60px}.nim15Readiness{background:rgba(55,123,155,.1);border:1px solid var(--gameStroke);border-radius:15px;padding:13px 17px}.nim15Readiness p{font-size:13px;line-height:1.65;margin:7px 0;color:var(--gameMuted)}.nim15Readiness b{color:var(--gameText)}
+.nim15Start{margin-top:auto;padding:17px 20px;min-height:57px;border:0;border-radius:14px;background:linear-gradient(110deg,#6382ec,#9179f2);color:white!important;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:11px;box-shadow:0 12px 30px rgba(91,111,216,.18)}.nim15Start:hover{transform:translateY(-2px);filter:brightness(1.1)}.nim15Error{border:1px solid rgba(236,130,130,.46);background:rgba(233,89,94,.13);color:#ffb8bd;border-radius:12px;padding:14px;font-size:13px;line-height:1.55}
+@media(max-width:1420px){.nim15Workflow{grid-template-columns:repeat(2,minmax(0,1fr))}.nim15Block:last-child{grid-column:1/-1}}
+@media(max-width:870px){.nim15Workflow{grid-template-columns:1fr}.nim15Block:last-child{grid-column:auto}.nim15Heading{flex-direction:column;align-items:flex-start}}
+@media(prefers-reduced-motion:reduce){.nim15Segments button,.nim15Goals button,.nim15Start{transition:none!important}}
+
+/* NIMBO v16: company data-first entry */
+.nim16InputMode{display:grid;grid-template-columns:1fr 1fr;gap:9px}.nim16InputMode button{cursor:pointer;font-size:14px;border-radius:12px;min-height:44px;border:1px solid var(--gameStroke);color:var(--gameText);background:var(--gameBg)}.nim16InputMode button.active{border-color:var(--gameTurquoise);background:rgba(88,192,220,.13);font-weight:800}.nim16DatasetHint{border-radius:14px;border:1px solid rgba(108,218,227,.24);padding:14px;color:var(--gameMuted);font-size:14px;line-height:1.5;background:rgba(43,126,160,.08)}
+
+/* v17 readability: models and evaluation controls */
+.nim15Models select{font-size:15px;min-height:47px}.nim15File p,.nim15SelectGrid label small,.nim15Readiness p,.nim15Hint{font-size:14px}.nim15Field textarea,.nim15Field select{font-size:15px}.nim15Env{font-size:14px!important}.nim15Segments button small{font-size:13px}.nim16DatasetHint{font-size:15px}.nim15Models label{overflow-wrap:anywhere}.nim15Workflow{gap:20px}
+
+/* NIMBO v18: stronger visual hierarchy in the existing company setup */
+.nim15Workspace .nim15Block{border-radius:22px;padding:27px;box-shadow:0 12px 34px rgba(26,74,135,.10)}
+.nim15Workspace .nim15BlockTop b{font-size:16px}
+.nim15Workspace .nim15Block h3{font-size:25px}
+.nim15Workspace .nim15Segments button,.nim15Workspace .nim15Goals button,.nim15Workspace .nim15SelectGrid label{min-height:67px;font-size:16px;border-radius:15px}
+.nim15Workspace .nim15Segments button.active,.nim15Workspace .nim15Goals button.active,.nim15Workspace .nim15SelectGrid label:has(input:checked){border:2px solid #2397eb;background:rgba(32,158,245,.1);box-shadow:inset 3px 0 0 #238ee7}
+.nim15Workspace .nim15Models select{font-size:15px}
+.nim15Workspace .nim15File{background:rgba(107,176,230,.06);padding:18px;border-style:dashed}
+.nim15Workspace .nim15File p{font-size:14px}
+.nim15Workspace .nim15Start{background:linear-gradient(110deg,#1478f5,#8c4dec);font-size:17px}
+.theme-day .nim15Workspace .nim15Block{background:linear-gradient(160deg,#fff,#f5f9ff);border-color:#b7d2ed}
+.theme-day .nim15Workspace .nim15Segments button,.theme-day .nim15Workspace .nim15Goals button,.theme-day .nim15Workspace .nim15SelectGrid label{background:#f0f6ff;color:#173c65;border-color:#bdd5ec}
+.theme-day .nim15Workspace .nim15Segments button.active,.theme-day .nim15Workspace .nim15Goals button.active,.theme-day .nim15Workspace .nim15SelectGrid label:has(input:checked){background:#e3f4ff;border-color:#178de8;color:#0c3d73}
