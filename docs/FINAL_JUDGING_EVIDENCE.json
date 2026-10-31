@@ -1,0 +1,97 @@
+{
+  "schema_version": "nimbo_final_judging_evidence_v1",
+  "source_run_id": "heldout_7830c2ff573a47ae",
+  "model_id": "lvwerra/distilbert-imdb",
+  "model_revision": "0fc02cd68445b599a9cb2da2368050e7fb31d29a",
+  "artifact_sha256": "a4d615ada60cd7e9c4869939bf0039c42e717fdad77db0875279ceedaca39c6a",
+  "dataset_partition_digest": "10fd80603eaad484728ac6c00c2c702932b903c9f11c08ebfdc175b7e914ac68",
+  "candidate_status": "eligible_for_review_only",
+  "baseline_cpu_threads": 4,
+  "candidate_cpu_threads": 2,
+  "holdout_examples": 800,
+  "holdout_rounds": 3,
+  "correct_per_path": 734,
+  "accuracy_baseline": 0.9175,
+  "accuracy_candidate": 0.9175,
+  "prediction_agreement_fraction": 1.0,
+  "mean_warm_forward_latency_reduction_fraction": 0.14787,
+  "mean_process_cpu_time_reduction_fraction": 0.02544,
+  "baseline_warm_forward_ms": 24.5919,
+  "candidate_warm_forward_ms": 20.9556,
+  "baseline_process_cpu_ms": 41.5333,
+  "candidate_process_cpu_ms": 40.4769,
+  "development": {
+    "samples": 200,
+    "rounds": 2,
+    "selected_threads": 2,
+    "selection_status": "SELECTED_DEV_ONLY",
+    "candidate_dev_wall_reduction_fraction": 0.16059,
+    "candidate_dev_cpu_reduction_fraction": 0.05537
+  },
+  "concurrency": {
+    "scope": "engine_only",
+    "status": "PASS",
+    "levels": [
+      1,
+      2,
+      4
+    ],
+    "cases_passed": 6
+  },
+  "http": {
+    "scope": "temporary_loopback_probe_not_main_api",
+    "status": "PASS",
+    "levels": [
+      1,
+      2,
+      4
+    ],
+    "cases_passed": 6
+  },
+  "adoption": {
+    "scope": "isolated_actual_router_http_not_primary_ui",
+    "status": "PASS",
+    "shadow_pairs": 6,
+    "canary_pairs": 5,
+    "canary_candidate_only": 2,
+    "rollback_verified": true,
+    "original_state_untouched": true
+  },
+  "sources": {
+    "development": {
+      "file": "results/resource_tuning_v3/latest_development_selection.json",
+      "sha256": "a58343b19e5a2251eae76d53affebe83319c8a0dbd89ecc5a3a20df4b80b7373"
+    },
+    "heldout_log": {
+      "file": "results/independent_validation_v21.jsonl",
+      "sha256": "924b5129e4d01d75a2d66ea998a2e124a4d5b69d7249dc469da59fdef8d314f3"
+    },
+    "engine_stress": {
+      "file": "results/concurrency_probe_v1/stress_heldout_7830c2ff573a47ae_20261031_080416.json",
+      "sha256": "0b44c375960e406274622d6584c2a7055328c4f367254e14c468c2d9e0280a8f"
+    },
+    "http_stress": {
+      "file": "results/http_probe_v1/http_stress_heldout_7830c2ff573a47ae_20261031_080901.json",
+      "sha256": "6dc9d30f11feeb18da48cbe404f9d0d4fb2391200a259b905eb899ebb9078585"
+    },
+    "adoption": {
+      "file": "results/adoption_proof_v1/session_20261031_081425_498392/report.json",
+      "sha256": "a17efaf575a789c309b91b1aa2db3677c98a793dd6bc929e12406f4081bb4654"
+    }
+  },
+  "not_measured": [
+    "electrical energy",
+    "FLOPs",
+    "cloud billing",
+    "per-path peak RAM",
+    "end-to-end primary web UI performance",
+    "external independent audit"
+  ],
+  "cautions": [
+    "2.54% process CPU time reduction is a single measured run; no confidence interval",
+    "heldout IMDb subset was reused in earlier experiments; not a virgin external dataset",
+    "all stages are local and do not imply production deployment",
+    "stress samples are small, synthetic and unlabeled",
+    "Shadow performs paired inference and does not save compute"
+  ]
+}

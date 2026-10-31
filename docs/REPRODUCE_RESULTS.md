@@ -1,4 +1,19 @@
-# Reproduce NIMBO's main judging proof
+# Reproducing NIMBO judging evidence
+
+## Primary dual-objective result: CPU work plus warm latency
+
+The selected setting is **PyTorch FP32, 4 threads** versus **ONNX Runtime FP32, 2 threads**, chosen on 200 development examples and evaluated on 800 separate IMDb examples in three rounds. See [`CPU_THREAD_TUNING_STEP13.md`](CPU_THREAD_TUNING_STEP13.md) for the actual development/locked-heldout commands and stopping rules. Do **not** rerun the already-consumed locked selection just to improve a result. The public summary is in [`FINAL_JUDGING_EVIDENCE.md`](FINAL_JUDGING_EVIDENCE.md).
+
+From a source checkout, verify the **public summary's internal consistency only** (not the absent private raw logs):
+
+```bash
+python -m tools.verify_public_proof_v1
+python -m pytest -q
+```
+
+The benchmark itself requires the pinned pretrained model, IMDb dataset access, appropriate dependencies and a Mac CPU environment; a fresh external holdout is still required for stronger generalization claims. The current published summary records one local dual-objective result, not a new remote benchmark run.
+
+## Earlier latency-only reproduction (does not test CPU-time savings)
 
 **Workspace:** macOS local CPU, NIMBO source root. Preserve existing `.venv`, and do not publish credentials or private datasets.
 

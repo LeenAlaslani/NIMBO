@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import platform
+import resource
 import statistics
 import sys
 import time
@@ -38,12 +39,18 @@ class ValidationRequest(BaseModel):
     seed: int = 20261031
     max_length: int = Field(default=256, ge=32, le=512)
     threads: int = Field(default=4, ge=1, le=8)
+    # Allow independent candidate threading while preserving the PyTorch baseline.
+    candidate_threads: Optional[int] = Field(default=None, ge=1, le=8)
     quality_max_drop: float = Field(default=0.01, ge=0.0, le=0.05)
     min_prediction_agreement: float = Field(default=0.995, ge=0.99, le=1)
     min_mean_speedup: float = Field(default=0.05, ge=0.01, le=0.5)
     min_local_pipeline_speedup: float = Field(default=0.05, ge=0.0, le=0.5)
     max_p95_regression: float = Field(default=0, ge=0, le=0.1)
     export_variant: bool = True
+    # Legacy/UI benchmarks prioritize warm response latency. For a claim about
+    # less CPU time, explicitly select cpu_time; never equate speed with compute.
+    optimization_objective: str = Field(default='latency', pattern='^(latency|cpu_time)$')
+    max_cpu_increase_fraction: float = Field(default=0.0, ge=0.0, le=0.5)
     examples: Optional[list] = None
 
 
@@ -55,16 +62,34 @@ def validate_request(req: ValidationRequest):
     return req
 
 
+def _process_peak_rss_mb():
+    """Process-wide maximum resident set size, NOT per-path or incremental RAM.
+
+    macOS exposes ru_maxrss in bytes, Linux in KiB. This includes both models,
+    tokenizer, Python, and all prior allocations since process start.
+    """
+    raw = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    return round(raw / (1024 * 1024 if platform.system() == 'Darwin' else 1024), 2)
+
+
 def _summarize(times):
     return {'mean_ms':round(statistics.mean(times),4), 'p50_ms':round(statistics.median(times),4),
             'p95_ms':round(p95(times),4), 'count':len(times)}
 
 
 def gate_v21(baseline, candidate, agreement, rounds, req):
+    """Evaluate quality, latency AND CPU time without conflating objectives.
+
+    Legacy latency reviews stay possible. A CPU-efficiency objective must
+    satisfy the CPU non-regression constraint in addition to quality/latency.
+    Missing CPU data fails closed when CPU time is required.
+    """
     baseline_forward=baseline['warm_forward']; candidate_forward=candidate['warm_forward']
     baseline_local=baseline['tokenizer_plus_forward']; candidate_local=candidate['tokenizer_plus_forward']
+
     def reduction(a,b):
         return (a-b)/a if a>0 else float('-inf')
+
     forward_gain=reduction(baseline_forward['mean_ms'],candidate_forward['mean_ms'])
     local_gain=reduction(baseline_local['mean_ms'],candidate_local['mean_ms'])
     accuracy_drop=baseline['accuracy_on_reference_labels']-candidate['accuracy_on_reference_labels']
@@ -73,18 +98,46 @@ def gate_v21(baseline, candidate, agreement, rounds, req):
     repeatable=all(x['candidate_forward_mean_ms'] < x['baseline_forward_mean_ms'] for x in rounds)
     latency=(forward_gain >= req.min_mean_speedup and local_gain >= req.min_local_pipeline_speedup
              and p95 and repeatable)
-    eligible=bool(quality and latency)
+    cpu_base=(baseline.get('process_cpu_forward') or {}).get('mean_ms')
+    cpu_candidate=(candidate.get('process_cpu_forward') or {}).get('mean_ms')
+    cpu_measured=(isinstance(cpu_base,(int,float)) and isinstance(cpu_candidate,(int,float))
+                  and 0 < cpu_base < float('inf') and 0 <= cpu_candidate < float('inf'))
+    cpu_gain=reduction(cpu_base,cpu_candidate) if cpu_measured else None
+    cpu_pass=bool(cpu_measured and cpu_gain >= -req.max_cpu_increase_fraction-1e-12)
+    cpu_required=req.optimization_objective=='cpu_time'
+    latency_eligible=bool(quality and latency)
+    cpu_eligible=bool(latency_eligible and cpu_pass)
+    eligible=cpu_eligible if cpu_required else latency_eligible
+    if not quality:
+        reason='REJECTED: held-out accuracy/agreement condition failed'
+    elif not latency:
+        reason='REJECTED: latency, P95 or repeatability condition failed'
+    elif cpu_required and not cpu_measured:
+        reason='REJECTED: process CPU time was not measured; cannot claim less CPU compute'
+    elif cpu_required and not cpu_pass:
+        reason='REJECTED: process CPU time exceeded the explicit resource budget'
+    elif cpu_required:
+        reason='ELIGIBLE FOR CPU-TIME-BOUNDED MANUAL REVIEW; not energy or FLOPs certification; not deployed'
+    elif cpu_measured and not cpu_pass:
+        reason='ELIGIBLE FOR LATENCY-ONLY MANUAL REVIEW; CPU time increased; not a less-CPU claim; not deployed'
+    else:
+        reason='ELIGIBLE FOR LATENCY MANUAL REVIEW; not deployed'
     return {
         'eligible':eligible,'quality_pass':quality,'latency_pass':latency,'p95_pass':p95,
         'repeatability_pass':repeatable,'prediction_agreement':round(agreement,5),
         'mean_speedup_fraction':round(forward_gain,5), 'local_pipeline_speedup_fraction':round(local_gain,5),
         'accuracy_drop_fraction':round(accuracy_drop,5),
-        'reason':('ELIGIBLE FOR MANUAL REVIEW; no variant has been deployed' if eligible else
-                  'REJECTED: held-out accuracy/agreement condition failed' if not quality else
-                  'REJECTED: latency, P95 or repeatability condition failed'),
+        'optimization_objective':req.optimization_objective,
+        'cpu_gate_required':cpu_required,'cpu_time_measured':cpu_measured,
+        'cpu_pass':cpu_pass,'cpu_time_reduction_fraction':round(cpu_gain,5) if cpu_measured else None,
+        'eligible_for_latency_review':latency_eligible,
+        'eligible_for_cpu_time_review':cpu_eligible,
+        'reason':reason,
         'constraints':{'max_accuracy_drop':req.quality_max_drop, 'min_prediction_agreement':req.min_prediction_agreement,
                        'min_mean_speedup':req.min_mean_speedup,'min_local_pipeline_speedup':req.min_local_pipeline_speedup,
-                       'max_p95_regression':req.max_p95_regression,'require_faster_each_round':True}}
+                       'max_p95_regression':req.max_p95_regression,'require_faster_each_round':True,
+                       'max_cpu_increase_fraction':req.max_cpu_increase_fraction,
+                       'cpu_time_required_for_objective':cpu_required}}
 
 
 def _sha256_file(path):
@@ -108,7 +161,9 @@ def _stage_candidate(session_file, tokenizer, revision, req, run_id, source_dige
             'schema_version':'1.0','status':'eligible_for_manual_review_only',
             'deployment_approved':False,'model_id':MODEL_ID,'model_revision':revision,
             'source_run_id':run_id,'heldout_partition':source_digest,'sample_count':req.sample_count,
-            'rounds':req.rounds,'cpu_threads':req.threads,'max_length':req.max_length,
+            'rounds':req.rounds,'cpu_threads':req.threads,
+            'candidate_cpu_threads':req.candidate_threads or req.threads,
+            'max_length':req.max_length,
             'runtime':'onnxruntime','provider':'CPUExecutionProvider',
             'model_sha256':_sha256_file(file),
             'tokenizer_files':sorted(p.name for p in folder.iterdir() if p.name not in ('model.onnx','manifest.json')),
@@ -127,6 +182,8 @@ def validate_onnx(req:ValidationRequest, *, data_adapter=None, model_adapter=Non
     validate_request(req)
     if clock is None: clock=time.perf_counter
     start=clock();run_id='heldout_'+uuid.uuid4().hex[:16]
+    # Process CPU time counts all process threads; different from elapsed wall time.
+    cpu_clock = time.process_time
     def event(stage,message,**fields):
         return {'type':'event','stage':stage,'message':message,'run_id':run_id,
                 'at_ms':round((clock()-start)*1000,2),**fields}
@@ -153,16 +210,18 @@ def validate_onnx(req:ValidationRequest, *, data_adapter=None, model_adapter=Non
         if not revision: raise RuntimeError('Source model has no pinned revision; validation stopped')
         tokenizer=AutoTokenizer.from_pretrained(MODEL_ID,revision=revision,trust_remote_code=False)
         yield event('execute','Loading or exporting ONNX graph; setup is excluded from per-item timings')
-        session,graph_path=_load_onnx_model(MODEL_ID,CACHE,req.threads,revision)
+        session,graph_path=_load_onnx_model(MODEL_ID,CACHE,req.candidate_threads or req.threads,revision)
     names=[item.name for item in session.get_inputs()]
     if not names or 'input_ids' not in names:raise RuntimeError('ONNX input schema missing input_ids')
     def model_call(text,which):
         begun=clock()
+        cpu_begun=cpu_clock()
         x=tokenizer(text,max_length=req.max_length,truncation=True,return_tensors='np')
         inputs={k:np.asarray(x[k],dtype=np.int64) for k in names}
         if which=='baseline':
             pt={k:torch.from_numpy(v) for k,v in inputs.items()}
         forward_start=clock()
+        cpu_forward_start=cpu_clock()
         if which=='baseline':
             with torch.inference_mode():output=pt_model(**pt).logits
             pred=int(torch.argmax(output,dim=-1).item())
@@ -170,13 +229,16 @@ def validate_onnx(req:ValidationRequest, *, data_adapter=None, model_adapter=Non
             logits=session.run(None,inputs)[0]
             pred=int(np.asarray(logits).argmax(axis=-1).item())
         forward_end=clock()
-        return pred,(forward_end-forward_start)*1000,(forward_end-begun)*1000
+        cpu_forward_end=cpu_clock()
+        return (pred, (forward_end-forward_start)*1000, (forward_end-begun)*1000,
+                max(0,(cpu_forward_end-cpu_forward_start)*1000),
+                max(0,(cpu_forward_end-cpu_begun)*1000))
     # Warm up outside all measurements.
     for text,_ in rows[:3]:
         model_call(text,'baseline');model_call(text,'candidate')
     setup_ms=round((clock()-setup_start)*1000,2)
     yield event('execute','Both variants warmed. Measuring tokenizer + model and warm model forward separately',completed=0,total=req.rounds*len(rows))
-    measures={which:{'warm_forward':[], 'tokenizer_plus_forward':[]} for which in ('baseline','candidate')}
+    measures={which:{key:[] for key in ('warm_forward','tokenizer_plus_forward','process_cpu_forward','process_cpu_local')} for which in ('baseline','candidate')}
     predictions_first={}
     per_round=[]
     for repeat in range(req.rounds):
@@ -186,10 +248,12 @@ def validate_onnx(req:ValidationRequest, *, data_adapter=None, model_adapter=Non
             order=('baseline','candidate') if (idx+repeat)%2==0 else ('candidate','baseline')
             preds={}
             for which in order:
-                pred,inf,local=model_call(txt,which)
+                pred,inf,local,cpu_fwd,cpu_local=model_call(txt,which)
                 preds[which]=pred
                 measures[which]['warm_forward'].append(inf)
                 measures[which]['tokenizer_plus_forward'].append(local)
+                measures[which]['process_cpu_forward'].append(cpu_fwd)
+                measures[which]['process_cpu_local'].append(cpu_local)
                 forward_round[which].append(inf)
                 pipeline_round[which].append(local)
             if repeat==0:
@@ -211,6 +275,8 @@ def validate_onnx(req:ValidationRequest, *, data_adapter=None, model_adapter=Non
     for which,successes in [('baseline',baseline_correct),('candidate',candidate_correct)]:
         summaries[which]={'warm_forward':_summarize(measures[which]['warm_forward']),
             'tokenizer_plus_forward':_summarize(measures[which]['tokenizer_plus_forward']),
+            'process_cpu_forward':_summarize(measures[which]['process_cpu_forward']),
+            'process_cpu_local':_summarize(measures[which]['process_cpu_local']),
             'accuracy_on_reference_labels':round(successes/len(rows),5),
             'accuracy_on_supplied_labels':round(successes/len(rows),5), # backward compatible display
             'mean_inference_ms':_summarize(measures[which]['warm_forward'])['mean_ms'],
@@ -218,7 +284,22 @@ def validate_onnx(req:ValidationRequest, *, data_adapter=None, model_adapter=Non
             'correct_unique':successes}
     baseline=summaries['baseline'];candidate=summaries['candidate']
     decision=gate_v21(baseline,candidate,agreement,per_round,req)
-    yield event('verify','Checking disjoint heldout accuracy, agreement, P95, local pipeline and round-by-round speed')
+    cpu_base = baseline['process_cpu_forward']['mean_ms']
+    cpu_candidate = candidate['process_cpu_forward']['mean_ms']
+    cpu_delta = (1 - cpu_candidate / cpu_base) if cpu_base > 0 else None
+    resource_evidence={
+        'instrumentation_version':'process_cpu_v1',
+        'forward_process_cpu_mean_reduction_fraction':round(cpu_delta,5) if cpu_delta is not None else None,
+        'observed_process_peak_rss_mb':_process_peak_rss_mb(),
+        'cpu_scope':'time.process_time(): user + system CPU time in this Python process, including its threads; background work can add noise',
+        'memory_scope':'ru_maxrss peak for whole Python process since start, with both models loaded; NOT a per-model memory saving',
+        'cpu_gate_required':decision['cpu_gate_required'],
+        'cpu_time_pass':decision['cpu_pass'],
+        'optimization_objective':req.optimization_objective,
+        'energy_joules':None,
+        'cloud_cost_usd':None,
+    }
+    yield event('verify','Checking heldout accuracy, latency, P95, repeatability and resource objective')
     artifact=None
     status='rejected'
     if decision['eligible']:
@@ -241,7 +322,10 @@ def validate_onnx(req:ValidationRequest, *, data_adapter=None, model_adapter=Non
         'model_revision':revision,'baseline_state_dict_bytes':weight_bytes(pt_model),
         'onnx_artifact_bytes':Path(graph_path).stat().st_size,
         'baseline_mean_inference_ms':baseline['mean_inference_ms'],
-        'candidate_mean_inference_ms':candidate['mean_inference_ms']}
+        'candidate_mean_inference_ms':candidate['mean_inference_ms'],
+        'resource_evidence':resource_evidence,
+        'baseline_cpu_threads':req.threads,
+        'candidate_cpu_threads':req.candidate_threads or req.threads}
     report={'workload':'classification','route':'same_model_onnx_fp32_heldout',
         'result':{'label':f'{len(rows)} heldout inputs · {req.rounds} repetitions'},
         'metrics':{'end_to_end_ms':round((clock()-start)*1000,2), 'model_setup_and_warmup_ms':setup_ms},
@@ -250,15 +334,18 @@ def validate_onnx(req:ValidationRequest, *, data_adapter=None, model_adapter=Non
                         'approval':status,'gate':decision,'export':artifact},
         'guardrail':{'action':'HELDOUT_REFERENCE_LABELS_UNAUDITED',
                      'reason':'Official IMDb reference labels on disjoint local evaluation set; not external certification'},
-        'measurement_note':'Model and tokenizer same pinned revision; 800 separate from 200 development samples; mean and P95 are repeated CPU forward. Local pipeline includes tokenizer+forward (not HTTP), independent auditing and hardware cost not measured.'}
+        'measurement_note':'Model and tokenizer same pinned revision; 800 separate from 200 development samples; warm CPU forward and local tokenizer+forward measured; process CPU time is process-wide with thread/noise caveats; RSS is shared process peak, not path savings; no HTTP, energy or billing measurements.'}
     record={'schema_version':'v21.0','run_id':run_id,'timestamp_utc':datetime.now(timezone.utc).isoformat(),
         'workload':'classification','phase':'heldout','model_id':MODEL_ID,'model_revision':revision,
         'dataset':DATASET_ID,'dataset_partition':source,'dataset_fingerprint':sample_digest,
         'sample_count':len(rows),'rounds':req.rounds,'seed':req.seed,'max_length':req.max_length,
-        'thread_count':req.threads,'quality_certified':False,
+        'thread_count':req.threads,'candidate_thread_count':req.candidate_threads or req.threads,
+        'optimization_objective':req.optimization_objective,
+        'quality_certified':False,
         'hardware':{'machine':platform.machine(),'processor':platform.processor(),'system':platform.system()},
         'python_version':sys.version.split()[0], 'pytorch_version':torch.__version__,
         'onnxruntime_version':__import__('onnxruntime').__version__,
+        'resource_evidence':resource_evidence,
         'optimization':report['optimization'],'comparison':comparison,'financial_cost':None}
     LOG.parent.mkdir(parents=True,exist_ok=True)
     with LOG.open('a',encoding='utf8') as f:
@@ -271,7 +358,8 @@ def validate_onnx(req:ValidationRequest, *, data_adapter=None, model_adapter=Non
 def catalog():
     return {'model':MODEL_ID,'phase':'heldout','default_sample_count':800,'rounds':3,
             'dataset':DATASET_ID,'deployment_policy':'never_auto_deploy',
-            'candidate':'onnx_runtime_fp32','gate':'quality+mean+P95+tokenizer_plus_forward+repeatability'}
+            'candidate':'onnx_runtime_fp32','gate':'quality+mean+P95+tokenizer_plus_forward+repeatability; optional cpu-time budget',
+            'objectives':['latency','cpu_time'],'cpu_time_default_budget':'no increase when cpu_time objective selected'}
 
 
 @router.get('/recent')
@@ -304,8 +392,15 @@ if __name__=='__main__':
     parser.add_argument('--samples',type=int,default=800)
     parser.add_argument('--rounds',type=int,default=3)
     parser.add_argument('--no-export',action='store_true')
+    parser.add_argument('--objective',choices=('latency','cpu_time'),default='latency')
+    parser.add_argument('--max-cpu-increase',type=float,default=0.0)
+    parser.add_argument('--threads',type=int,default=4)
+    parser.add_argument('--candidate-threads',type=int,default=None,
+                        help='Candidate ONNX CPU threads; default matches baseline')
     args=parser.parse_args()
-    req=ValidationRequest(sample_count=args.samples,rounds=args.rounds,export_variant=not args.no_export)
+    req=ValidationRequest(sample_count=args.samples,rounds=args.rounds,export_variant=not args.no_export,
+                          optimization_objective=args.objective,max_cpu_increase_fraction=args.max_cpu_increase,
+                          threads=args.threads,candidate_threads=args.candidate_threads)
     for row in validate_onnx(req):
         if row['type']=='event':print(f"{row['stage']:7s} | {row['message']}",flush=True)
         else:print(json.dumps(row['report'],indent=2,ensure_ascii=False))

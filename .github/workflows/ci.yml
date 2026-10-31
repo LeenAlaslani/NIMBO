@@ -40,6 +40,8 @@ jobs:
           assert not evidence['exported_variant']
           print('Published summary fields are internally consistent; this is not a new benchmark run.')
           PY
+      - name: Verify latest published dual-objective summary (no model download)
+        run: python -m tools.verify_public_proof_v1
       - name: Run regression tests
         run: python -m pytest -q
 

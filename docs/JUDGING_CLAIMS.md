@@ -2,7 +2,13 @@
 
 **Scope:** HUMAIN Hackathon, Challenge 2 — Deliver AI with Less Compute. The three judging criteria supplied by the team are (1) Task Performance, (2) Robustness & Adaptation, (3) Evaluation & Iteration. The five "What your solution may solve" items are solution directions, not known point weights.
 
-## Main claim: same-model optimization
+## Primary dual-objective claim: faster warm inference with lower measured process CPU time
+
+- **Measured result:** A development-only CPU-thread sweep chose ONNX Runtime FP32 with **2 threads**, compared with PyTorch FP32 using **4 threads** on the same pinned IMDb model. The subsequent 800-example, 3-round local heldout evaluation reported **14.79% lower mean warm forward latency**, **2.54% lower process CPU time**, and **91.75% classification accuracy in both paths**.
+- **Evidence:** [`FINAL_JUDGING_EVIDENCE.md`](FINAL_JUDGING_EVIDENCE.md), [`FINAL_JUDGING_EVIDENCE.json`](FINAL_JUDGING_EVIDENCE.json), [`CPU_THREAD_TUNING_STEP13.md`](CPU_THREAD_TUNING_STEP13.md), `app/nimbo_validate_v21.py`, `tests/` and `tools/`. Local raw logs are gitignored; GitHub checks only public summary consistency and unit tests.
+- **Limit:** The 2.54% CPU-time decrease comes from one local run with no confidence interval, and the heldout set had been used in earlier evaluations. No measured energy, FLOPs, cloud billing or per-path peak RAM reduction. Candidate was eligible for **manual review**, not production deployed. Temporary HTTP and isolated Shadow/Canary/Rollback checks are not proof of production service behavior.
+
+## Earlier latency-only proof (not lower CPU time)
 
 - **Claim:** ONNX Runtime FP32 executed the **same model and tokenizer** as PyTorch FP32 on 800 held-out IMDb examples, with three paired warm CPU measurement rounds. The renewed local run on 2026-10-31 reported **28.5501 ms → 17.7637 ms mean inference (37.781% lower)** and **91.75% labeled accuracy for both paths** (734/800 each), agreement 100%, p95 **36.6819 ms → 23.6119 ms**. ONNX passed the local quality, latency, p95, and repeatability gates. Variation between runs is expected; prior run measured 33.632% lower mean inference.
 - **Evidence:** `app/nimbo_validate_v21.py`, `results/independent_validation_v21.jsonl`, `tools/judging_evidence.py`, regenerated `results/judging/LATEST_HELDOUT_EVIDENCE.md`.
@@ -24,11 +30,11 @@
 Re-run the fixed heldout study and report prediction accuracy, mean, p95, agreement, per-round comparisons, and device/scope. Do **not** promote a single-request unlabelled comparison to accuracy validation.
 
 ### Robustness & Adaptation
-Exercise at least: labels present; labels absent; heldout gate reject; unavailable backend/gateway; Fast image `UNCERTAIN` no false success; fallback only when justified; local rollout without production switch. Save results as dated test records. These additional integration tests are not yet certified in the source snapshot.
+Exercise at least: labels present; labels absent; heldout gate reject; unavailable backend/gateway; Fast image `UNCERTAIN` no false success; fallback only when justified; local rollout without production switch. Save results as dated test records. Local HTTP and isolated adoption tests are documented in [`FINAL_JUDGING_EVIDENCE.md`](FINAL_JUDGING_EVIDENCE.md); production and primary-UI integration remain unverified.
 
 ### Evaluation & Iteration
 Keep `pytest` result and dated raw runs, model revision, partition digest, hardware, commands, version pins, Git commit SHA and clear negative results. No editing of historical raw results. Future reruns should append new evidence.
 
 ## Wording for live judges
 
-> "Our main evaluation uses the same pretrained sentiment model and the same held-out inputs. ONNX Runtime preserved 91.75% measured IMDb reference-label accuracy and reduced warm CPU inference latency by about 37.8% in our latest three-round local run. We do not equate latency with measured energy or cloud-billing savings. NIMBO records the route, quality gate, latency, and audit boundary."
+> "NIMBO tested execution configurations with quality and resource gates. Its development-selected ONNX setting reduced warm inference latency by 14.79% and measured process CPU time by 2.54% on the local 800-example three-round evaluation, while maintaining 91.75% measured accuracy. This is not energy or cloud-cost proof, and the small CPU margin needs replication. We also tested isolated HTTP concurrency, Canary and Rollback without deploying to customers."

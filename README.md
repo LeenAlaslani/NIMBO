@@ -12,7 +12,17 @@ NIMBO is a local, quality-aware AI inference optimization lab. It compares basel
 
 **What judges can inspect:** Source and comparison gate in `app/nimbo_validate_v21.py`, regression tests in `tests/`, the summary at [`results/judging/LATEST_HELDOUT_EVIDENCE.md`](results/judging/LATEST_HELDOUT_EVIDENCE.md), the methods in [`docs/REPRODUCE_RESULTS.md`](docs/REPRODUCE_RESULTS.md), and the scope of every claim in [`docs/JUDGING_CLAIMS.md`](docs/JUDGING_CLAIMS.md).
 
-## Verified main proof
+<!-- NIMBO_FINAL_PROOF_BEGIN -->
+## Primary proof: lower warm inference latency and process CPU time
+
+With PyTorch FP32 (4 threads) versus ONNX Runtime FP32 (2 threads), the locked local 800-example evaluation measured **14.79% lower mean warm forward latency** and **2.54% lower process CPU time**, with **91.75% accuracy on both paths**. The candidate is *eligible for review*, not deployed. CPU-time savings are small and not an energy or billing measurement.
+
+Full lineage and caveats: [`docs/FINAL_JUDGING_EVIDENCE.md`](docs/FINAL_JUDGING_EVIDENCE.md).
+<!-- NIMBO_FINAL_PROOF_END -->
+
+## Earlier latency-only comparison (not CPU-time evidence)
+
+This earlier 37.78% speedup was measured under a different execution configuration. It is **latency-only evidence**, not evidence of reduced process CPU time. The primary dual-objective result above is the judged compute-efficiency claim.
 
 On a fixed **800-example IMDb held-out** set, the same pretrained model was evaluated using **PyTorch FP32 versus ONNX Runtime FP32**, with three paired warm CPU rounds. In the renewed 2026-10-31 local run, recorded mean forward latency fell **28.5501 → 17.7637 ms** (**37.78% lower**), and labeled accuracy remained **91.75%** (734/800 per path). P95 improved from 36.6819 to 23.6119 ms; all local decision gates passed. The candidate is **eligible for human review, not production deployed**. Older runs measured different latency improvements; hardware and runtime effects matter.
 

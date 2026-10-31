@@ -231,6 +231,21 @@ def _local_only(request: Request):
         raise HTTPException(status_code=403,detail='Untrusted origin')
 
 
+def _candidate_thread_count(review):
+    """Respect the independently selected ONNX CPU threads in staged review.
+
+    Existing 4-thread artifacts remain backwards compatible. Refuse tampering
+    or metadata drift between the validated result and staged artifact.
+    """
+    manifest=review['manifest']
+    saved=review['validation']
+    count=manifest.get('candidate_cpu_threads',manifest.get('cpu_threads',4))
+    validated=saved.get('candidate_thread_count',saved.get('thread_count',4))
+    if type(count) is not int or not (1 <= count <= 8) or count!=validated:
+        raise ValueError('ONNX CPU-thread configuration differs from heldout review record')
+    return count
+
+
 def _prepare_cache(review):
     """Two CPU implementations of the exact same pinned model. Lazy single-process cache."""
     import torch
@@ -241,7 +256,7 @@ def _prepare_cache(review):
     torch.set_num_threads(4)
     tok=AutoTokenizer.from_pretrained(str(review['folder']),local_files_only=True,trust_remote_code=False)
     model=AutoModelForSequenceClassification.from_pretrained(MODEL_ID,revision=review['revision'],trust_remote_code=False).eval().cpu()
-    opts=ort.SessionOptions();opts.intra_op_num_threads=4;opts.inter_op_num_threads=1
+    opts=ort.SessionOptions();opts.intra_op_num_threads=_candidate_thread_count(review);opts.inter_op_num_threads=1
     opts.graph_optimization_level=ort.GraphOptimizationLevel.ORT_ENABLE_ALL
     sess=ort.InferenceSession(str(review['folder']/'model.onnx'),sess_options=opts,providers=['CPUExecutionProvider'])
     if sess.get_providers()!=['CPUExecutionProvider']:
