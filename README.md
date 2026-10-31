@@ -64,3 +64,11 @@ See [`docs/ROBUSTNESS_MATRIX.md`](docs/ROBUSTNESS_MATRIX.md) and [`docs/GITHUB_P
 The [GitHub Actions checks](.github/workflows/ci.yml) run dependency-light Python regression tests and build the React frontend from a clean checkout. They **do not** download large model weights, run the local Mac GPU image worker, or reproduce the measured 800-example ONNX benchmark. For what is (and is not) automated, see [`docs/CI_AND_SUBMISSION.md`](docs/CI_AND_SUBMISSION.md).
 
 A first-time reviewer can inspect the repository without GPU access; real measured inference must be reproduced separately on a compatible machine with model dependencies and downloads available.
+
+<!-- NIMBO_CROSS_DOMAIN_RELEASE_BEGIN -->
+## New-domain check — TweetEval (locked settings)
+
+The pinned ONNX Runtime FP32 2-thread candidate retained **82.88% binary TweetEval accuracy** (PyTorch: **82.88%**; **100.00%** prediction agreement) on a precommitted 800-row positive/negative TEST subset. It measured **61.79% lower mean warm inference latency** and **52.72% lower process CPU time** in this local test. **Review-only; not deployed.** TweetEval accuracy is below IMDb's 91.75% due to domain/task differences; neutral class excluded. No electrical-energy or cloud-cost claim.
+
+See [`docs/CROSS_DOMAIN_PUBLIC_EVIDENCE.md`](docs/CROSS_DOMAIN_PUBLIC_EVIDENCE.md) for the source digest, fixed protocol, limitations and audited fields. The full three-class TweetEval task was **not** evaluated.
+<!-- NIMBO_CROSS_DOMAIN_RELEASE_END -->

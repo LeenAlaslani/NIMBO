@@ -315,3 +315,6 @@ body{overflow-x:hidden!important}
 .gameTelemetryEvent span{font-size:12px}
 .gameStoryPanel{box-shadow:0 20px 62px rgba(0,10,40,.28)}
 @media (max-width:850px){.nim19Name span{font-size:9px}.nim19Name strong{font-size:11px}.gameWorldTopActions button{font-size:12px;padding:7px 9px}}
+
+/* Step21: show human-readable route instead of breaking a raw identifier mid-word. */
+.gameProofKPIs strong.gameProofReadableRoute{overflow-wrap:normal;word-break:normal;hyphens:auto;line-height:1.35}

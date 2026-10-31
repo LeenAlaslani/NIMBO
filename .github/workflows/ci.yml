@@ -42,6 +42,8 @@ jobs:
           PY
       - name: Verify latest published dual-objective summary (no model download)
         run: python -m tools.verify_public_proof_v1
+      - name: Verify cross-domain public summary (no model download)
+        run: python -m tools.verify_cross_domain_public_v1
       - name: Run regression tests
         run: python -m pytest -q
 

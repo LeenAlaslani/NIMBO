@@ -38,3 +38,11 @@ Keep `pytest` result and dated raw runs, model revision, partition digest, hardw
 ## Wording for live judges
 
 > "NIMBO tested execution configurations with quality and resource gates. Its development-selected ONNX setting reduced warm inference latency by 14.79% and measured process CPU time by 2.54% on the local 800-example three-round evaluation, while maintaining 91.75% measured accuracy. This is not energy or cloud-cost proof, and the small CPU margin needs replication. We also tested isolated HTTP concurrency, Canary and Rollback without deploying to customers."
+
+<!-- NIMBO_CROSS_DOMAIN_RELEASE_BEGIN -->
+## New-domain evaluation (TweetEval binary subset)
+
+- **Result:** 82.88% → 82.88% accuracy; 100.00% agreement; 61.79% lower warm latency; 52.72% lower process CPU time, locked PyTorch 4 threads versus ONNX 2 threads.
+- **Evidence:** [`CROSS_DOMAIN_PUBLIC_EVIDENCE.md`](CROSS_DOMAIN_PUBLIC_EVIDENCE.md) and the pinned source code in `tools/external_domain_v1.py`.
+- **Limit:** Binary-only TweetEval TEST subset; neutral excluded, pretrained model exposures unknown, local one-machine evidence, not deployed, no energy/FLOPs/billing proof.
+<!-- NIMBO_CROSS_DOMAIN_RELEASE_END -->

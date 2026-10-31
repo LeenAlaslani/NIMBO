@@ -34,3 +34,17 @@
 .theme-day .evPairedDetail small{color:#55799c}.theme-day .evModalNote{background:#eff7ff;color:#335c82}
 .theme-day .evRawDetails{border-color:#bfd8f0}.theme-day .evRawDetails pre{color:#194b7a;background:#eff6ff}
 .evDetails:focus-visible,.fleet17 button:focus-visible{outline:3px solid #12b4e9;outline-offset:2px}
+
+/* Step21: expose the latest real paired measurement without conflating it with live request totals. */
+.evLatestWorkspacePair{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) auto;gap:20px;align-items:center;margin:18px 0;padding:18px 20px;border-radius:14px;border:1px solid #39627f;background:#142e47;color:#e8f3ff}
+.evLatestWorkspacePair .evLatestPairBody,.evLatestWorkspacePair .evLatestPairMetrics{min-width:0;display:grid;gap:6px}
+.evLatestWorkspacePair small{font-size:12px;color:#a4c8d8;letter-spacing:.2px}
+.evLatestWorkspacePair strong{font-size:18px;line-height:1.35;overflow-wrap:anywhere}
+.evLatestWorkspacePair p{font-size:13px;color:#b6cede;line-height:1.45;margin:0}
+.evLatestWorkspacePair span{font-size:14px;color:#8ff2d3;font-weight:700}
+.evLatestWorkspacePair .evLatestPairOpen{background:#236aa0;color:#fff;border:1px solid #73b6e4;padding:11px 14px;border-radius:10px;cursor:pointer;font-weight:700;white-space:nowrap}
+.evLatestWorkspacePair .evLatestPairOpen:focus-visible{outline:3px solid #40d6ff;outline-offset:2px}
+.theme-day .evLatestWorkspacePair{background:#e7f4ff;border-color:#add3f2;color:#183d65}
+.theme-day .evLatestWorkspacePair p,.theme-day .evLatestWorkspacePair small{color:#456b8c}
+.theme-day .evLatestWorkspacePair span{color:#137d71}
+@media(max-width:900px){.evLatestWorkspacePair{grid-template-columns:1fr}.evLatestWorkspacePair .evLatestPairOpen{justify-self:start}}

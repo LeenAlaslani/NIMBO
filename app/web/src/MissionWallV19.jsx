@@ -3,6 +3,7 @@ import React,{useEffect,useRef,useState} from 'react';
 import {useFrame} from '@react-three/fiber';
 import {Text,RoundedBox} from '@react-three/drei';
 import * as THREE from 'three';
+import {latencyPercent} from './evidencePresentation.mjs';
 
 const friendlyModel=(s)=>{if(/· FP32/.test(String(s)))return 'ORIGINAL FP32';if(/· INT8/.test(String(s)))return 'OPTIMIZED INT8';const id=String(s||'').split('/').pop();if(/distilbert/i.test(id))return 'DistilBERT';if(/bert/i.test(id))return 'BERT';return cut(id,16)};
 const cut=(s,n=20)=>{const v=String(s||'');return v.length>n?v.slice(0,n-1)+'…':v};
@@ -58,7 +59,7 @@ export default function MissionWallV19({route,reported=false,theme='night',metri
   {finished?<>
     <AccentPanel x={-3.63} title={imageReady?'BASELINE / SD 1.5':`BASELINE / ${friendlyModel(comparison.baseline_model)}`} value={imageReady?`${(baseline/1000).toFixed(1)} s`:`${baseline.toFixed(1)} ms`} sub={imageReady?'GPU inference · 25 steps':'Mean CPU inference'} color="#f5faff"/>
     <AccentPanel x={0} title={imageReady?'FAST / LCM-LoRA':`CANDIDATE / ${friendlyModel(comparison.candidate_model)}`} value={imageReady?`${(candidate/1000).toFixed(1)} s`:`${candidate.toFixed(1)} ms`} sub={imageReady?'GPU inference · 4 steps':'Mean CPU inference'} color="#82e9ff"/>
-    <AccentPanel x={3.63} title="LATENCY CHANGE" value={`${difference>0?'↓':'↑'} ${Math.abs(difference*100).toFixed(1)}%`} sub={difference>0?'Lower candidate latency':'Candidate not faster'} color={difference>0?'#6af6ce':'#ffb991'} active/>
+    <AccentPanel x={3.63} title="LATENCY CHANGE" value={latencyPercent(difference)} sub={typeof difference!=='number'||!Number.isFinite(difference)?'No paired latency measurement':difference>0?'Lower candidate latency':difference<0?'Candidate slower':'Same measured latency'} color={difference>0?'#6af6ce':'#ffb991'} active/>
   </>:<>
     <Text anchorX="left" position={[-5.20,.73,.20]} fontSize={.65} color="#f2fbff">{header}</Text>
     <Text anchorX="left" position={[-5.20,.04,.20]} fontSize={.34} color="#b9e4f7">{busy?`${total?`${count} / ${total} matched inputs measured`:'MODEL REQUEST IN PROGRESS'}`:adaptiveReady?adaptiveFallback?`FAST ${(imageComparison.fast_inference_ms/1000).toFixed(1)}s + STANDARD ${(imageComparison.standard_inference_ms/1000).toFixed(1)}s GPU`:`FAST ${(imageComparison.fast_inference_ms/1000).toFixed(1)}s · STANDARD NOT EXECUTED`:reported?`ROUTE: ${cut(route,39)}`:'SELECT A WORKLOAD · START THE MISSION'}</Text>

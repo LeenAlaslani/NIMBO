@@ -2,6 +2,7 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {createPortal} from 'react-dom';
 import './evidence-dashboard.css';
+import {latestWorkspacePair,latencyPercent} from './evidencePresentation.mjs';
 
 const API = 'http://127.0.0.1:8000/nimbo/evidence/unified';
 const LABELS = {
@@ -45,6 +46,7 @@ export default function EvidenceDashboard({onBack}){
   },[selected]);
   const records=data?.records||[];
   const filtered=useMemo(()=>records.filter(r=>(kind==='all'||kindOf(r)===kind)&&(workload==='all'||r.workload===workload)),[records,kind,workload]);
+  const latestPair=useMemo(()=>latestWorkspacePair(records),[records]);
   const categories=[...new Set(records.map(kindOf))];
   const workloads=[...new Set(records.map(r=>r.workload))];
   const runtime=records.filter(r=>kindOf(r)==='runtime_measurement');
@@ -59,6 +61,11 @@ export default function EvidenceDashboard({onBack}){
       <div><small>LATEST LATENCY</small><strong>{latest?formatNumber(latest.latency_ms,2)+' ms':'—'}</strong><span>{latest?latest.workload+' · '+(latest.route||'unknown route'):'No live execution yet'}</span></div>
       <div><small>VERIFIED LIVE SUCCESSES</small><strong>—</strong><span>Requires independent success labels</span></div>
     </div>
+    {latestPair&&<section className="evLatestWorkspacePair" aria-label="Latest workspace paired CPU comparison">
+      <div className="evLatestPairBody"><small>LATEST WORKSPACE PAIRED COMPARISON</small><strong>Real comparison recorded</strong><p>{latestPair.sample_count||'—'} matched input(s) · {latestPair.all_labels_present?'Supplied reference labels (not audited)':'No reference labels — accuracy not evaluated'}</p><p>Paired comparisons are stored separately and do not increase the Live API Requests counter.</p></div>
+      <div className="evLatestPairMetrics"><small>Mean warm CPU inference</small><strong>{formatNumber(latestPair.baseline_mean_inference_ms,2)} → {formatNumber(latestPair.candidate_mean_inference_ms,2)} ms</strong><span>{typeof latestPair.mean_latency_reduction_fraction==='number'?(latestPair.mean_latency_reduction_fraction>=0?`${latencyPercent(latestPair.mean_latency_reduction_fraction)} lower candidate latency`:`${latencyPercent(latestPair.mean_latency_reduction_fraction)} higher candidate latency`):'Latency change not measured'}</span><small>One comparison, not the independent ONNX held-out proof.</small></div>
+      <button type="button" className="evLatestPairOpen" onClick={()=>setSelected(latestPair)}>View recorded details</button>
+    </section>}
     {imageEvidence?.paired_runs>0&&<section className="nim22ImageEvidenceSummary"><strong>Image Optimization · local GPU evidence</strong><p>{imageEvidence.complete_human_paired_reviews} of {imageEvidence.paired_runs} paired image experiments have complete human critical-object assessments (not audited).</p><div><span>Fast · seconds per successful object <b>{imageEvidence.fast?.seconds_per_success??'Not yet measured'}</b></span><span>Standard · seconds per successful object <b>{imageEvidence.standard?.seconds_per_success??'Not yet measured'}</b></span></div><small>Actual GPU inference durations only; no electricity, billing or end-to-end request cost claim.</small></section>}
     <div className="evNotice">Quality certification is not inferred from model confidence. Runtime durations are not financial cost, energy, or GPU compute. Oracle bounds never count as measured achievements.</div>
     <div className="evControls"><label>Evidence class<select value={kind} onChange={e=>setKind(e.target.value)}><option value="all">All evidence classes</option>{categories.map(k=><option value={k} key={k}>{LABELS[k]||k}</option>)}</select></label><label>Workload<select value={workload} onChange={e=>setWorkload(e.target.value)}><option value="all">All workloads</option>{workloads.map(w=><option key={w} value={w}>{w}</option>)}</select></label><span>{filtered.length} records · paired runs are not counted as live requests</span></div>

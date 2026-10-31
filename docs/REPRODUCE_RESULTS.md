@@ -43,3 +43,12 @@ Optional GPU image worker, only if the dependencies and local MPS/CUDA environme
 - Test backend/GPU disconnection and verify the UI does not claim health based on configuration alone.
 - Add cross-domain heldout task performance and repeated resource instrumentation before claiming broad robustness or compute/energy reductions.
 - Check the GitHub commit used for judging exactly matches the source tested on the Mac.
+
+<!-- NIMBO_CROSS_DOMAIN_RELEASE_BEGIN -->
+## Cross-domain fixed TEST check
+
+The 800-row TweetEval binary test was run once after locking ONNX CPU threads. It must not be used to retune the candidate.
+Source code: `tools/external_domain_v1.py`; protocol: [`EXTERNAL_DOMAIN_STEP22.md`](EXTERNAL_DOMAIN_STEP22.md); public aggregate evidence: [`CROSS_DOMAIN_PUBLIC_EVIDENCE.md`](CROSS_DOMAIN_PUBLIC_EVIDENCE.md).
+The local raw report at `results/external_domain_v1/tweet_eval_binary_test_800.json` is intentionally excluded from Git.
+Use `python -m tools.verify_cross_domain_public_v1` to check the published summary without re-running models or downloading datasets.
+<!-- NIMBO_CROSS_DOMAIN_RELEASE_END -->
