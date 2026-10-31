@@ -1,0 +1,27 @@
+/* NIMBO first screen: official user-supplied logo, no fake status or preselected task. */
+.nimboIntro{min-height:100vh;display:flex;flex-direction:column;background:var(--nimbo-page);color:var(--nimbo-text);font-family:Inter,system-ui,-apple-system,sans-serif;position:relative;overflow:hidden}
+.nimboIntro::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 54% 39%,color-mix(in srgb,var(--nimbo-action) 7%,transparent),transparent 53%);opacity:.8}
+.nimboIntroHeader,.nimboIntroFooter{position:relative;z-index:1;width:min(1300px,calc(100% - 96px));margin-inline:auto;display:flex;align-items:center;justify-content:space-between}
+.nimboIntroHeader{padding:35px 0 16px}
+.nimboIntroIdentity{font-weight:750;letter-spacing:.05em;font-size:12px;display:flex;gap:14px;align-items:center;color:var(--nimbo-text)}
+.nimboIntroSeparator{height:17px;width:1px;background:var(--nimbo-stroke)}
+.nimboIntroIdentity::first-letter{letter-spacing:.1em}
+.nimboIntroTheme{display:flex;align-items:center;gap:9px;color:var(--nimbo-secondary);background:var(--nimbo-surface);border:1px solid var(--nimbo-stroke);border-radius:9px;padding:10px 14px;cursor:pointer;font-size:12px}
+.nimboIntroTheme:hover{background:var(--nimbo-soft)}
+.nimboIntroMain{position:relative;z-index:1;flex:1;display:grid;grid-template-columns:minmax(300px,1.04fr) minmax(350px,1fr);align-items:center;gap:clamp(32px,5vw,90px);width:min(1220px,calc(100% - 96px));margin:auto;padding:30px 0 80px}
+.nimboIntroAsset{aspect-ratio:1.16;max-height:500px;border-radius:24px;background:#060d1b;display:flex;align-items:center;justify-content:center;box-shadow:0 35px 75px rgba(7,19,38,.16);overflow:hidden}
+.nimboIntroAsset img{display:block;width:100%;height:100%;object-fit:contain}
+.nimboIntroKicker{display:inline-flex;color:var(--nimbo-action);font-size:11px;font-weight:800;letter-spacing:.17em;margin-bottom:24px}
+.nimboIntro h1{font-size:clamp(43px,5vw,76px);font-weight:750;letter-spacing:-.062em;line-height:1.075;margin:0 0 25px;color:var(--nimbo-text)}
+.nimboIntro h1 strong{font-weight:760;color:var(--nimbo-action)}
+.nimboIntroContent>p{max-width:505px;font-size:clamp(15px,1.3vw,18px);line-height:1.7;color:var(--nimbo-secondary);margin:0 0 34px}
+.nimboIntroEnter{display:inline-flex;align-items:center;justify-content:center;gap:32px;border:1px solid var(--nimbo-action);background:var(--nimbo-action);color:#fff;font-size:14px;font-weight:760;border-radius:10px;min-width:226px;padding:17px 23px;cursor:pointer;transition:background .16s,transform .16s}
+.nimboIntroEnter:hover{background:var(--nimbo-action-hover);transform:translateY(-1px)}
+html.nimbo-dark .nimboIntroEnter{color:#081321}
+.nimboIntroFootnote{color:var(--nimbo-faint);font-size:10px;letter-spacing:.09em;margin-top:22px}
+.nimboIntroFooter{justify-content:flex-start;gap:clamp(17px,5vw,80px);border-top:1px solid var(--nimbo-stroke);padding:22px 0 34px;color:var(--nimbo-secondary);font-size:12px}
+.nimboIntroFooter span{display:flex;gap:9px;align-items:center}.nimboIntroFooter svg{color:var(--nimbo-action)}
+.nimboBrandHomeButton{border:none;background:transparent;padding:0;cursor:pointer;text-align:left;width:100%;display:flex}.nimboBrandHomeButton:hover{opacity:.87}
+@media(max-width:850px){.nimboIntroHeader,.nimboIntroFooter,.nimboIntroMain{width:min(650px,calc(100% - 38px))}.nimboIntroMain{grid-template-columns:1fr;gap:28px;padding:30px 0 55px}.nimboIntroAsset{max-height:290px;max-width:450px;aspect-ratio:1.55}.nimboIntro h1{font-size:48px}.nimboIntroFooter{flex-wrap:wrap;gap:20px}}
+@media(max-width:480px){.nimboIntroHeader{padding-top:20px}.nimboIntroIdentity{font-size:10px;gap:8px}.nimboIntroMain{padding-top:10px}.nimboIntro h1{font-size:40px}.nimboIntroFooter{font-size:11px}.nimboIntroAsset{border-radius:15px}}
+@media(prefers-reduced-motion:reduce){.nimboIntroEnter{transition:none}}

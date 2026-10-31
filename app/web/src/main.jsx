@@ -3,21 +3,28 @@ import {createRoot} from 'react-dom/client';
 import FleetControl from './FleetControl';
 import EvidenceDashboard from './EvidenceDashboard';
 import GameMissionFloor from './GameMissionFloor';
+import NimboLanding from './NimboLanding';
 import './style.css';
 import './game-mission-floor.css';
+import './nimbo-design-system-v1.css';
+import {LayoutDashboard,Layers3,Database,Boxes,Sun,Moon} from 'lucide-react';
 
 // NIMBO_CONNECTED_EVIDENCE_V16
 function App(){
- const [view,setView]=useState('mission');
+ const [view,setView]=useState('home');
  const [registry,setRegistry]=useState(null);
  const [registryError,setRegistryError]=useState('');
- const [theme,setTheme]=useState('night');
+ const [theme,setTheme]=useState(()=>{try{return localStorage.getItem('nimbo-ui-theme-v1')==='night'?'night':'day'}catch{return 'day'}});
+ useEffect(()=>{try{localStorage.setItem('nimbo-ui-theme-v1',theme)}catch{};document.documentElement.style.colorScheme=theme==='night'?'dark':'light';document.documentElement.classList.toggle('nimbo-dark',theme==='night');document.documentElement.classList.toggle('nimbo-light',theme==='day')},[theme]);
  useEffect(()=>{fetch('http://127.0.0.1:8000/api/registry').then(async r=>{if(!r.ok)throw Error(`HTTP ${r.status}`);return r.json()}).then(setRegistry).catch(e=>setRegistryError(e.message))},[]);
- const nav=[['mission','◈','Mission Control'],['fleet','▦','Fleet Control'],['registry','⬡','Model Registry'],['evidence','▤','Evidence Center']];
+ const nav=[['home',LayoutDashboard,'Overview'],['mission',LayoutDashboard,'Workspace'],['fleet',Layers3,'Fleet Control'],['registry',Boxes,'Model Registry'],['evidence',Database,'Evidence Center']];
+ if(view==='home')return <NimboLanding theme={theme} onEnter={()=>setView('mission')} onThemeChange={()=>setTheme(t=>t==='night'?'day':'night')}/>;
  return <div className={'shell theme-'+theme}>
-   <aside><div className="logo"><div className="logoIcon">☁</div><div><b>NIMBO</b><small>AI ORCHESTRATION</small></div></div>
-    {nav.map(([key,icon,name])=><div key={key} role="button" className={'nav '+(view===key?'active':'')} onClick={()=>setView(key)}>{icon} &nbsp; {name}</div>)}
-    <p className="sidebarFoot">LOCAL DEVELOPMENT BUILD<br/>Model comparison · connected evidence</p>
+   <aside className="nimboSidebar" aria-label="Primary navigation">
+    <button type="button" className="logo nimboFullBrand nimboBrandHomeButton" onClick={()=>setView('home')} aria-label="Go to NIMBO home"><img className="nimboOfficialLogo" src="/nimbo-brand-mark.png" alt="NIMBO" title="Official NIMBO logo"/></button>
+    <div className="nimboNavLabel">PLATFORM</div>
+    <nav className="nimboNavList" aria-label="Main sections">{nav.map(([key,Icon,name])=><button type="button" key={key} className={'nav '+(view===key?'active':'')} onClick={()=>setView(key)} aria-current={view===key?'page':undefined}><Icon size={18} strokeWidth={1.8}/><span>{name}</span></button>)}</nav>
+    <div className="nimboSidebarBottom"><div className="nimboModeLabel"><span className="nimboStatusIndicator"/> Local environment <span className="nimboStatusContext">configured</span></div><button className="nimboThemeToggle" type="button" onClick={()=>setTheme(t=>t==='night'?'day':'night')} aria-label={theme==='night'?'Switch to light mode':'Switch to dark mode'}>{theme==='night'?<Sun size={17}/>:<Moon size={17}/>}<span>{theme==='night'?'Light appearance':'Dark appearance'}</span></button><p className="sidebarFoot">Performance you can account for.<br/>Evidence you can inspect.</p></div>
    </aside>
    <main>
     {/* Keep the mission mounted while browsing evidence or fleet. */}

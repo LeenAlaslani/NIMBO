@@ -273,3 +273,11 @@ app.include_router(vera_v25_router)
 # NIMBO_VERA_V26_AUTONOMOUS
 from app.nimbo_vera_v26_api import router as vera_v26_router
 app.include_router(vera_v26_router)
+
+# NIMBO DEMO: local-only verified ONNX export and identity check; never activates uploaded files.
+from app.nimbo_demo_artifact_v1 import router as nimbo_demo_artifact_router_v1
+app.include_router(nimbo_demo_artifact_router_v1)
+
+# Supported real model-file upload and actual isolated local ONNX evaluation.
+from app.nimbo_company_model_v1 import router as company_model_pilot_router
+app.include_router(company_model_pilot_router)

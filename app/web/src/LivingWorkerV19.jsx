@@ -4,7 +4,7 @@ import {Html,RoundedBox} from '@react-three/drei';
 import * as THREE from 'three';
 
 /** Forward-kinematic, individually articulated mascot. This is a procedural rig, NOT a GLB/skinned artist asset. */
-export default function LivingWorkerV19({person,id,active,busy,explaining,thinking,speech,celebrating,theme='night',onSelect,offline}){
+export default function LivingWorkerV19({hideLabels=false,person,id,active,busy,explaining,thinking,speech,celebrating,theme='night',onSelect,offline}){
  const rig=useRef(),head=useRef(),body=useRef(),upperL=useRef(),upperR=useRef(),lowerL=useRef(),lowerR=useRef(),footL=useRef(),footR=useRef(),eyeL=useRef(),eyeR=useRef(),mouth=useRef(),badge=useRef();
  const seed=(person.x+7.4)*.81, c=offline?'#98b8c5':person.color;
  useFrame(({clock},delta)=>{
@@ -54,7 +54,7 @@ export default function LivingWorkerV19({person,id,active,busy,explaining,thinki
    </group>)}
    {[-1,1].map(side=><group key={'leg'+side} ref={side<0?footL:footR} position={[side*.22,.27,.04]}><mesh position={[0,-.09,.07]} castShadow><capsuleGeometry args={[.165,.18,5,10]}/><meshStandardMaterial color={shoe} roughness={.42}/></mesh></group>)}
   </group>
-  <Html position={[0,2.25,.14]} center style={{pointerEvents:'none'}} zIndexRange={[9,1]}><div className={'nim19Name '+(active?'isActive':'')} style={{'--worker-accent':c}}><strong>{person.name}</strong><span>{person.role}</span></div></Html>
-  {active&&speech&&<Html position={[0,3.02,.30]} center style={{pointerEvents:'none'}} zIndexRange={[12,2]}><div className={'nim19Speech '+(thinking?'isThinking':'')} style={{'--worker-accent':c}}><strong>{person.name}</strong><span>{thinking?(id==='vera'&&speech?.title?speech.title:'Checking…'):speech.title}</span><i/></div></Html>}
+  {!hideLabels&&<Html position={[0,2.25,.14]} center style={{pointerEvents:'none'}} zIndexRange={[9,1]}><div className={'nim19Name '+(active?'isActive':'')} style={{'--worker-accent':c}}><strong>{person.name}</strong><span>{person.role}</span></div></Html>}
+  {!hideLabels&&active&&speech&&<Html position={[0,3.02,.30]} center style={{pointerEvents:'none'}} zIndexRange={[12,2]}><div className={'nim19Speech '+(thinking?'isThinking':'')} style={{'--worker-accent':c}}><strong>{person.name}</strong><span>{thinking?(id==='vera'&&speech?.title?speech.title:'Checking…'):speech.title}</span><i/></div></Html>}
  </group>;
 }

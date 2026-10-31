@@ -1,0 +1,215 @@
+/* NIMBO | Enterprise UI system v1
+ * Purpose: coherent, accessible surfaces across Workspace, Lab, Evidence,
+ * Fleet, Registry and Adoption. Visual-only changes, no inference logic.
+ * Inspiration: restrained hierarchy, one action color, clear borders.
+ */
+:root{font-synthesis:none;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+html.nimbo-light{color-scheme:light;--nimbo-page:#f7f9fc;--nimbo-surface:#ffffff;--nimbo-soft:#f0f4fa;--nimbo-soft-hover:#e9eff8;--nimbo-stroke:#dbe3ed;--nimbo-text:#14223b;--nimbo-secondary:#506078;--nimbo-faint:#62728b;--nimbo-action:#225fc0;--nimbo-action-hover:#194f9f;--nimbo-action-soft:#ebf2ff;--nimbo-success:#076b54;--nimbo-warning:#a86a11;--nimbo-error:#b7323e;--nimbo-lift:0 2px 12px rgba(21,32,50,.045)}
+html.nimbo-dark{color-scheme:dark;--nimbo-page:#0b1220;--nimbo-surface:#141f31;--nimbo-soft:#1c2a40;--nimbo-soft-hover:#253854;--nimbo-stroke:#35465f;--nimbo-text:#f1f6ff;--nimbo-secondary:#c2cee0;--nimbo-faint:#a9b9d0;--nimbo-action:#91b7ff;--nimbo-action-hover:#b1ccff;--nimbo-action-soft:#203456;--nimbo-success:#6ee2bb;--nimbo-warning:#ffd18d;--nimbo-error:#ff9fa5;--nimbo-lift:0 2px 14px rgba(0,0,0,.14)}
+.theme-day,.theme-night{--bg:var(--nimbo-page);--bg2:var(--nimbo-soft);--panel:var(--nimbo-surface);--panel-2:var(--nimbo-soft);--border:var(--nimbo-stroke);--text:var(--nimbo-text);--muted:var(--nimbo-secondary);--accent:var(--nimbo-action);--accent2:var(--nimbo-action);--primary:var(--nimbo-action);--primary2:var(--nimbo-action);--success:var(--nimbo-success);--danger:var(--nimbo-error);--shadow:var(--nimbo-lift)}
+html,body,#root{background:var(--nimbo-page)!important}
+body{font-family:Inter,"Segoe UI",-apple-system,BlinkMacSystemFont,system-ui,sans-serif}
+::selection{background:color-mix(in srgb,var(--nimbo-action) 21%,transparent)}
+.shell{grid-template-columns:228px minmax(0,1fr)!important;background:var(--nimbo-page)!important;color:var(--nimbo-text);transition:background .18s ease}
+.shell>main{background:var(--nimbo-page);min-width:0}
+/* Navigation is a real keyboard-operable control; don't turn every section into a card. */
+.shell>aside.nimboSidebar{padding:26px 14px 22px;background:var(--nimbo-surface);border-right:1px solid var(--nimbo-stroke);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto;z-index:10}
+.nimboSidebar .logo{margin:1px 9px 48px;gap:10px;align-items:center}
+.nimboSidebar .logoIcon{height:40px;width:40px;border-radius:10px;background:transparent;color:var(--nimbo-action);flex:0 0 40px;box-shadow:none;display:flex;align-items:center;justify-content:center}
+.nimboSidebar .logo b{font-size:19px;font-weight:760;letter-spacing:-.6px;line-height:1.1;color:var(--nimbo-text)}
+.nimboSidebar .logo small{font-size:9px;font-weight:650;letter-spacing:.55px;color:var(--nimbo-faint);margin-top:4px;white-space:nowrap}
+.nimboNavLabel{font-size:10px;letter-spacing:1px;color:var(--nimbo-faint);font-weight:750;padding:0 13px 10px}
+.nimboNavList{display:flex;flex-direction:column;gap:4px}
+.nimboNavList .nav{border:1px solid transparent;background:transparent;border-radius:9px;padding:11px 12px;margin:0;display:flex;align-items:center;gap:12px;min-height:42px;width:100%;font-size:13px;font-weight:570;text-align:left;color:var(--nimbo-secondary);transition:background .15s,border-color .15s,color .15s}
+.nimboNavList .nav svg{flex:none;color:var(--nimbo-faint)}
+.nimboNavList .nav:hover{background:var(--nimbo-soft);color:var(--nimbo-text);border-color:transparent;transform:none}
+.nimboNavList .nav.active{color:var(--nimbo-action);background:var(--nimbo-action-soft);border-color:transparent;font-weight:730;box-shadow:none}
+.nimboNavList .nav.active svg{color:var(--nimbo-action)}
+.nimboSidebarBottom{margin-top:auto;border-top:1px solid var(--nimbo-stroke);padding:16px 6px 0;display:grid;gap:12px}
+.nimboModeLabel{font-size:11px;color:var(--nimbo-secondary);display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:0 6px}
+.nimboStatusIndicator{width:7px;height:7px;border-radius:50%;background:#159f73;flex:none}
+.nimboStatusContext{color:var(--nimbo-faint);font-size:10px}
+.nimboThemeToggle{width:100%;display:flex;align-items:center;gap:9px;padding:11px 12px;border:1px solid var(--nimbo-stroke);background:var(--nimbo-surface);color:var(--nimbo-text);border-radius:9px;font-size:12px;font-weight:620;cursor:pointer}
+.nimboThemeToggle:hover{background:var(--nimbo-soft)}
+.nimboSidebar .sidebarFoot{position:static;margin:2px 6px 0;letter-spacing:0;font-size:10px;line-height:1.55;color:var(--nimbo-faint)}
+/* Explicit focus treatments for all interactive UI */
+button,select,input,textarea{font:inherit}
+button{cursor:pointer;touch-action:manipulation}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[role=button]:focus-visible{outline:2px solid var(--nimbo-action)!important;outline-offset:3px!important}
+button:disabled{cursor:not-allowed!important;opacity:.58!important}
+.theme-day .gameShell,.theme-night .gameShell{
+ --gameBg:var(--nimbo-page);--gamePanel:var(--nimbo-surface);--gamePanel2:var(--nimbo-soft);--gameStroke:var(--nimbo-stroke);--gameText:var(--nimbo-text);--gameMuted:var(--nimbo-secondary);--gameTurquoise:var(--nimbo-action);--gameShadow:var(--nimbo-lift);
+ background:var(--nimbo-page);color:var(--nimbo-text);padding:31px clamp(18px,3.4vw,58px) 40px;
+}
+.gameShell .gameHeadline{margin:0 0 34px;align-items:center;gap:20px}
+.gameShell .gameEyebrow,.nim15Heading span:first-child,.evEyebrow,.fleet17Eyebrow,.nim211Eyebrow{color:var(--nimbo-faint);font-size:10px;font-weight:750;letter-spacing:1.3px}
+.gameShell .gameHeadline h1{font-size:clamp(32px,3.55vw,56px);letter-spacing:-2.25px;line-height:1.13;font-weight:710;max-width:900px;margin:9px 0}
+.gameShell .gameHeadline p{font-size:15px;color:var(--nimbo-secondary);line-height:1.6}
+.gameHeadActions{gap:12px}
+.gameHeadActions>button{background:var(--nimbo-surface);color:var(--nimbo-text);border:1px solid var(--nimbo-stroke);border-radius:9px;min-height:39px;padding:8px 13px;font-size:12px;font-weight:650}
+.gameHeadActions>button:hover{background:var(--nimbo-soft)}
+.gameConnected{color:var(--nimbo-secondary);font-size:10px;letter-spacing:.5px;font-weight:720;border:1px solid var(--nimbo-stroke);border-radius:50px;padding:8px 10px;background:var(--nimbo-surface)}
+/* Workspace: single composed workspace, rather than three competing cards. */
+.nim15Workspace{padding:0 0 18px;color:var(--nimbo-text)}
+.nim15Heading{margin-bottom:15px;gap:18px}
+.nim15Heading h2{font-size:clamp(21px,2vw,28px);font-weight:700;letter-spacing:-.75px;margin:7px 0 5px;line-height:1.2}
+.nim15Heading p{font-size:13px;line-height:1.6;color:var(--nimbo-secondary)}
+.nim15Heading .nim15Env{border-color:var(--nimbo-stroke);background:var(--nimbo-surface);color:var(--nimbo-secondary)!important;font-size:11px!important;letter-spacing:0;border-radius:8px;padding:9px 11px;white-space:nowrap}
+.nim15Workflow{display:grid;grid-template-columns:minmax(0,1.06fr) minmax(0,1.07fr) minmax(250px,.8fr);gap:0;border:1px solid var(--nimbo-stroke);border-radius:13px;overflow:hidden;background:var(--nimbo-surface);box-shadow:var(--nimbo-lift)}
+.nim15Workspace .nim15Workflow>.nim15Block{padding:24px clamp(16px,1.7vw,28px);border:0;border-radius:0;background:transparent;box-shadow:none;gap:14px;min-width:0}
+.nim15Workflow>.nim15Block+ .nim15Block{border-left:1px solid var(--nimbo-stroke)}
+.nim15BlockTop{gap:12px;margin-bottom:6px}
+.nim15BlockTop>b,.nim15Workspace .nim15BlockTop>b{width:30px;height:30px;flex-basis:30px;border-radius:7px;font-size:12px;background:var(--nimbo-soft);color:var(--nimbo-secondary);border:1px solid var(--nimbo-stroke);font-weight:730}
+.nim15Workspace .nim15Block h3{font-size:17px;letter-spacing:-.35px;font-weight:730;margin:1px 0 3px}
+.nim15BlockTop p{font-size:12px;color:var(--nimbo-faint);line-height:1.5}
+/* Options use concise native-feeling selection treatments */
+.nim15Workspace .nim15Segments,.nim15Workspace .nim15SelectGrid,.nim15Workspace .nim15Goals{gap:6px}
+.nim15Workspace .nim15Segments button,.nim15Workspace .nim15Goals button,.nim15Workspace .nim15SelectGrid label{min-height:43px;padding:10px 13px;border:1px solid transparent;background:transparent!important;color:var(--nimbo-text)!important;font-size:13px;border-radius:8px;box-shadow:none!important;font-weight:550;line-height:1.35;transition:background .15s,border-color .15s}
+.nim15Workspace .nim15SelectGrid label{padding:11px 12px;display:block}
+.nim15Workspace .nim15Segments button:hover,.nim15Workspace .nim15Goals button:hover,.nim15Workspace .nim15SelectGrid label:hover{background:var(--nimbo-soft)!important;border-color:var(--nimbo-stroke)!important;transform:none}
+.nim15Workspace .nim15Segments button.active,.nim15Workspace .nim15Goals button.active,.nim15Workspace .nim15SelectGrid label:has(input:checked){background:var(--nimbo-action-soft)!important;border:1px solid color-mix(in srgb,var(--nimbo-action) 47%,var(--nimbo-stroke))!important;box-shadow:none!important;color:var(--nimbo-action)!important;font-weight:720}
+.nim15SelectGrid input,.nim211Optin input,.nim22ImageMode input{accent-color:var(--nimbo-action)}
+.nim15SelectGrid label small,.nim15Workspace .nim15SelectGrid label small{color:var(--nimbo-secondary);font-size:11px;line-height:1.4;margin:4px 0 0 22px}
+.nim15Workspace .nim15Segments button small{color:var(--nimbo-warning);font-size:10px}
+.nim15Workspace .nim16InputMode{border:1px solid var(--nimbo-stroke);border-radius:8px;gap:3px;padding:3px;background:var(--nimbo-soft)}
+.nim15Workspace .nim16InputMode button{background:transparent;border:1px solid transparent;color:var(--nimbo-secondary);border-radius:6px;font-size:12px;min-height:34px}
+.nim15Workspace .nim16InputMode button.active{background:var(--nimbo-surface);border-color:var(--nimbo-stroke);font-weight:730;color:var(--nimbo-text);box-shadow:0 1px 2px #00000008}
+.nim15Workspace .nim15File,.nim15Workspace .nim16DatasetHint,.nim15Workspace .nim15Readiness,.nim15Workspace .nim20Trial,.nim15Workspace .nim21Validation,.nim15Workspace .nim15Info{border:1px solid var(--nimbo-stroke);border-radius:9px;background:var(--nimbo-soft);padding:13px;box-shadow:none}
+.nim15Workspace .nim16DatasetHint{font-size:12px;line-height:1.6;color:var(--nimbo-secondary)}
+.nim15Workspace .nim15File p,.nim15Workspace .nim15Hint,.nim15Workspace .nim15Readiness p{font-size:11px;line-height:1.55;color:var(--nimbo-secondary)}
+.nim15Workspace .nim15Readiness{padding:10px 13px}
+.nim15Workspace .nim15Readiness p{margin:6px 0}
+.nim15Workspace .nim15Readiness b{color:var(--nimbo-text)}
+.nim15Workspace .nim15Field>label,.nim15Workspace .nim15Models label{font-size:12px;font-weight:680;color:var(--nimbo-text)}
+.nim15Workspace .nim15Field textarea,.nim15Workspace .nim15Field select,.nim15Workspace .nim15Models select,.nim15Workspace .nim20Trial select,.nim15Workspace .nim22ImageMode input[type=number]{background:var(--nimbo-surface);border:1px solid var(--nimbo-stroke);border-radius:8px;color:var(--nimbo-text);padding:11px 12px;font-size:12px;min-height:40px;box-shadow:none}
+.nim15Workspace .nim15Models select{font-size:12px}
+.nim15Workspace .nim15Field textarea{min-height:88px}
+.nim15Workspace .nim15Field textarea::placeholder{color:var(--nimbo-faint)}
+.nim15Workspace .nim15File input::file-selector-button{background:var(--nimbo-surface);color:var(--nimbo-text);border:1px solid var(--nimbo-stroke);border-radius:6px}
+.nim15Workspace .nim15Goals button{display:flex;gap:9px;align-items:center}
+.nim15Workspace .nim15Start{margin-top:auto;min-height:46px;padding:12px 17px;font-size:13px;font-weight:750;border:1px solid var(--nimbo-action)!important;background:var(--nimbo-action)!important;color:var(--nimbo-page)!important;border-radius:8px;box-shadow:none!important;letter-spacing:0;transition:background .15s}
+html.nimbo-light .nim15Workspace .nim15Start{color:#fff!important}
+html.nimbo-dark .nim15Workspace .nim15Start{color:#081321!important}
+.nim15Workspace .nim15Start:hover{transform:none;filter:none;background:var(--nimbo-action-hover)!important;border-color:var(--nimbo-action-hover)!important}
+.nim15Error{color:var(--nimbo-error);border-color:color-mix(in srgb,var(--nimbo-error) 35%,var(--nimbo-stroke))}
+/* Uniform command treatment throughout the product */
+.gameShell .gamePrimary,.gameShell .gameStoryContinue,.gameShell .gameV14Primary,.nim211Section .nim211Primary,.evLatestWorkspacePair .evLatestPairOpen{background:var(--nimbo-action)!important;color:#fff!important;border:1px solid var(--nimbo-action)!important;border-radius:8px!important;box-shadow:none!important;filter:none!important;font-weight:710!important;transform:none!important}
+html.nimbo-dark .gameShell .gamePrimary,html.nimbo-dark .gameShell .gameStoryContinue,html.nimbo-dark .gameShell .gameV14Primary,html.nimbo-dark .nim211Section .nim211Primary,html.nimbo-dark .evLatestWorkspacePair .evLatestPairOpen{color:#0b1524!important}
+.gameShell .gamePrimary:hover,.gameShell .gameStoryContinue:hover,.nim211Section .nim211Primary:hover,.evLatestWorkspacePair .evLatestPairOpen:hover{background:var(--nimbo-action-hover)!important;border-color:var(--nimbo-action-hover)!important}
+.gameHeadActions button,.gameFooterBtns button,.gameFooterBtns select,.gameShell .gameDeck button,.evRefresh,.evDetails,.fleet17Refresh,.fleet17Back,.nim211Soft,.nim211Danger,.nim16BackButton,.evModalActions button,.evModalTop button,.fleet17Close,.nim211HistoryToggle,.gameV14Drawer button,.nimboThemeToggle{border:1px solid var(--nimbo-stroke)!important;background:var(--nimbo-surface)!important;color:var(--nimbo-text)!important;border-radius:8px!important;box-shadow:none!important;text-shadow:none!important}
+.gameHeadActions button:hover,.gameFooterBtns button:hover,.gameShell .gameDeck button:hover,.evRefresh:hover,.evDetails:hover,.fleet17Refresh:hover,.nim211Soft:hover,.nim16BackButton:hover,.evModalActions button:hover,.evModalTop button:hover{background:var(--nimbo-soft)!important;color:var(--nimbo-text)!important;transform:none!important}
+/* Operations lab remains 3D, without the aggressive dashboard chrome */
+.gameWorldFrame{border:1px solid var(--nimbo-stroke);border-radius:12px;background:var(--nimbo-surface);box-shadow:var(--nimbo-lift)}
+.gameWorldTop,.gameWorldFooter{background:var(--nimbo-surface)!important;color:var(--nimbo-secondary)!important;border-color:var(--nimbo-stroke)}
+.gameWorldTop{font-weight:680;letter-spacing:.6px}.gameWorldStage{height:min(72vh,785px);min-height:525px}
+.gameMissionHUD,.gameTelemetryHUD,.gameFloatingStep{border-radius:10px;box-shadow:0 8px 22px #0000001c}
+.gameMissionHUD h2{font-size:18px}.gameStoryPanel{border-radius:12px;box-shadow:0 9px 25px #0000001a}
+.gameMissionHUD textarea{font-size:12px;line-height:1.5}
+.gameShell .gameDeck{gap:8px}.gameShell .gameDeck button{min-height:73px;padding:11px}.gameShell .gameDeck button:hover,.gameShell .gameDeck button.selected{background:var(--nimbo-action-soft)!important;border-color:var(--nimbo-action)!important}
+.gameShell .gameDeck button strong{font-size:12px}.gameShell .gameDeck button span{font-size:11px;color:var(--nimbo-secondary)}
+.gameUnderworld>div{border:1px solid var(--nimbo-stroke);background:var(--nimbo-surface);border-radius:10px;box-shadow:none}
+/* Evidence: data first, no competing color blocks. */
+.evRoot,.fleet17{color:var(--nimbo-text)!important;max-width:1580px;margin-inline:auto}
+.evTop,.fleet17Header{margin:5px 0 24px;align-items:center}
+.evTop h2,.fleet17Header h1{font-size:clamp(27px,2.6vw,39px);letter-spacing:-1.25px;color:var(--nimbo-text);font-weight:720;line-height:1.13;margin:8px 0}
+.evTop p,.evLimit p,.fleet17Header p,.fleet17SectionHeading p{font-size:13px;color:var(--nimbo-secondary);line-height:1.6}
+.evMetrics{gap:10px}
+.evMetrics>div,.fleet17Kpis article{min-height:116px;border-radius:10px;background:var(--nimbo-surface)!important;border:1px solid var(--nimbo-stroke)!important;box-shadow:none!important;padding:17px 19px;gap:8px;color:var(--nimbo-text)}
+.evMetrics small,.fleet17Kpis small{color:var(--nimbo-faint)!important;letter-spacing:.55px;font-size:10px}
+.evMetrics strong,.fleet17Kpis b{color:var(--nimbo-text)!important;font-size:clamp(21px,2vw,29px);font-variant-numeric:tabular-nums;letter-spacing:-.6px}
+.evMetrics span,.fleet17Kpis span{color:var(--nimbo-secondary)!important;font-size:11px;line-height:1.5}
+.evLatestWorkspacePair,.theme-day .evLatestWorkspacePair{margin:15px 0;background:var(--nimbo-action-soft)!important;border:1px solid color-mix(in srgb,var(--nimbo-action) 25%,var(--nimbo-stroke));color:var(--nimbo-text)!important;border-radius:10px;box-shadow:none;padding:17px 20px}
+.evLatestWorkspacePair strong{color:var(--nimbo-text)}.evLatestWorkspacePair small,.evLatestWorkspacePair p{color:var(--nimbo-secondary)!important}.evLatestWorkspacePair span{color:var(--nimbo-success)!important}
+.evNotice,.evLimit,.fleet17History,.fleet17Experiments,.evTableWrap{background:var(--nimbo-surface)!important;border:1px solid var(--nimbo-stroke)!important;color:var(--nimbo-secondary)!important;border-radius:10px;box-shadow:none}
+.evNotice{padding:12px 16px;margin:14px 0;font-size:12px}
+.evControls label,.evControls>span,.fleet17Search{color:var(--nimbo-secondary)!important}
+.evControls select,.fleet17Search input{background:var(--nimbo-surface)!important;color:var(--nimbo-text)!important;border:1px solid var(--nimbo-stroke)!important;border-radius:8px;padding:10px 12px}
+.evTable th,.theme-day .evTable th{background:var(--nimbo-soft)!important;color:var(--nimbo-secondary)!important;border-color:var(--nimbo-stroke);font-size:10px;letter-spacing:.4px}
+.evTable td,.theme-day .evTable td{background:var(--nimbo-surface)!important;color:var(--nimbo-text)!important;border-color:var(--nimbo-stroke)!important}
+.evTable tr:hover td{background:var(--nimbo-soft)!important}
+.evTable td small{color:var(--nimbo-secondary)!important}
+.evPill,.theme-day .evPill{color:var(--nimbo-success);border-color:color-mix(in srgb,var(--nimbo-success) 30%,var(--nimbo-stroke));border-radius:6px}
+.evLimit{padding:17px 20px}.evLimit h3{color:var(--nimbo-text)}
+/* Fleet and registry */
+.fleet17SectionHeading{margin:25px 0 14px}
+.fleet17Model,.theme-day .fleet17Model,.fleet17History,.theme-day .fleet17History,.fleet17Experiments,.theme-day .fleet17Experiments{background:var(--nimbo-surface)!important;color:var(--nimbo-text)!important;border-color:var(--nimbo-stroke)!important;box-shadow:none!important;border-radius:10px}
+.fleet17Model:hover,.theme-day .fleet17Model:hover{background:var(--nimbo-soft)!important;border-color:var(--nimbo-action)!important;transform:none}
+.fleet17Model strong,.fleet17ExperimentHead strong,.fleet17HistoryRow strong{color:var(--nimbo-text)!important}
+.fleet17Model p,.fleet17Model small,.fleet17HistoryRow small,.fleet17Experiments p,.fleet17ExperimentHead small,.fleet17Foot,.fleet17Trust{color:var(--nimbo-secondary)!important}
+.fleet17HistoryRow,.fleet17Experiments article{border-color:var(--nimbo-stroke)!important}
+.fleet17ModelIcon{color:var(--nimbo-action);background:var(--nimbo-action-soft);border-radius:7px}
+.fleet17State,.theme-day .fleet17State{color:var(--nimbo-success);background:transparent;border-color:var(--nimbo-stroke)}
+.fleet17State.offline{color:var(--nimbo-warning)}
+.fleet17Tabs{background:var(--nimbo-soft)!important;border-color:var(--nimbo-stroke)!important;padding:4px;border-radius:8px}
+.fleet17Tabs button{background:transparent!important;color:var(--nimbo-secondary)!important;border:0!important;border-radius:6px!important}
+.fleet17Tabs button.active{background:var(--nimbo-surface)!important;color:var(--nimbo-action)!important;box-shadow:0 1px 4px #00000010!important}
+.fleet17CompareBars>div{background:var(--nimbo-soft)!important;border-color:var(--nimbo-stroke)!important;color:var(--nimbo-text)!important}
+.fleet17CompareBars span{color:var(--nimbo-secondary)!important}
+.fleet17ModalBackdrop,.evModalBackdrop{background:rgba(4,11,21,.7)}
+.fleet17Modal,.evModal{background:var(--nimbo-surface)!important;color:var(--nimbo-text)!important;border-color:var(--nimbo-stroke)!important;border-radius:12px;box-shadow:0 30px 90px #0004}
+.evModalTop h2,.fleet17Modal h2{color:var(--nimbo-text)}
+.evModalTop small,.fleet17Modal>small{color:var(--nimbo-action)}
+.evModalTop p,.fleet17Modal p,.fleet17FullId{color:var(--nimbo-secondary)!important}
+.evPairedDetail>div,.evModalNote,.evRawDetails,.evRawDetails pre{background:var(--nimbo-soft)!important;color:var(--nimbo-text)!important;border:1px solid var(--nimbo-stroke)!important;border-radius:8px}
+.evPairedDetail small,.evModalNote,.evRawDetails summary{color:var(--nimbo-secondary)}
+.evModalNote{line-height:1.55}
+/* Adoption review */
+.nim211Section{--aText:var(--nimbo-text);--aMuted:var(--nimbo-secondary);--aStroke:var(--nimbo-stroke);--aPanel:var(--nimbo-surface);--aAlt:var(--nimbo-soft);background:var(--nimbo-surface)!important;border-color:var(--nimbo-stroke)!important;border-radius:12px;box-shadow:none!important;padding:22px;margin-top:24px}
+.nim211Eyebrow{color:var(--nimbo-faint)}
+.nim211Section h2{font-size:25px;letter-spacing:-.75px}.nim211Section h3{font-size:16px}
+.nim211Kpis>div,.nim211Control,.nim211Trial,.nim211History,.nim211Output{border-color:var(--nimbo-stroke)!important;background:var(--nimbo-soft)!important;border-radius:8px;box-shadow:none!important;color:var(--nimbo-text)!important}
+.nim211Kpis span,.nim211Kpis small,.nim211Identity small,.nim211Output p{color:var(--nimbo-secondary)}
+.nim211Steps span{border-color:var(--nimbo-stroke);color:var(--nimbo-secondary);background:var(--nimbo-surface);border-radius:6px}
+.nim211Steps span.current{border-color:var(--nimbo-action);color:var(--nimbo-action)}
+.nim211Optin input{accent-color:var(--nimbo-action)}
+.nim211Trial textarea{border-color:var(--nimbo-stroke);background:var(--nimbo-surface);color:var(--nimbo-text)}
+.nim211Guidance{border-left-color:var(--nimbo-action)}
+.nim211Output span,.nim22Good{color:var(--nimbo-success)}
+.nim211HistoryRows>div{border-color:var(--nimbo-stroke)}
+/* 3D modal portals keep same appearance in both modes */
+html.nimbo-light .gameProofDrawer{--gameBg:var(--nimbo-page);--gamePanel:var(--nimbo-surface);--gamePanel2:var(--nimbo-soft);--gameStroke:var(--nimbo-stroke);--gameText:var(--nimbo-text);--gameMuted:var(--nimbo-secondary);--gameTurquoise:var(--nimbo-action)}
+html.nimbo-dark .gameProofDrawer{--gameBg:var(--nimbo-page);--gamePanel:var(--nimbo-surface);--gamePanel2:var(--nimbo-soft);--gameStroke:var(--nimbo-stroke);--gameText:var(--nimbo-text);--gameMuted:var(--nimbo-secondary);--gameTurquoise:var(--nimbo-action)}
+.gameProofDrawer{background:var(--nimbo-surface)!important;color:var(--nimbo-text)!important;border-color:var(--nimbo-stroke)!important}
+.gameProofKPIs>div,.gameProofResult{background:var(--nimbo-soft)!important;border-color:var(--nimbo-stroke)!important}
+.gameProofKPIs small,.gameProofResult>small{color:var(--nimbo-secondary)!important}
+.gameProofHeading button{background:var(--nimbo-surface)!important;color:var(--nimbo-text)!important;border-color:var(--nimbo-stroke)!important;border-radius:8px}
+/* Small-screen layout */
+@media(max-width:1360px){.nim15Workflow{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.nim15Workflow>.nim15Block:last-child{grid-column:1/-1;border-left:0;border-top:1px solid var(--nimbo-stroke)}.nim15Workflow>.nim15Block:nth-child(2){border-left:1px solid var(--nimbo-stroke)}.nim15Workspace .nim15Start{max-width:340px;margin-left:auto}}
+@media(max-width:940px){.shell{grid-template-columns:1fr!important}.shell>aside.nimboSidebar{height:auto;position:relative;padding:14px;display:block}.nimboSidebar .logo{margin:0 0 14px}.nimboNavList{flex-direction:row;flex-wrap:wrap}.nimboNavList .nav{width:auto;min-height:40px}.nimboSidebarBottom{margin-top:12px;display:flex;align-items:center;justify-content:space-between}.nimboSidebar .sidebarFoot,.nimboNavLabel{display:none}.nimboThemeToggle{width:auto}.theme-day .gameShell,.theme-night .gameShell{padding:22px 18px 30px}.gameShell .gameHeadline{margin-bottom:24px}}
+@media(max-width:720px){.nim15Workflow{grid-template-columns:1fr}.nim15Workflow>.nim15Block,.nim15Workflow>.nim15Block:nth-child(2),.nim15Workflow>.nim15Block:last-child{grid-column:auto;border-left:0;border-top:1px solid var(--nimbo-stroke)}.nim15Workflow>.nim15Block:first-child{border-top:0}.nim15Workspace .nim15Start{max-width:none}.nim15Heading{align-items:start;flex-direction:column}.gameShell .gameHeadline{align-items:start;flex-direction:column}.gameHeadActions{width:100%;justify-content:space-between}.evMetrics,.fleet17Kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.evLatestWorkspacePair{grid-template-columns:1fr}.evLatestWorkspacePair .evLatestPairOpen{justify-self:start}}
+@media(max-width:500px){.nimboNavList .nav{padding:8px;font-size:12px;gap:6px}.nimboSidebarBottom{flex-wrap:wrap}.evMetrics,.fleet17Kpis{grid-template-columns:1fr}.gameShell .gameHeadline h1{font-size:33px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Brand finish: restrained color, consistent command controls, readable in both themes. */
+.nimboSidebar .logoIcon img{display:block;width:40px;height:40px;object-fit:contain;filter:drop-shadow(0 2px 5px rgba(23,73,165,.10))}
+.nimboSidebar .logo{margin-bottom:42px}
+html.nimbo-dark .nimboSidebar .logoIcon img{filter:drop-shadow(0 2px 8px rgba(100,160,245,.2))}
+.nimboNavList .nav{letter-spacing:-.08px}
+.nimboNavList .nav.active{box-shadow:inset 3px 0 0 var(--nimbo-action)!important}
+.nimboNavList .nav:focus-visible{outline-offset:1px!important}
+.nim15Workspace .nim15Workflow{box-shadow:0 8px 30px rgba(20,46,88,.035)!important}
+.nim15Workspace .nim15SelectGrid label:has(input:checked) small,.nim15Workspace .nim15Goals button.active svg{color:var(--nimbo-action)!important}
+.nim15Workspace .nim15Start,.nim211Primary,.gameShell .gamePrimary,.gameShell .gameStoryContinue{letter-spacing:.05px!important;transition:background .16s ease,border-color .16s ease,box-shadow .16s ease!important}
+.nim15Workspace .nim15Start:hover,.gameShell .gamePrimary:hover{box-shadow:0 3px 12px rgba(20,50,105,.14)!important}
+.nim15Workspace textarea,.nim15Workspace select,.evControls select,.fleet17Search input,.nim211Trial textarea{outline-offset:2px}
+.nim15Workspace textarea::placeholder,.fleet17Search input::placeholder{color:var(--nimbo-faint)!important}
+.nim15Workspace .nim15Field textarea:focus,.nim15Workspace select:focus,.evControls select:focus{border-color:var(--nimbo-action)!important;box-shadow:0 0 0 3px color-mix(in srgb,var(--nimbo-action) 13%,transparent)!important}
+.evMetrics>div,.fleet17Kpis article{transition:border-color .15s ease,background .15s ease}
+.evLatestWorkspacePair{box-shadow:none!important}
+.evLatestWorkspacePair strong,.evLatestWorkspacePair p{word-break:normal}
+/* Respect the platform's exact semantic status labels across light and dark. */
+html.nimbo-dark .evPill,html.nimbo-dark .fleet17State{color:var(--nimbo-success)!important}
+html.nimbo-dark .gameProofDrawer p,html.nimbo-dark .gameProofDrawer strong{color:var(--nimbo-text)}
+/* All active primary actions share the one brand action hue, never blue/purple gradients. */
+.gameShell .gameStoryPanel button.gameStoryContinue,.gameShell .gamePrimary,.gameShell .gameV14Primary,.nim15Workspace .nim15Start,.nim211Section .nim211Primary,.evLatestWorkspacePair .evLatestPairOpen{background-image:none!important}
+/* Fix responsive evidence tables without hiding underlying evidence. */
+.evTableWrap{max-width:100%;overflow-x:auto}
+.evTable{min-width:740px}
+@media(max-width:1000px){.gameWorldStage{min-height:470px}.gameMissionHUD{max-width:320px}.gameTelemetryHUD{max-width:300px}}
+@media(max-width:720px){.nimboSidebar .logo{margin:0 0 12px}.gameWorldStage{min-height:440px}.evTable{min-width:650px}}
+
+/* Official NIMBO mark — original user-supplied logo, preserved without redrawing. */
+.nimboSidebar .logo.nimboFullBrand{display:flex;justify-content:flex-start;align-items:center;margin:0 4px 26px;padding:0;min-height:108px;background:transparent}
+.nimboSidebar .nimboOfficialLogo{display:block;width:182px;max-width:100%;height:auto;border-radius:10px;object-fit:contain;background:#060d1f;box-shadow:0 4px 16px rgba(7,17,41,.10)}
+html.nimbo-dark .nimboSidebar .nimboOfficialLogo{box-shadow:0 4px 14px rgba(0,0,0,.16)}
+@media(max-width:940px){.nimboSidebar .logo.nimboFullBrand{min-height:0;margin:0 0 12px}.nimboSidebar .nimboOfficialLogo{width:142px}}

@@ -51,7 +51,7 @@ function Mat({color,emissive,intensity=0,roughness=.43}){return <meshStandardMat
 function GuidePath({target,flow=STEPS}){
  const to=PEOPLE[target],idx=flow.indexOf(target);
  const source=idx>0?PEOPLE[flow[idx-1]]:null;
- const start=source?[source.x,source.z+.7]:[-7.30,5.75];
+ const start=source?[source.x,source.z+.7]:[-6.15,4.75];
  const end=[to.x,to.z+.7];const dx=end[0]-start[0],dz=end[1]-start[1],len=Math.hypot(dx,dz);
  const mid=[(start[0]+end[0])/2,.05,(start[1]+end[1])/2];
  const angle=Math.atan2(dx,dz),ref=useRef();
@@ -74,7 +74,7 @@ function CourierCapsule({target,theme,enabled,onArrive,compactRatio=1}){
   if(leg2.current)leg2.current.rotation.x=dist>.1?-Math.sin(clock.elapsedTime*10)*.4:0;
  });
  const cloudColor=theme==='day'?'#fffef8':'#e2f1ff';
- return <group ref={g} position={[-7.30,0,5.75]} scale={.40}>
+ return <group ref={g} position={[-6.15,0,4.75]} scale={.59}>
   <mesh castShadow position={[0,1.1,0]}><sphereGeometry args={[.56,20,16]}/><Mat color={cloudColor}/></mesh>
   <mesh position={[0,1.42,-.05]}><sphereGeometry args={[.35,18,12]}/><Mat color={cloudColor}/></mesh>
   <mesh position={[0,1.08,.51]}><boxGeometry args={[.65,.39,.09]}/><Mat color="#173250"/></mesh>
@@ -110,11 +110,11 @@ function getTokenPair(metrics){
  const after=numOrNull(metrics?.input_tokens_after??metrics?.optimized_input_tokens);
  return before!==null&&after!==null&&before>0&&after>=0?[before,after]:null;
 }
-function CameraFollow({target,boardFocus=false}){const {camera}=useThree();const dest=useMemo(()=>new THREE.Vector3(),[]);const look=useRef(new THREE.Vector3(0,1.25,-.9));useFrame((_,delta)=>{const p=PEOPLE[target];dest.set(...(boardFocus?[0.6,3.9,5.85]:[3.2,6.6,11.9]));camera.position.lerp(dest,Math.min(1,delta*1.6));const desired=new THREE.Vector3(boardFocus?0:p.x*.12,boardFocus?2.65:1.25,boardFocus?-4.45:-.9);look.current.lerp(desired,Math.min(1,delta*1.75));camera.lookAt(look.current);});return null}
-function LabScene({veraLive,target,onSelect,busy,route,comparison,imageComparison,theme,offline,liveExecute,started,onArrive,missionSeed,explainingId,thinkingId,speech,celebrating,metrics,events=[],guideStep=0,quality='UNVERIFIED',flow=STEPS,boardFocus=false}){const p=COLORS[theme];return <Canvas camera={{position:[3.2,6.6,11.9],fov:46}} shadows dpr={[1,1.5]} gl={{antialias:true}}>
+function CameraFollow({target,boardFocus=false}){const {camera}=useThree();const dest=useMemo(()=>new THREE.Vector3(),[]);const look=useRef(new THREE.Vector3(0,1.25,-.9));useFrame((_,delta)=>{const p=PEOPLE[target];dest.set(...(boardFocus?[0.6,3.9,5.85]:[3.15,7.35,15.25]));camera.position.lerp(dest,Math.min(1,delta*1.6));const desired=new THREE.Vector3(boardFocus?0:p.x*.12,boardFocus?2.65:1.25,boardFocus?-4.45:-.9);look.current.lerp(desired,Math.min(1,delta*1.75));camera.lookAt(look.current);});return null}
+function LabScene({veraLive,target,onSelect,busy,route,comparison,imageComparison,theme,offline,liveExecute,started,onArrive,missionSeed,explainingId,thinkingId,speech,celebrating,metrics,events=[],guideStep=0,quality='UNVERIFIED',flow=STEPS,boardFocus=false}){const p=COLORS[theme];return <Canvas camera={{position:[3.15,7.35,15.25],fov:47}} shadows dpr={[1,1.5]} gl={{antialias:true}}>
  <color attach="background" args={[p.sky]}/><ambientLight intensity={p.ambient}/><hemisphereLight args={['#ffffff',theme==='day'?'#7396ad':'#102f4c',theme==='day'?.75:.6]}/><directionalLight castShadow position={[2,9,5]} intensity={theme==='day'?2:3} shadow-mapSize={[512,512]}/>
  <OperationsEnvironmentV19 theme={theme}/><MissionWallV19 route={route} reported={Boolean(route)} theme={theme} metrics={metrics} comparison={comparison} imageComparison={imageComparison} events={events} guideStep={guideStep} quality={quality} busy={busy}/><GuidePath target={target} flow={flow}/><CourierCapsule key={missionSeed} target={target} theme={theme} enabled={started} onArrive={onArrive} compactRatio={getTokenPair(metrics)?Math.max(.48,Math.min(1,getTokenPair(metrics)[1]/getTokenPair(metrics)[0])):1}/>
- {STEPS.map(id=><React.Fragment key={id}><WorkstationV19 id={id} person={PEOPLE[id]} active={id===target} busy={busy&&liveExecute} explaining={explainingId===id} theme={theme} route={route} offline={id==='model'&&offline}/><LivingWorkerV19 id={id} person={PEOPLE[id]} active={id===target||(id==='vera'&&veraLive?.active)} busy={(busy&&liveExecute)||(id==='vera'&&veraLive?.active)} explaining={explainingId===id} thinking={thinkingId===id||(id==='vera'&&veraLive?.active)} speech={id==='vera'&&veraLive?.active?{title:({queued:'Queued for verification',checking_fast:'Checking Fast image',generating_standard:'Running fallback',checking_standard:'Checking Standard'})[veraLive.state]||'Checking image'}:explainingId===id?speech:null} celebrating={celebrating && id==='metri'} theme={theme} offline={id==='model'&&offline} onSelect={onSelect}/></React.Fragment>)}
+ {STEPS.map(id=><React.Fragment key={id}><WorkstationV19 id={id} person={PEOPLE[id]} active={id===target} busy={busy&&liveExecute} explaining={explainingId===id} theme={theme} route={route} offline={id==='model'&&offline}/><LivingWorkerV19 hideLabels={boardFocus} id={id} person={PEOPLE[id]} active={id===target||(id==='vera'&&veraLive?.active)} busy={(busy&&liveExecute)||(id==='vera'&&veraLive?.active)} explaining={explainingId===id} thinking={thinkingId===id||(id==='vera'&&veraLive?.active)} speech={id==='vera'&&veraLive?.active?{title:({queued:'Queued for verification',checking_fast:'Checking Fast image',generating_standard:'Running fallback',checking_standard:'Checking Standard'})[veraLive.state]||'Checking image'}:explainingId===id?speech:null} celebrating={celebrating && id==='metri'} theme={theme} offline={id==='model'&&offline} onSelect={onSelect}/></React.Fragment>)}
  <ContactShadows position={[0,.018,0]} scale={17} opacity={theme==='day'?.25:.35} blur={3} far={4}/><CameraFollow target={target} boardFocus={boardFocus}/>
  </Canvas>}
 
