@@ -249,3 +249,45 @@ This is a verified source-code checkpoint, **not** evidence that model execution
 2. If a profile passes, reserve and independently evaluate a new labeled holdout and independently offline-reload any resulting package. Until then `eligible_for_downloadable_package=false`, `eligible_for_deployment=false`.
 3. If none pass, keep the verified FP32 ONNX M4 review package. Do not relax fixed gates simply to report a pass.
 4. Preserve main; user must explicitly authorize any merge or production deployment.
+
+
+---
+
+## Milestone 6 — Automatic evidence-bound FP32 fallback decision (review only)
+
+- Date/time (Asia/Riyadh): 2026-11-02 00:01:07 +0300
+- Development branch: `develop/auto-optimizer-v1`; pre-install local and GitHub HEAD: `8d7055bcbd75446d270cdd454e91abe02979fcd3`.
+- Commit SHA after installation: `git rev-parse HEAD` (cannot embed a commit's own SHA).
+- GitHub CI for new SHA: NOT VERIFIED by this installer. Local full Python suite tested by installer.
+- Local Mac evidence reports and model weights remain in ignored `results/` and are not uploaded to GitHub.
+- Historical `main` SHA `710f4f1` remains unchanged; installer refuses `main`.
+
+### Decision and evidence
+
+- User-reported M5.1 actual Mac result: `results/auto_optimizer_quality_int8_v1/search_13dbb02997d94c39/report.json`.
+- Search reported `ALL_SELECTIVE_INT8_CANDIDATES_REJECTED`, `selected=null`.
+- All 4 profiles failed unchanged quality gate (prediction agreement minimum .98): `front_50` .945; `back_50` .940; `front_75` .900; `front_50_per_channel` .965.
+- Graph sizes ranged 307,896,902–371,779,772 bytes; these are INT8 ONNX graph bytes, **not** total bundle size or accepted artifacts.
+- Existing verified ONNX FP32 M4 archive remains the only currently selected *review-only* artifact; quantization is not approved or exported.
+
+### Code added
+
+- `app/nimbo_auto_decision_v1.py`: read-only evidence-driven selector for the *all INT8 rejected* case; validates exact M2–M5.1 evidence chain, M4 SHA and model identity, independently recalculates M5.1 gates, rejects forged/passing/partial reports, extracts the previously verified M4 ZIP, and reruns bundle prediction verification in a fresh Python subprocess with Hugging Face offline mode enabled. Generates a `SELECT_ONNX_FP32_REJECT_INT8` receipt only if offline reload succeeds.
+- `tools/choose_nimbo_candidate_v1.py`: CLI for the decision and receipt.
+- `tests/test_nimbo_auto_decision_v1.py`: rejection, provenance and mocked orchestration tests.
+- Does not rerun INT8 tuning, change source optimization thresholds, create a new model, approve production, modify FastAPI/React, or add agents. The existing M4 FP32 archive is reused intact.
+
+### Verified tests and limits
+
+- Patch author test workspace assembled from M1–M5.1 payloads plus M6: **145 passed** including 12 M6 tests. Earlier model tests use mocked inference; these tests do **not** prove a real RoBERTa M6 run.
+- Installer will run M6 unit tests and the full repository Python suite on Mac before committing; inspect terminal results.
+- Real M6 subprocess offline reload against M4 ZIP and 200 TweetEval test samples: **NOT YET RUN** on Mac at checkpoint creation.
+- A successful M6 receipt means existing ONNX FP32 review package selected, not INT8 selected, not model-size reduction, not deployment.
+- TweetEval is not independently proven unseen by original model developer. No FLOPs, energy or cloud cost savings measurement.
+
+### Next action
+
+1. Run `python -m tools.choose_nimbo_candidate_v1` with original M3/M4/M5/M5.1 reports, datasets and exact M4 archive SHA; inspect `STATUS`, receipt and independent offline reload.
+2. After measured pass, implement safe backend job orchestration and API: import supported model, track real execution events, persist decision receipts, expose review-only artifact download; then wire existing Mission Floor to those events.
+3. Evaluate any new quantization approaches on separate development data only if justified; require a new untouched evaluation and offline reload before package acceptance. Preserve FP32 fallback.
+4. Do not merge, overwrite or force-push `main` without explicit user approval.
