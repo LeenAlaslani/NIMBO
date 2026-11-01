@@ -281,3 +281,7 @@ app.include_router(nimbo_demo_artifact_router_v1)
 # Supported real model-file upload and actual isolated local ONNX evaluation.
 from app.nimbo_company_model_v1 import router as company_model_pilot_router
 app.include_router(company_model_pilot_router)
+
+# NIMBO_M7A_AUTO_OPTIMIZER_LOCAL_ONLY
+from app.nimbo_auto_jobs_api_v1 import router as nimbo_auto_optimizer_m7_router
+app.include_router(nimbo_auto_optimizer_m7_router)

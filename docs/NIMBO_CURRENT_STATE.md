@@ -291,3 +291,19 @@ This is a verified source-code checkpoint, **not** evidence that model execution
 2. After measured pass, implement safe backend job orchestration and API: import supported model, track real execution events, persist decision receipts, expose review-only artifact download; then wire existing Mission Floor to those events.
 3. Evaluate any new quantization approaches on separate development data only if justified; require a new untouched evaluation and offline reload before package acceptance. Preserve FP32 fallback.
 4. Do not merge, overwrite or force-push `main` without explicit user approval.
+
+---
+
+## Milestone 7a — Local auto-optimizer jobs/API (development only)
+
+- Installer date (Asia/Riyadh): 2026-11-02T01:13:48+03:00 (host timezone; verify on Mac).
+- Working branch: `develop/auto-optimizer-v1`; verified previous local/remote HEAD: `56129452ac9024384aed45f674bc3b8787a7288f`. New SHA must be read after commit.
+- Local Mac and GitHub push status: inspect installer output. No CI run is implied. `main` is untouched.
+- User-reported M6 evidence: `VERIFIED_FALLBACK_SELECTED`, `SELECT_ONNX_FP32_REJECT_INT8`, offline 200-sample reload 71% accuracy, four INT8 variants rejected; receipt `selection_d7d6e8b3f9624d04.json` exists on user's Mac, not in Git.
+- Added `app/nimbo_auto_pipeline_jobs_v1.py` and `tools/run_nimbo_auto_pipeline_job_v1.py`: local single-worker subprocess job pipeline invoking existing M1 baseline, M2 ONNX paired benchmark, M3 heldout, and M4 independently verified review-only package. Real per-stage event records, persistent status/receipt, fail/reject paths, dataset SHA verification and crash-interrupted state.
+- Added `app/nimbo_auto_jobs_api_v1.py` (router mounted via `app/mission_api.py`): `POST /nimbo/auto/jobs`, `GET /nimbo/auto/jobs/{id}`, `/events`, `/package`. Loopback clients only. Verified package hashes required before download; never deploy.
+- Inputs: a local supported HF classifier ID at immutable SHA, 2–100 labeled pilot rows placed in `results/auto_optimizer_job_inputs_v1`, and 200–800 labeled evaluation rows in `results/auto_optimizer_heldout_v1`; speed/FP32 ONNX only, `identity`/`cardiff_tweet` preprocessing. No size/balanced orchestration or INT8 automatic choice yet.
+- Safety limitations: developer-only localhost service; NOT sandboxed, authentication, multi-user, rate limiting, robust multiworker or cloud job management. No browser UI/Mission Floor wiring in this milestone. No proof source model never saw TweetEval. No cost/power/FLOPs or ONNX graph size reduction claim.
+- Tests: installer runs M7 targeted pytest, full Python pytest suite and CLI/API import checks before commit; actual results must be read from installer stdout. Patch author isolated M7 tests used mocked dependencies and did NOT run real RoBERTa through the API.
+- Exact next action: run M7 Mac installer; launch development FastAPI on 127.0.0.1:8005; copy existing pilot CSV into designated input folder; submit real job and inspect event/decision/verified package download. Only then connect Mission Floor to true events.
+- Preserve historical `main` and all M1–M6 receipts; no merge to main authorized.
