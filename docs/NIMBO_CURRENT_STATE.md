@@ -210,3 +210,42 @@ This is a verified source-code checkpoint, **not** evidence that model execution
 2. Run M5 INT8 candidate using exact M4 ZIP and printed SHA plus original M3 evidence, check full output and decision; preserve all M1-M4 receipts.
 3. If INT8 fails conversion or gates, investigate concrete hardware/errors and reject or explore compatible quantization settings on *development* data; do not retune heldout M3 test.
 4. If passes development gates, validate with reserved/new heldout, build independently reloadable INT8 bundle and test again; then implement secure API/job workflow and connect real 3D Lab events. Do not touch `main` without explicit permission.
+
+
+---
+
+## Milestone 5.1 — Quality-Aware Selective Dynamic INT8 (development only)
+
+- Updated at (Asia/Riyadh): 2026-11-01 23:49:31 +0300
+- Branch: `develop/auto-optimizer-v1`; verified pre-install local/remote HEAD: `e5468d0abcaaed5689d3cfc466eb5be0ac734d14`.
+- Post-install commit SHA: verify with `git rev-parse HEAD`; a commit cannot contain its own SHA.
+- CI status after push: NOT VERIFIED by installer (Python tests are local).
+- Local artifacts remain ignored, not synced to GitHub. `main` historically at `710f4f1` remains untouched.
+
+### User-provided Mac evidence for M5
+
+- Exact M5 local report: `results/auto_optimizer_int8_v1/int8_69361d79f93f49e9/report.json`.
+- RoBERTa dynamic INT8 graph: 498,831,348 -> 242,447,471 bytes (**51.3969% smaller ONNX graph only**).
+- TweetEval validation 200 examples x3; accuracy FP32 .71 -> INT8 .70 (1 pp lower); prediction agreement .925, below unchanged .98 minimum; mean forward 8.8081 -> 6.2656 ms; process CPU forward total 12323.914 -> 9640.785 ms.
+- M5 decision `INT8_REJECTED_DEV_GATES`; that rejection is correct. Graph shrink/speed improvement is NOT release permission.
+
+### This patch adds
+
+- `app/nimbo_quality_quantization_v1.py`: small bounded selective dynamic INT8 search using named MatMul node subsets from the exact original M4 FP32 graph. Profiles vary first/last portion of ONNX topological MatMul order and optional per-channel quantization. This is a heuristic; do not call the portions verified semantic transformer layers.
+- Rechecks original rejected M5 report, graph SHA, dev dataset SHA, M3 evidence and M4 archive SHA. Reuses M5's unchanged quality, size and runtime gates; records every attempted profile and chooses only an actually passing candidate, otherwise explicit rejection. Maintains FP32 fallback.
+- `tools/run_nimbo_quality_int8_v1.py`: development CLI. `tests/test_nimbo_quality_quantization_v1.py`: policy, provenance and MOCKED end-to-end tests.
+- All results under ignored `results/auto_optimizer_quality_int8_v1`, no model ZIP exported, no UI, API, or deployment change.
+
+### Verification scope
+
+- Patch-author Python regression: **133 passed** across M1–M5.1 targeted suites with mocked model execution (NOT real ONNXRuntime inference). Confirm installer Mac output for full suite separately.
+- New selective quantization on actual RoBERTa hardware: NOT RUN until user invokes CLI on Mac. It may reject all candidates or fail for specific operator versions.
+- Actual model file size and speed/accuracy must be measured per candidate, not inferred from profile names. Still no RAM, FLOPs, energy, billing or complete-package size claim.
+- Evaluation uses **already used M5 validation split** to choose among candidates. Needs a NEW untouched holdout before an INT8 package can be approved for review. Do not retune the previous TweetEval TEST set.
+
+### Exact next action
+
+1. Run M5.1 CLI with the same pinned M4 ZIP, M3 report/dataset, rejected M5 report, and validation CSV. Inspect `STATUS`, `DECISION` and all profile receipts.
+2. If a profile passes, reserve and independently evaluate a new labeled holdout and independently offline-reload any resulting package. Until then `eligible_for_downloadable_package=false`, `eligible_for_deployment=false`.
+3. If none pass, keep the verified FP32 ONNX M4 review package. Do not relax fixed gates simply to report a pass.
+4. Preserve main; user must explicitly authorize any merge or production deployment.
