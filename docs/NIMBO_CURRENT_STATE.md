@@ -106,3 +106,37 @@ This is a verified source-code checkpoint, **not** evidence that model execution
 2. If failure, investigate actual logs and fix on development branch; never fake results.
 3. After successful exploratory comparison, introduce a disjoint heldout set, reloadable package with tokenizer/config, and optional genuinely size-reducing INT8 candidate (when hardware supports it).
 4. Connect frontend/Backend jobs/3D Lab to real states only after end-to-end candidate pipeline works.
+
+
+---
+
+## Milestone 3 — M2 ONNX graph reuse + independent-of-M2 heldout evaluation
+
+- Updated Asia/Riyadh: 2026-11-01 22:26:35 +0300
+- Branch: `develop/auto-optimizer-v1`
+- Pre-install verified GitHub HEAD: `0bea2803bce2dc595d4fbf2c7a650dfb972169b7`. After commit/push, verify the NEW SHA with `git rev-parse HEAD` and `git ls-remote origin refs/heads/develop/auto-optimizer-v1`. A commit cannot contain its own final SHA.
+- GitHub CI for this branch: NOT VERIFIED unless actually shown by GitHub.
+- Source code on `main`: not modified; hackathon reference historically at `710f4f1`.
+- User-reported real local M2 measurement on 12 IMDb pilot rows x 3 rounds: RoBERTa PyTorch vs same weights ONNX, mean warm forward 43.5792 to 28.9344 ms (33.605% reduction), process CPU forward 2101.952 to 1998.066 ms (4.9424% reduction), p95 62.729 to 44.7551 ms; 83.3333% accuracy both, 100% agreement; `EXPLORATORY_PASS_NOT_APPROVED`, not deployed/exportable. Source local report: `results/auto_optimizer_candidates_v1/candidate_3411b428e11e4796/report.json` (not Git tracked). These are user-terminal evidence, not independently verified on patch-author hardware. No smaller-model claim.
+
+### What this M3 patch implements
+
+- Added `app/nimbo_heldout_validation_v1.py`: verify original M2 report + model SHA/revision + original ONNX graph SHA256 before loading graph, then reload ONNX Runtime session in a separate CLI invocation; run PyTorch/ONNX on same 200-800 labeled evaluation rows (3 paired alternating rounds by default), compare accuracy, numerical agreement, warm forward latency/P95 and process CPU, reject CPU/quality regressions and nondeterminism. Output local aggregate JSON only.
+- Added `tools/prepare_nimbo_tweeteval_holdout_v1.py`: deterministic selection of REAL public TweetEval sentiment test rows, dataset revision pinned by HF SHA and dataset provenance sidecar. Distinct from M2 IMDb records. Source model's card says it was fine-tuned with TweetEval: this is NOT a claim that the data is independently unseen by model developers.
+- Added `tools/run_nimbo_heldout_v1.py` CLI for this independent-of-M2-data test. Optional `--preprocess cardiff_tweet` implements model-card @/URL normalization, recorded in receipt.
+- Added `tests/test_nimbo_heldout_validation_v1.py`: unit tests for provenance, safety gates, hash tampering and a MOCKED full workflow.
+- No frontend/API integration, multi-tenant sandbox, model package exporter, real INT8, deployment, or agent behavior added.
+
+### Verified tests / restrictions
+
+- Patch-author local tests: 21 passed with mocked model/session (NOT a real RoBERTa model run). Installer runs these and full repository Python regression tests on Mac before committing.
+- Real TweetEval download/real 200-row model benchmark: NOT RUN by installer. User must run both documented commands on Mac and inspect measured result.
+- Both an M2-local pass and a successful M3 holdout gate are review evidence only; M3 always returns `eligible_for_deployment=false` and `eligible_for_downloadable_package=false`.
+- Still no independent package reload with tokenizer/config; no CPU-energy/FLOPs/cloud billing measured.
+
+### Next action
+
+1. Generate real public TweetEval sentiment test CSV using M3 CLI; validate source and checksum.
+2. Run M3 CLI against the exact M2 candidate report. Check all gates, reproduce failure details if rejected. Avoid retuning on heldout data.
+3. After passing, build self-contained runnable model package + tokenizer/config/manifest + independent reload test (M4); reject package on any failure.
+4. Only then connect Auto-Optimizer API/jobs and 3D Lab states; keep `main` untouched until explicit approval.
