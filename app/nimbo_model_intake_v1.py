@@ -92,17 +92,37 @@ def inspect_hub_metadata(model_id: str, info, config, *, max_weight_bytes: int =
     return ModelIntake(model_id, sha, architecture, num_labels, labels, total, tuple(weights), str(license_name) if license_name else None)
 
 
-def inspect_public_classifier(model_id: str, *, max_weight_bytes: int = MAX_MODEL_WEIGHT_BYTES) -> ModelIntake:
-    """Fetch public metadata, pin an immutable revision, then validate config."""
+def validate_requested_revision(revision: str | None) -> str | None:
+    """An optional user-selected revision MUST be an immutable commit, not a tag/branch."""
+    if revision is None:
+        return None
+    if not isinstance(revision, str) or not REVISION_RE.fullmatch(revision):
+        raise ValueError("Model revision must be an immutable 40-character lowercase Git commit SHA")
+    return revision
+
+
+def inspect_public_classifier(model_id: str, *, revision: str | None = None,
+                              max_weight_bytes: int = MAX_MODEL_WEIGHT_BYTES) -> ModelIntake:
+    """Inspect a public model at current main or an explicit, pinned historical SHA."""
     check_model_id(model_id)
+    requested = validate_requested_revision(revision)
     from huggingface_hub import HfApi
     from transformers import AutoConfig
-    info = HfApi().model_info(model_id, revision="main", files_metadata=True)
+    info = HfApi().model_info(model_id, revision=requested or "main", files_metadata=True)
     sha = getattr(info, "sha", None)
     if not isinstance(sha, str) or not REVISION_RE.fullmatch(sha):
         raise ValueError("Hugging Face did not return a pinned revision")
+    if requested is not None and sha != requested:
+        raise ValueError("Hub returned a different revision than requested; refusing to load")
     config = AutoConfig.from_pretrained(model_id, revision=sha, trust_remote_code=False)
-    return inspect_hub_metadata(model_id, info, config, max_weight_bytes=max_weight_bytes)
+    try:
+        return inspect_hub_metadata(model_id, info, config, max_weight_bytes=max_weight_bytes)
+    except ValueError as exc:
+        if "No supported safetensors" in str(exc):
+            raise ValueError(f"Revision {sha[:12]} contains no supported safetensors weights. "
+                             "Only safetensors is permitted; choose another model or a "
+                             "verified historical commit with safetensors using --revision.") from exc
+        raise
 
 
 def read_evaluation_file(path: str | Path) -> tuple[list[dict[str, str | None]], str]:
@@ -194,12 +214,12 @@ def summarize_baseline(predictions: list[int], expected: list[int | None], wall_
             "note": "Per-item warm CPU model forward only; tokenizer, setup, downloads, memory, energy and billing excluded."}
 
 
-def run_real_baseline(model_id: str, dataset_path: str | Path, *, cpu_threads: int = 2, max_length: int = 256, output_dir: str | Path = "results/auto_optimizer_baselines") -> tuple[Path, dict]:
+def run_real_baseline(model_id: str, dataset_path: str | Path, *, revision: str | None = None, cpu_threads: int = 2, max_length: int = 256, output_dir: str | Path = "results/auto_optimizer_baselines") -> tuple[Path, dict]:
     """Execute REAL pinned CPU inference and save an aggregate-only baseline report."""
     if not 1 <= cpu_threads <= 8 or not 32 <= max_length <= MAX_TOKEN_LENGTH:
         raise ValueError("CPU threads must be 1–8 and max_length must be 32–256")
     rows, digest = read_evaluation_file(dataset_path)
-    spec = inspect_public_classifier(model_id)
+    spec = inspect_public_classifier(model_id, revision=revision)
     expected = resolve_labels(rows, spec.id2label)
     import torch
     from transformers import AutoTokenizer, AutoModelForSequenceClassification

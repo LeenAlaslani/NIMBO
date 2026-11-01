@@ -9,13 +9,14 @@ from app.nimbo_model_intake_v1 import run_real_baseline
 def main(argv=None):
     parser = argparse.ArgumentParser(description="NIMBO real external model baseline (no optimization yet)")
     parser.add_argument("--model-id", required=True, help="Public Hugging Face owner/repository")
+    parser.add_argument("--revision", help="Optional immutable Hugging Face 40-char commit SHA (not branch/tag)")
     parser.add_argument("--dataset", required=True, help="UTF-8 labeled CSV or JSONL, text and optional label")
     parser.add_argument("--cpu-threads", type=int, default=2)
     parser.add_argument("--max-length", type=int, default=256)
     parser.add_argument("--output-dir", default="results/auto_optimizer_baselines")
     args = parser.parse_args(argv)
     try:
-        path, result = run_real_baseline(args.model_id, args.dataset, cpu_threads=args.cpu_threads,
+        path, result = run_real_baseline(args.model_id, args.dataset, revision=args.revision, cpu_threads=args.cpu_threads,
                                          max_length=args.max_length, output_dir=args.output_dir)
     except (ValueError, ImportError, RuntimeError, OSError) as exc:
         print(f"NIMBO BASELINE FAILED: {type(exc).__name__}: {exc}", file=sys.stderr)

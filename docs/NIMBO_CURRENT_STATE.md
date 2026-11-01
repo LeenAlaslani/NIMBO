@@ -44,3 +44,23 @@ Full `python -m pytest -q`: PASS on local Mac (see terminal transcript).
 3. Add quality and CPU/resource gates, explicit rejection paths, then versioned export and independent reload.
 
 This is a verified source-code checkpoint, **not** evidence that model execution or optimizations were successfully run on the Mac.
+
+
+---
+
+## M1.1: Immutable Hugging Face revision selection / failed external baseline attempt
+
+- Checkpoint time (Asia/Riyadh): 2026-11-01 21:59:48 +0300
+- Branch: `develop/auto-optimizer-v1`; previous verified remote HEAD: `5cbbaad7ee3eeae587dc3d3ce4084807ee34d7a2`
+- New HEAD: run `git rev-parse HEAD` after this commit; a commit cannot contain its own SHA.
+- Local and remote synchronization: verify `git status -sb`, `git rev-parse HEAD`, and `git ls-remote origin refs/heads/develop/auto-optimizer-v1` after pushing.
+- Changed files: `app/nimbo_model_intake_v1.py`, `tools/run_nimbo_baseline_v1.py`, `tests/test_nimbo_model_intake_v1.py`, this checkpoint.
+- Verified original run on Mac (user log, 2026-11-01): `cardiffnlp/twitter-roberta-base-sentiment-latest` on default `main` stopped at metadata intake with `No supported safetensors classifier weights`; **no baseline was measured**.
+- Observed public repo state: default `main` contained `pytorch_model.bin` but not `model.safetensors`; a historical SHA `b995b77f45ae7ed76649b47d04952ec8be9f3591` has a `model.safetensors` file.
+- Implemented: optional explicit immutable `--revision` (40 hex chars); SHA returned by Hub must equal request, tokenizer/config/weights all use resolved SHA; existing safetensors-only, size, trust_remote_code=False and architecture restrictions preserved. Better error for a missing safetensors variant.
+- Tests locally conducted in patch authoring container: 32 tests in `tests/test_nimbo_model_intake_v1.py` passed; this is not a Mac hardware inference result.
+- Installer executes Mac's full `python -m pytest -q` before committing; observe actual terminal output. No frontend files changed.
+- Live inference at selected historical model revision: **NOT YET VERIFIED**. No optimization candidate, export, staging deployment or CPU saving claim.
+- Exact next step: execute `python -m tools.run_nimbo_baseline_v1 --model-id cardiffnlp/twitter-roberta-base-sentiment-latest --revision b995b77f45ae7ed76649b47d04952ec8be9f3591 --dataset ~/Downloads/NIMBO_REAL_IMDB_PILOT.csv` on Mac. Inspect metrics and failure logs.
+- After measured baseline: build generic ONNX candidate generator and compare on identical inputs/labels.
+- GitHub `main` remains protected; **never merge or modify main automatically**.

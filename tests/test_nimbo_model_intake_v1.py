@@ -4,7 +4,8 @@ from pathlib import Path
 from types import SimpleNamespace
 import pytest
 from app.nimbo_model_intake_v1 import (check_model_id, inspect_hub_metadata,
-    read_evaluation_file, resolve_labels, percentile, summarize_baseline)
+    read_evaluation_file, resolve_labels, percentile, summarize_baseline,
+    validate_requested_revision, inspect_public_classifier)
 
 
 def hub(**overrides):
@@ -88,3 +89,56 @@ def test_large_file_rejected_before_read(tmp_path):
 def test_malformed_jsonl_rejected(tmp_path):
     p=tmp_path/"x.jsonl";p.write_text('{"text":"a"}\nnot-json\n')
     with pytest.raises(ValueError,match="line 2"):read_evaluation_file(p)
+
+
+def test_revision_must_be_immutable_sha():
+    assert validate_requested_revision(None) is None
+    assert validate_requested_revision('b'*40) == 'b'*40
+    for invalid in ('main', 'b'*39, 'B'*40, '../sha', '', None if False else 'v1'):
+        with pytest.raises(ValueError, match='immutable'):
+            validate_requested_revision(invalid)
+
+
+def test_explicit_hub_revision_pins_both_metadata_and_config(monkeypatch):
+    import sys
+    calls = []
+    requested = 'b' * 40
+    class Api:
+        def model_info(self, model_id, revision, files_metadata):
+            calls.append(('info', model_id, revision, files_metadata))
+            return hub(sha=requested)
+    class AutoConfig:
+        @staticmethod
+        def from_pretrained(model_id, revision, trust_remote_code):
+            calls.append(('config', model_id, revision, trust_remote_code))
+            return config()
+    monkeypatch.setitem(sys.modules, 'huggingface_hub', SimpleNamespace(HfApi=Api))
+    monkeypatch.setitem(sys.modules, 'transformers', SimpleNamespace(AutoConfig=AutoConfig))
+    result = inspect_public_classifier('team/supported-model', revision=requested)
+    assert result.resolved_revision == requested
+    assert calls == [('info','team/supported-model',requested,True),
+                     ('config','team/supported-model',requested,False)]
+
+
+def test_hub_refusal_when_pinned_metadata_changes(monkeypatch):
+    import sys
+    class Api:
+        def model_info(self, *args, **kwargs):
+            return hub(sha='c'*40)
+    monkeypatch.setitem(sys.modules, 'huggingface_hub', SimpleNamespace(HfApi=Api))
+    monkeypatch.setitem(sys.modules, 'transformers', SimpleNamespace(AutoConfig=SimpleNamespace(
+        from_pretrained=lambda *args, **kw: config())))
+    with pytest.raises(ValueError, match='different revision'):
+        inspect_public_classifier('team/supported-model', revision='b'*40)
+
+
+def test_helpful_missing_safetensors_explanation(monkeypatch):
+    import sys
+    class Api:
+        def model_info(self,*args,**kwargs):
+            return hub(siblings=[SimpleNamespace(rfilename='pytorch_model.bin',size=100)])
+    monkeypatch.setitem(sys.modules, 'huggingface_hub', SimpleNamespace(HfApi=Api))
+    monkeypatch.setitem(sys.modules, 'transformers', SimpleNamespace(AutoConfig=SimpleNamespace(
+        from_pretrained=lambda *args, **kw: config())))
+    with pytest.raises(ValueError, match='--revision'):
+        inspect_public_classifier('team/supported-model')
