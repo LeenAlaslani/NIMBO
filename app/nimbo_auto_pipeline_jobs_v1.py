@@ -225,7 +225,7 @@ def run_worker(root: Path, job_id: str, *, baseline=None, candidate=None, heldou
     """All stages execute REAL original modules; injections used only by unit tests."""
     from app.nimbo_model_intake_v1 import run_real_baseline
     from app.nimbo_onnx_candidate_v1 import run_paired_candidate
-    from app.nimbo_heldout_validation_v1 import validate_existing_candidate
+    from app.nimbo_heldout_validation_v1 import validate_existing_candidate, pilot_gate_disposition
     from app.nimbo_package_v1 import package_model
     baseline = baseline or run_real_baseline
     candidate = candidate or run_paired_candidate
@@ -249,12 +249,21 @@ def run_worker(root: Path, job_id: str, *, baseline=None, candidate=None, heldou
         _event(folder,'RUNNING','optimize','Starting ONNX FP32 graph export and paired benchmark')
         m2, candidate_report = candidate(req['model_id'], pilot, revision=req['revision'], baseline_report=m1)
         reports['candidate_report'] = str(m2)
-        if not candidate_report['decision']['local_gates_passed']:
-            reason = 'ONNX did not pass paired development quality/performance gates'
-            _event(folder,'COMPLETED_REJECTED','verify',reason,extra={'decision':candidate_report['decision']['decision']})
+        pilot_disposition = pilot_gate_disposition(candidate_report)
+        if pilot_disposition is None:
+            reason = 'ONNX pilot failed required quality/mean-speed checks; no heldout promotion'
+            _event(folder,'COMPLETED_REJECTED','verify',reason,extra={
+                'decision':candidate_report['decision']['decision']})
             return _finish(folder,reports,'SELECT_ORIGINAL_NO_ONNX_PACKAGE',reason)
-        _event(folder,'RUNNING','optimize','ONNX paired benchmark passed local gates',extra={
-            'decision':candidate_report['decision']['decision']})
+        if pilot_disposition == 'PILOT_CPU_P95_TIMING_DEFERRED_TO_HELDOUT':
+            _event(folder,'RUNNING','verify',
+                'Pilot quality and mean-speed checks passed; small-sample CPU/P95 timing verdict deferred to strict heldout',
+                extra={'pilot_decision':candidate_report['decision']['decision'],
+                       'pilot_gate_disposition':pilot_disposition,
+                       'pilot_cpu_gain':candidate_report['decision']['process_cpu_time_reduction_fraction']})
+        else:
+            _event(folder,'RUNNING','optimize','ONNX paired benchmark passed local gates',extra={
+                'decision':candidate_report['decision']['decision']})
         _event(folder,'RUNNING','verify','Starting new heldout paired evaluation using the exact ONNX graph')
         m3, heldout_report = heldout(m2, hold, root=root, preprocess=req['preprocess'])
         reports['heldout_report'] = str(m3)

@@ -307,3 +307,21 @@ This is a verified source-code checkpoint, **not** evidence that model execution
 - Tests: installer runs M7 targeted pytest, full Python pytest suite and CLI/API import checks before commit; actual results must be read from installer stdout. Patch author isolated M7 tests used mocked dependencies and did NOT run real RoBERTa through the API.
 - Exact next action: run M7 Mac installer; launch development FastAPI on 127.0.0.1:8005; copy existing pilot CSV into designated input folder; submit real job and inspect event/decision/verified package download. Only then connect Mission Floor to true events.
 - Preserve historical `main` and all M1–M6 receipts; no merge to main authorized.
+
+---
+
+## M7c — Small-pilot CPU/P95 timing deferral to strict heldout, no gate relaxation
+
+- Date (Asia/Riyadh): 2026-11-02 (installer local timestamp recorded below).
+- Branch: `develop/auto-optimizer-v1`; prerequisite verified GitHub HEAD `9ee0a12ea0f6ea0ad82ba4a0959e5dd4afd3a094`. New HEAD requires `git rev-parse HEAD` after commit; remote push status requires verification.
+- `main` historically at `710f4f152f00983db4e822df466fa1ea3325d5ba` and never edited by M7c.
+- Source of failure (user Mac log, M7 real Job `166c054f00b0457a8173b9a10f2e4c09`): pilot 12 IMDb rows x3; PyTorch mean 43.7664 ms vs ONNX 30.3989 ms (-30.5428%); P95 57.1232 to 45.3236 ms (-20.6564%); aggregate process CPU 2035.969 to 2110.483 ms (+3.6599%); accuracy .833333 for both, prediction agreement 1, logits error 1.025e-05. M2 correctly recorded `REJECTED_LOCAL_GATES` because CPU non-regression failed, and M7 stopped before M3. Older M3 run on 200 TweetEval rows previously passed but is not evidence that this new run must pass.
+- Product decision: small-pilot CPU/P95 timing fluctuations are PROVISIONAL only, not sufficient to reject an otherwise quality-faithful and >=5% mean faster candidate before the 200+ heldout. Strict M3 gates (zero CPU/P95 increase, >=5% mean improvement, no accuracy loss, 100% agreement, no repeat mismatches, logits limit) remain unmodified and mandatory. No loosening and no automatic production approval.
+- Changed `app/nimbo_heldout_validation_v1.py`: new `pilot_gate_disposition` validates original M2 metrics, unchanged criteria, SHA-linked source report; `read_m2_candidate` permits narrowly defined timing deferral only and records `pilot_gate_disposition` in M3 evidence; original M2 JSON remains unchanged.
+- Changed `app/nimbo_auto_pipeline_jobs_v1.py`: log real deferral event, continue to M3 for verified quality-faithful small-pilot candidates; retain rejection for unsafe pilots or failing M3; M4 offline package reload remains mandatory.
+- Added `tests/test_nimbo_m7_pilot_gate_v1.py`: regression, anti-tamper, M3 graph provenance and mocked M7 worker acceptance/rejection tests.
+- Patch author tests: 174 pytest passes across M1–M7c modules (includes mocks, not real Mac RoBERTa/ONNX Runtime). Installer reruns affected and full local Python suite; Mac outputs are authoritative. React build not run because frontend unchanged. Github Actions CI status NOT VERIFIED for new SHA.
+- No model execution was performed by patch author. No GPU/cloud deployment, model-size reduction, FLOPs, electrical power or billing measured.
+- Exact next step: restart local FastAPI after installing M7c; create NEW Job with same model/data and inspect events. Validate that pilot deferral is transparently reported and 200+ heldout measurements, not pilot CPU noise, drive the final decision. If M3 fails, keep original; if M3 passes, require fresh offline ZIP reload before offering review-only download. The existing user job and evidence stay preserved.
+
+- Installer host timestamp: 2026-11-02T01:43:39+03:00

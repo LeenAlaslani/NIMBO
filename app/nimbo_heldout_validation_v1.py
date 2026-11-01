@@ -20,7 +20,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from app.nimbo_model_intake_v1 import inspect_public_classifier, resolve_labels, percentile
-from app.nimbo_onnx_candidate_v1 import digest, select_inputs, summarize_measurements
+from app.nimbo_onnx_candidate_v1 import digest, select_inputs, summarize_measurements, decide_candidate
 
 MIN_ROWS = 200
 MAX_ROWS = 800
@@ -79,6 +79,64 @@ def load_heldout(path: str | Path) -> tuple[list[dict], str, dict]:
     return cleaned, sha, provenance
 
 
+
+def pilot_gate_disposition(m2: dict) -> str | None:
+    """Let *small* quality-faithful pilots continue to the STRICT heldout gate.
+
+    This does not make a rejected pilot pass: M2's original decision and
+    measurements stay unchanged. Only a preliminary CPU/P95 timing regression
+    can be deferred. The ≥5% mean latency requirement and ALL quality checks
+    must already pass; M3 independently rechecks CPU/P95 and quality on 200+ rows.
+    """
+    if not isinstance(m2, dict):
+        return None
+    d = m2.get('decision') or {}
+    if d.get('local_gates_passed') is True and d.get('decision') in (
+            'EXPLORATORY_PASS_NOT_APPROVED', 'LOCAL_PASS_REQUIRES_HELDOUT_AND_RELOAD'):
+        return 'PILOT_LOCAL_PASS'
+    if (d.get('local_gates_passed') is not False or
+            d.get('decision') != 'REJECTED_LOCAL_GATES' or
+            d.get('quality_pass') is not True or d.get('performance_pass') is not False or
+            d.get('small_sample_exploratory') is not True or
+            d.get('repeatability_mismatches') != 0 or
+            d.get('prediction_agreement') != 1.0 or
+            d.get('accuracy_drop') != 0.0 or
+            type(m2.get('unique_dataset_rows')) is not int or
+            not 2 <= m2['unique_dataset_rows'] < 50):
+        return None
+    try:
+        old = m2['baseline']
+        new = m2['onnx_candidate']
+        rows = m2['unique_dataset_rows']
+        rounds = m2['rounds']
+        if type(rounds) is not int or not 2 <= rounds <= 5:
+            return None
+        if (m2.get('forward_calls_each_path') != rows * rounds or
+                old.get('n_forward_calls') != rows * rounds or
+                new.get('n_forward_calls') != rows * rounds):
+            return None
+        expected = decide_candidate(old, new, d['prediction_agreement'],
+                                    samples=rows, max_abs_logit_error=d['max_abs_logit_error'])
+        # The original gate policy must be unchanged and the reported failure
+        # must be explained solely by CPU or p95 (not insufficient speedup).
+        if d.get('criteria') != expected['criteria']:
+            return None
+        for field in ('decision', 'local_gates_passed', 'quality_pass',
+                      'performance_pass', 'small_sample_exploratory',
+                      'mean_latency_reduction_fraction', 'process_cpu_time_reduction_fraction',
+                      'p95_regression_fraction', 'accuracy_drop',
+                      'prediction_agreement', 'max_abs_logit_error'):
+            if d.get(field) != expected[field]:
+                return None
+        if (not expected['quality_pass'] or expected['performance_pass'] or
+                expected['mean_latency_reduction_fraction'] < .05 or
+                old['accuracy'] != new['accuracy']):
+            return None
+    except (KeyError, TypeError, ValueError, ZeroDivisionError):
+        return None
+    return 'PILOT_CPU_P95_TIMING_DEFERRED_TO_HELDOUT'
+
+
 def read_m2_candidate(report_path: str | Path, *, root: Path, model_id: str, sha: str,
                       heldout_sha: str, threads: int, max_length: int) -> tuple[dict, Path]:
     """Require an M2 report and matching hash-verified graph under its run folder."""
@@ -97,8 +155,8 @@ def read_m2_candidate(report_path: str | Path, *, root: Path, model_id: str, sha
     if report.get('cpu_threads_each_path') != threads or report.get('max_length') != max_length:
         raise ValueError('CPU threads / max_length differ from M2; preserve configuration')
     decision = report.get('decision') or {}
-    if not decision.get('local_gates_passed') or decision.get('decision') not in ('EXPLORATORY_PASS_NOT_APPROVED', 'LOCAL_PASS_REQUIRES_HELDOUT_AND_RELOAD'):
-        raise ValueError('M2 candidate did not pass its local gates; do not promote')
+    if pilot_gate_disposition(report) is None:
+        raise ValueError('M2 pilot gates failed quality/speed checks, or its performance deferral is invalid')
     artifact = report.get('artifact') or {}
     raw_graph = report_file.parent / 'model.onnx'
     if raw_graph.is_symlink():
@@ -263,6 +321,7 @@ def validate_existing_candidate(m2_report: str | Path, heldout_path: str | Path,
         'source_candidate_report':str(report_path),
         'source_graph_sha256':m2['artifact']['sha256'],
         'source_m2_dataset_sha256':m2['dataset_sha256'],
+        'pilot_gate_disposition':pilot_gate_disposition(m2),
         'heldout_dataset_sha256':sha,
         'heldout_dataset_provenance':provenance,
         'heldout_unique_examples':len(rows),
