@@ -171,3 +171,42 @@ This is a verified source-code checkpoint, **not** evidence that model execution
 1. Run M4 builder on Mac using M3 report and the same saved TweetEval CSV. Require `STATUS: RUNNABLE_PACKAGE_VERIFIED — REVIEW ONLY` and verify the archive path/SHA.
 2. Independently unzip/download and execute `run_model.py --text ...` on a fresh compatible Python environment; confirm offline local operation.
 3. Implement candidate selection including actual size-reducing INT8 options, safe worker/background jobs, API import/receipt/export, and only then connect 3D Lab to real backend stages. Do NOT modify `main` without explicit user permission.
+
+
+---
+
+## Milestone 5 — Dynamic INT8 size-oriented development trial
+
+- Updated (Asia/Riyadh): 2026-11-01 23:02:11 +0300
+- Branch: `develop/auto-optimizer-v1`; pre-install verified local+remote HEAD `aef426218d5efc1f3e2c646d03e94de112b356e9`.
+- Commit containing this checkpoint: obtain via `git rev-parse HEAD` and compare to `git ls-remote origin refs/heads/develop/auto-optimizer-v1` after installation.
+- Historical `main` preserved, previously verified `710f4f1`; this installer never modifies main.
+- Branch CI after push: NOT VERIFIED BY THIS INSTALLER. Verify GitHub Actions separately.
+- Local Mac artifacts/results can be newer than GitHub, are ignored, and are not uploaded automatically.
+
+### Evidence before M5 (user-shared Mac CLI logs)
+
+- M3 on 200 real TweetEval TEST rows, 3 paired rounds (600 forwards per path), RoBERTa PyTorch FP32 vs ONNX FP32: 71% accuracy on both; mean warm forward 21.0102 vs 8.4126 ms (59.9594% lower); aggregate CPU 15267.9 vs 9392.271 ms (38.4835% lower); 100% prediction agreement. Local review-only, not production approval; dataset not proven unseen during source model training.
+- M4: `RUNNABLE_PACKAGE_VERIFIED_REVIEW_ONLY` reported by the user after an offline ZIP extraction and independent-process model reload. Local ZIP `results/auto_optimizer_packages_v1/nimbo_onnx_review_380a8354a0b0.zip`; SHA256 `89df729766ffc9a676724bb95d9a4f4c103af78904c915e8530bc733fec51f9a`; source graph SHA `5163ef3d57227ac163c7f96512a6745d0fd338aed9ff3e680c8c22b5296aa970`; reload accuracy 71%, 200 examples. **Model size reduction not verified**. Reported by Mac user, ZIP not committed to Git.
+
+### M5 code added
+
+- `app/nimbo_int8_candidate_v1.py`: verifies exact prior M4 ZIP SHA, manifest, contents and M3 evidence; converts the SAME packaged ONNX FP32 graph using real ONNX Runtime dynamic INT8 MatMul quantization; validates INT8 operators and independently compares FP32/INT8 inference and physical graph bytes with quality/CPU/latency gates.
+- `tools/prepare_nimbo_int8_dev_v1.py`: prepare real 200–800 TweetEval sentiment **validation** split records, source commit pinned, index provenance, SHA. This is NOT the prior M3 TEST split; not proven independently unseen by the original RoBERTa developer.
+- `tools/run_nimbo_int8_candidate_v1.py`: development-only benchmark/report CLI, size or balanced policy. No staging or automatic downloadable INT8 package.
+- `tests/test_nimbo_int8_candidate_v1.py`: unit/integration-mocked tests for INT8 decision gates, anti-tamper ZIP checks, rejected metrics, dev provenance, fake quantizer orchestration. Mocked tests are NOT real RoBERTa inference.
+
+### Verification and known limits
+
+- Patch-author environment: 120 targeted tests (M1–M5) passed. No ONNX Runtime installed there, so real INT8 model conversion/inference was NOT RUN in the patch-author environment.
+- Installer executes M5 tests + full existing Python regression suite and confirms both CLI `--help` imports on Mac before committing. These are NOT proof that quantization on RoBERTa or Apple Silicon will succeed.
+- M5 trial measures FP32 ONNX graph bytes versus INT8 ONNX graph bytes, not complete downloadable package, model RAM usage, FLOPs, energy, or cloud billing. Different quantization kernels may be slower or unsupported on some CPUs; failure/rejection is a valid result.
+- M5 development set is used for selecting candidates; to promote INT8, evaluate the exact candidate on a separate new or reserved holdout, then bundle/config/tokenizer and independently offline-reload it with identical output verification.
+- No UI/mission-floor agents, cloud deployment, security isolation, or production readiness added.
+
+### Exact next action
+
+1. Run M5 dataset-prep CLI (validation split, 200 labeled rows) on Mac.
+2. Run M5 INT8 candidate using exact M4 ZIP and printed SHA plus original M3 evidence, check full output and decision; preserve all M1-M4 receipts.
+3. If INT8 fails conversion or gates, investigate concrete hardware/errors and reject or explore compatible quantization settings on *development* data; do not retune heldout M3 test.
+4. If passes development gates, validate with reserved/new heldout, build independently reloadable INT8 bundle and test again; then implement secure API/job workflow and connect real 3D Lab events. Do not touch `main` without explicit permission.
