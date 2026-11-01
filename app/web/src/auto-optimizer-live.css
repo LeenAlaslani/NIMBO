@@ -1,0 +1,55 @@
+.nimauto{max-width:1440px;margin:0 auto;color:inherit;font-family:inherit}
+.nimauto *{box-sizing:border-box}
+.nimautoHeader{margin-bottom:24px}
+.nimautoKicker{display:inline-flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.16em;font-weight:800;color:#62ced5}
+.nimauto h1{font-size:clamp(30px,3.6vw,48px);line-height:1.1;margin:8px 0}
+.nimautoHeader>p{max-width:780px;line-height:1.65;opacity:.81;font-size:14px}
+.nimautoConnection{display:inline-block;margin-top:10px;font-size:12px;padding:7px 12px;border-radius:30px;border:1px solid #679bb047}
+.nimautoConnection.ok{color:#55dabb;background:#3abea016}
+.nimautoConnection.notReady{color:#ebc47c;background:#e8b75716}
+.nimautoColumns{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.nimautoCard{padding:22px;border:1px solid #8fb3ce37;background:linear-gradient(135deg,#17365320,#28456314);border-radius:18px;box-shadow:0 10px 30px #0000000c}
+.nimautoCard h2{font-size:18px;margin:0 0 10px;color:inherit}
+.nimautoCard>p{line-height:1.55;font-size:13px;opacity:.8}
+.nimautoCard label{font-size:12px;font-weight:650;display:block;margin:15px 0 0}
+.nimautoCard input,.nimautoCard select{display:block;width:100%;margin-top:7px;min-height:38px;padding:8px 10px;border-radius:9px;border:1px solid #789ab96d;color:inherit;background:#7d95a41a;font:inherit;outline-offset:2px}
+.nimautoCard input::placeholder{opacity:.45}
+.nimautoTwo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.nimautoHelp{border-radius:10px;margin:18px 0 16px;padding:11px;font-size:12px;line-height:1.7;background:#589db515;overflow-wrap:anywhere}
+.nimautoHelp code{font-size:11px;display:block;opacity:.85}
+.nimautoPrimary,.nimautoLookup button{border:0;border-radius:10px;padding:11px 16px;background:#217ab5;color:white;font-weight:750;cursor:pointer}
+.nimautoPrimary:disabled{opacity:.6;cursor:not-allowed}
+.nimautoLookup{display:flex;gap:10px;align-items:end}
+.nimautoLookup label{flex:1;min-width:0}
+.nimautoStatus{padding:12px;margin-top:15px;border-radius:12px;background:#398dbb18;display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+.nimautoStatus b{font-size:13px}
+.nimautoStatus small{font-size:11px;overflow-wrap:anywhere;flex:1;opacity:.8}
+.nimautoStatus button{border:1px solid #8aa9ba7f;border-radius:8px;background:transparent;color:inherit;display:flex;align-items:center;gap:6px;padding:7px 10px;cursor:pointer}
+.nimautoStages{display:grid;gap:10px;margin:18px 0}
+.nimautoStage{display:flex;gap:11px;align-items:flex-start;border:1px solid #83a7bb32;padding:11px;border-radius:12px;opacity:.8}
+.nimautoStage>span{display:block;color:#74b4ce}
+.nimautoStage>div{display:grid;gap:3px}
+.nimautoStage b{font-size:12px;letter-spacing:.08em}
+.nimautoStage small{font-size:12px}
+.nimautoStage em{font-size:10px;letter-spacing:.07em;text-transform:uppercase;font-style:normal}
+.nimautoStage.state-verified,.nimautoStage.state-observed{border-color:#4ec69c64;opacity:1}
+.nimautoStage.state-verified>span,.nimautoStage.state-observed>span{color:#4dcaab}
+.nimautoStage.state-rejected{border-color:#e08d7270;opacity:1}
+.nimautoStage.state-rejected>span{color:#ed9778}
+.nimautoStage.state-running{border-color:#4ca8ec88;opacity:1}
+.nimautoResult{border-left:3px solid #4bb6b5;padding:8px 12px;background:#58c6d310;overflow-wrap:anywhere;font-size:13px}
+.nimautoResult small{display:block;margin-top:6px;line-height:1.5;opacity:.85}
+.nimautoDownload{display:inline-flex;gap:8px;align-items:center;margin-top:16px;padding:11px 12px;border-radius:10px;background:#15816f;color:#fff;text-decoration:none;font-size:13px;font-weight:700}
+.nimautoNoRelease{display:flex;align-items:center;gap:8px;line-height:1.6;font-size:12px;opacity:.8}
+.nimautoEmpty{margin-top:24px}
+.nimautoError{background:#da665a1e;border:1px solid #cb766b66;padding:10px;border-radius:9px;font-size:12px}
+.nimautoEvidence{margin-top:18px}
+.nimautoEvidence h2{display:flex;align-items:center;justify-content:space-between;gap:15px}
+.nimautoEvidence h2 span{font-size:12px;font-weight:400;opacity:.7}
+.nimautoEvidence ol{list-style:none;padding:0;margin:0;display:grid;gap:0}
+.nimautoEvidence li{display:grid;grid-template-columns:170px 175px 1fr;gap:13px;padding:11px 0;border-top:1px solid #8cb2cb2b;line-height:1.45;font-size:12px}
+.nimautoEvidence time{opacity:.6}
+.nimautoEvidence code{grid-column:3;overflow-wrap:anywhere;opacity:.68;font-size:11px}
+.nimauto footer{font-size:11px;opacity:.65;line-height:1.6;padding:20px 0 35px}
+@media(max-width:940px){.nimautoColumns{grid-template-columns:1fr}}
+@media(max-width:680px){.nimautoTwo{grid-template-columns:1fr}.nimautoEvidence li{grid-template-columns:1fr}.nimautoEvidence code{grid-column:1}.nimautoLookup{display:block}.nimautoLookup button{margin-top:10px}}

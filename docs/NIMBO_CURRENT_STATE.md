@@ -325,3 +325,19 @@ This is a verified source-code checkpoint, **not** evidence that model execution
 - Exact next step: restart local FastAPI after installing M7c; create NEW Job with same model/data and inspect events. Validate that pilot deferral is transparently reported and 200+ heldout measurements, not pilot CPU noise, drive the final decision. If M3 fails, keep original; if M3 passes, require fresh offline ZIP reload before offering review-only download. The existing user job and evidence stay preserved.
 
 - Installer host timestamp: 2026-11-02T01:43:39+03:00
+
+---
+
+## M8a — Live local Auto-Optimizer operator view (frontend integration)
+
+- Date (Asia/Riyadh): 2026-11-02. Installer records host time below.
+- Development branch: `develop/auto-optimizer-v1`. Required pre-install GitHub/local HEAD: `f517b568ac2ae3e0610255efab9d26152f1cde87`. Post-commit SHA must be verified on GitHub after any push. Historical `main` at `710f4f1` untouched.
+- User-reported real M7c Mac event receipt for job `a5a70c3cfd64405a918fa419985c9339`: 9 events across analyze/optimize/verify/deliver; real pilot PyTorch, ONNX paired benchmark, M3 strict 200-row heldout validation, M4 extracted ZIP offline reload; terminal `COMPLETED_REVIEW_ONLY`, reload accuracy 0.71, archive SHA-256 `b001450c8637b5fc7a52651f7c78b305a37e93984a5f668c98473aefafc77cf4`. This is user-provided Mac terminal output, not re-executed by patch author.
+- Added `app/web/src/AutoOptimizerLive.jsx`, `app/web/src/auto-optimizer-live.css`, pure state helpers `autoOptimizerJobView.mjs` and Node tests. Added an Auto-Optimizer section to `app/web/src/main.jsx` navigation, leaving existing Workspace/Mission Floor screens intact. Frontend reads actual M7 local API `http://127.0.0.1:8005/nimbo/auto/jobs` and `/events`; can submit supported-model job and load an old job by ID; stages reflect actual recorded events. Download link is exposed only when backend reports `COMPLETED_REVIEW_ONLY` and review-download eligibility; server revalidates archive checksum on GET.
+- This is an operator panel, NOT yet a moving 3D worker/station integration. Mapping names CAPTAIN/MAKO/VERA/METRI is text labeling of backend stages, not independent LLM reasoning. No fake progress or auto-completion, voice or remote deployment.
+- M7 API supports only speed/ONNX FP32 with pinned public Hugging Face supported sequence classifiers and local preset CSV/JSONL filenames. Uploading arbitrary model files, size/balanced search, secure public multiuser hosting, and INT8 production approval are NOT implemented.
+- Installer runs Node state tests, frontend `npm run build`, and full Python `pytest -q` before committing. Distinguish Mac test output from local patch-author tests. Patch author: 5 pure Node tests passed and JSX syntax parsed; full React bundling cannot be independently verified until Mac build.
+- M7 backend code and all prior experimental receipts are unchanged, including the original rejected INT8 evidence and verified FP32 review package. No new real model inference or retraining is performed by M8a.
+- Exact next step: start frontend Vite 5173 and local M7 API 8005, open Auto-Optimizer tab, load job ID above and verify 9 events plus review-only download. After success, map same event IDs onto existing 3D Mission Floor worker states, preserving failed/skipped stages and camera controls. Do not merge into `main` without explicit authorization.
+
+- Installer host timestamp: 2026-11-02T01:57:24+03:00
