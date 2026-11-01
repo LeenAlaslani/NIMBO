@@ -64,3 +64,45 @@ This is a verified source-code checkpoint, **not** evidence that model execution
 - Exact next step: execute `python -m tools.run_nimbo_baseline_v1 --model-id cardiffnlp/twitter-roberta-base-sentiment-latest --revision b995b77f45ae7ed76649b47d04952ec8be9f3591 --dataset ~/Downloads/NIMBO_REAL_IMDB_PILOT.csv` on Mac. Inspect metrics and failure logs.
 - After measured baseline: build generic ONNX candidate generator and compare on identical inputs/labels.
 - GitHub `main` remains protected; **never merge or modify main automatically**.
+
+
+---
+
+## Milestone 2 — External model ONNX candidate (experimental)
+
+- Updated Asia/Riyadh: 2026-11-01 22:16:39 +0300
+- Branch: `develop/auto-optimizer-v1`
+- Verified previous GitHub HEAD: `d6d2fbf38b061876406954c719701fa31414f904`
+- New checkpoint commit: obtain using `git rev-parse HEAD`; a commit cannot record its own SHA.
+- GitHub sync: installer verifies `git ls-remote` before editing; after `--push`, confirm remote SHA. CI branch status is NOT independently verified by this checkpoint.
+- `main` hackathon commit unchanged by this milestone.
+
+### Measured user evidence (M1, not M2)
+
+- User verified Mac baseline: `cardiffnlp/twitter-roberta-base-sentiment-latest` at immutable revision `b995b77f45ae7ed76649b47d04952ec8be9f3591`, 12 IMDb demo rows.
+- Original model accuracy: **10/12 = 83.33%**; warm forward mean **39.472 ms**, p95 **54.0421 ms**, process CPU forward aggregate **571.227 ms**.
+- Report: `results/auto_optimizer_baselines/baseline_7f56528cafaa31bc.json` (Mac-local; ignored by Git).
+- Domain mismatch and sample size 12 limit quality conclusions. This does **not** measure optimization or model-size change.
+
+### M2 implementation
+
+- `app/nimbo_onnx_candidate_v1.py`: accepts new public model IDs with M1 security checks and immutable SHA; loads genuine safetensors-only CPU model; exports ONNX FP32 graph with dynamic inputs; uses ONNX Runtime CPUExecutionProvider with optimization enabled.
+- `tools/run_nimbo_onnx_candidate_v1.py`: paired PyTorch/ONNX benchmark on identical tokenized inputs; alternating order and 3 rounds by default; tracks predictions, accuracy, agreement, max logits difference, forward mean/p95 and process CPU time separately.
+- `tests/test_nimbo_onnx_candidate_v1.py`: tests validation, identity checks, gates and exporter invocation.
+- Original M1 source is not modified. No FastAPI routes, frontend, 3D animation, generic INT8 candidate or downloadable runnable model package introduced here.
+- A successful execution stores test-only `model.onnx` and `report.json` in ignored `results/auto_optimizer_candidates_v1/<run-id>/`. This is **NOT** an exportable deployable model package; tokenizer/config remain external.
+- Local gate requires mean speedup, CPU non-regression, p95 non-regression, equal accuracy, 100% prediction agreement and small numerical error. Samples <50 always exploratory and no candidate is authorized for deployment/export, even if local gates pass.
+
+### Verification scope
+
+- Patch-author unit tests: **29 passed** in sandbox; Mac installer must run full `python -m pytest -q` and report actual result.
+- Mac ONNX export + real paired inference: **NOT YET RUN** at checkpoint creation.
+- New benchmark is a different measurement from the single-path M1 report and must be treated as such. No quantified savings claim until paired run succeeds.
+- Local model execution is not public multi-tenant sandboxing. No electricity, bills, FLOPs or whole-request energy measured.
+
+### Next action
+
+1. Run the M2 CLI with same pinned model SHA and M1 baseline report; inspect ONNX export and full paired metrics.
+2. If failure, investigate actual logs and fix on development branch; never fake results.
+3. After successful exploratory comparison, introduce a disjoint heldout set, reloadable package with tokenizer/config, and optional genuinely size-reducing INT8 candidate (when hardware supports it).
+4. Connect frontend/Backend jobs/3D Lab to real states only after end-to-end candidate pipeline works.
