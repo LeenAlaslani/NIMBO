@@ -140,3 +140,34 @@ This is a verified source-code checkpoint, **not** evidence that model execution
 2. Run M3 CLI against the exact M2 candidate report. Check all gates, reproduce failure details if rejected. Avoid retuning on heldout data.
 3. After passing, build self-contained runnable model package + tokenizer/config/manifest + independent reload test (M4); reject package on any failure.
 4. Only then connect Auto-Optimizer API/jobs and 3D Lab states; keep `main` untouched until explicit approval.
+
+
+---
+
+## Milestone 4 — Offline runnable ONNX review package (implementation)
+
+- Updated Asia/Riyadh: 2026-11-01 22:47:50 +0300
+- Branch: `develop/auto-optimizer-v1`; verified pre-install remote HEAD `dd88e8adc402443d26d481aa3fd3a7ceaa2e4c37`. Post-commit SHA must be read with `git rev-parse HEAD` and verified against `git ls-remote`.
+- GitHub CI after commit: NOT VERIFIED by installer; check run separately. `main` remains untouched.
+- User-reported Mac M3 result: model `cardiffnlp/twitter-roberta-base-sentiment-latest` at `b995b77f45ae7ed76649b47d04952ec8be9f3591`; 200 TweetEval TEST examples, 3 paired rounds, accuracy 71% on both paths, mean warm PyTorch 21.0102 ms vs ONNX 8.4126 ms (59.9594% lower), process CPU forward total 15267.9 vs 9392.271 ms (38.4835% lower); 100% prediction agreement. `HELDOUT_LOCAL_PASS_REQUIRES_PACKAGE_RELOAD`; NOT deployment approved.
+- Local M3 report: `results/auto_optimizer_heldout_v1/heldout_c5a72a858a014e1f.json` (ignored, not Git tracked). TweetEval data separate from M2 IMDb demo but not proven unseen by original model developer; 200 samples are not an independent third-party audit.
+
+### Code added
+
+- `app/nimbo_package_v1.py`: binds M2/M3 graph SHA, pinned model identity, M3 decision, data fingerprint, preprocessing and 200+ labeled examples; downloads pinned tokenizer/config; creates review-only model ZIP with same ONNX graph, offline inference runner, SHA256 manifest and evidence summary.
+- `tools/build_nimbo_package_v1.py`: review package build CLI; outputs only after offline ZIP extraction, new Python subprocess reload and execution of actual 200 labeled examples reproduce M3 candidate accuracy and packaging-time prediction fingerprint; also smoke-tests standalone runner.
+- `tools/verify_nimbo_package_v1.py`: verify extracted package hashes, local tokenizer+ONNX inference, and paired prediction fingerprint, without internet.
+- `tests/test_nimbo_package_v1.py`: tests for invalid review gate, tampered graph/dataset/manifest, symlinks, rollback and mocked ZIP/reload orchestration.
+
+### Test boundaries
+
+- Patch author: 95 tests passed (M1-M4 combined) with mocked inference in M4; NOT evidence a real RoBERTa package was built or reloaded.
+- Installer executes new M4 tests and the full existing Python test suite on Mac before committing. Web frontend unchanged.
+- Real packaging/independent unzip reload against M3 data: NOT RUN until the user executes the CLI on Mac. This is a local review-only artifact, not public upload, production deployment, or evidence that ONNX shrank model weights. No electrical power, FLOPs or billing measured.
+- M3 report is local self-reported evidence, not cryptographically signed. SHA-256 guards against accidental graph/bundle modification, not malicious replacement of every local record.
+
+### Exact next action
+
+1. Run M4 builder on Mac using M3 report and the same saved TweetEval CSV. Require `STATUS: RUNNABLE_PACKAGE_VERIFIED — REVIEW ONLY` and verify the archive path/SHA.
+2. Independently unzip/download and execute `run_model.py --text ...` on a fresh compatible Python environment; confirm offline local operation.
+3. Implement candidate selection including actual size-reducing INT8 options, safe worker/background jobs, API import/receipt/export, and only then connect 3D Lab to real backend stages. Do NOT modify `main` without explicit user permission.
