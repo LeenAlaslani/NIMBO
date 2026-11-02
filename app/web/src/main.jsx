@@ -31,7 +31,7 @@ function App(){
     {/* Keep the mission mounted while browsing evidence or fleet. */}
     <div style={{display:view==='mission'?'block':'none'}}><GameMissionFloor theme={theme} onThemeChange={()=>setTheme(t=>t==='night'?'day':'night')} registry={registry} active={view==='mission'} onSeeEvidence={()=>setView('evidence')}/></div>
     {view!=='mission'&&<div style={{padding:'28px clamp(16px,3vw,40px)',minHeight:'100vh'}}>
-      {view==='auto'?<AutoOptimizerLive/>:view==='fleet'?<FleetControl onBack={()=>setView('mission')}/>:view==='evidence'?<EvidenceDashboard onBack={()=>setView('mission')}/>:<section className="panel registry"><div className="panelTitle">MODEL REGISTRY <span>REAL CONFIGURATION</span></div><p>Configured models and connection state, not imaginary running agents.</p><div className="modelList">{registry?.models?.map(m=><div className="modelItem" key={m.id}><div><b>{m.id}</b><small>{m.workload} · {m.runtime}</small></div><span>{m.status}</span></div>)||registryError||'Loading registry…'}</div></section>}
+      {view==='auto'?<AutoOptimizerLive theme={theme}/>:view==='fleet'?<FleetControl onBack={()=>setView('mission')}/>:view==='evidence'?<EvidenceDashboard onBack={()=>setView('mission')}/>:<section className="panel registry"><div className="panelTitle">MODEL REGISTRY <span>REAL CONFIGURATION</span></div><p>Configured models and connection state, not imaginary running agents.</p><div className="modelList">{registry?.models?.map(m=><div className="modelItem" key={m.id}><div><b>{m.id}</b><small>{m.workload} · {m.runtime}</small></div><span>{m.status}</span></div>)||registryError||'Loading registry…'}</div></section>}
      </div>}
    </main>
  </div>

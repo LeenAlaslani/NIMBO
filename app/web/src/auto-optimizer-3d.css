@@ -1,0 +1,20 @@
+.nim3dPanel{margin-top:20px;padding:24px;border:1px solid rgba(117,165,201,.24);border-radius:22px;background:rgba(13,28,49,.92);color:#e7f1fd}
+.nim3dHeading{display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.nim3dHeading h2{font-size:clamp(20px,2vw,26px);margin:7px 0}
+.nim3dHeading p{margin:0;color:#acbfd3;max-width:740px;font-size:14px;line-height:1.5}
+.nim3dEyebrow{display:flex;gap:8px;align-items:center;letter-spacing:.12em;font-weight:800;color:#78dce6;font-size:11px}
+.nim3dToggle,.nim3dControls button,.nim3dHistory button{background:#17324e;color:#e2f4ff;border:1px solid #39607b;border-radius:9px;padding:10px 14px;cursor:pointer;font:inherit}
+.nim3dToggle{display:flex;align-items:center;gap:9px}
+.nim3dControls{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin:22px 0 12px}
+.nim3dControls>div{display:flex;gap:8px;flex-wrap:wrap}
+.nim3dControls button:disabled{opacity:.45;cursor:default}
+.nim3dLive,.nim3dRecorded{font-size:11px;font-weight:800;letter-spacing:.075em;padding:9px 11px;border-radius:9px}
+.nim3dLive{color:#b4f8c8;background:#0b3e34}.nim3dRecorded{color:#e7d3a7;background:#373022}
+.nim3dScene{height:min(56vw,470px);min-height:310px;position:relative;border:1px solid rgba(112,161,197,.32);border-radius:17px;overflow:hidden;background:#101e34}
+.nim3dScene canvas{display:block;width:100%!important;height:100%!important}
+.nim3dPlaceholder{min-height:100%;display:flex;justify-content:center;align-items:center;text-align:center;padding:24px;color:#c6d5e4}
+.nim3dEvidence{margin:12px 0;display:flex;flex-direction:column;gap:7px;background:rgba(27,55,77,.8);padding:16px;border-left:3px solid #65d9ca;border-radius:8px;overflow-wrap:anywhere}
+.nim3dEvidence b{letter-spacing:.055em;font-size:12px}.nim3dEvidence span{font-size:14px}.nim3dEvidence small{font-size:11px;color:#a9bbc9}
+.nim3dHistory{display:flex;flex-wrap:wrap;gap:7px}.nim3dHistory button{display:flex;align-items:center;gap:5px;padding:8px 10px;font-size:12px}.nim3dHistory button.active{border-color:#6bdcce;background:#135557}
+.nim3dFoot{margin:12px 0 0;font-size:12px;color:#b2c4d4;line-height:1.5}
+@media(max-width:700px){.nim3dPanel{padding:16px}.nim3dScene{min-height:300px;height:360px}}

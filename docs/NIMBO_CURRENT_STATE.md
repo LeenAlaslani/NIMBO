@@ -341,3 +341,19 @@ This is a verified source-code checkpoint, **not** evidence that model execution
 - Exact next step: start frontend Vite 5173 and local M7 API 8005, open Auto-Optimizer tab, load job ID above and verify 9 events plus review-only download. After success, map same event IDs onto existing 3D Mission Floor worker states, preserving failed/skipped stages and camera controls. Do not merge into `main` without explicit authorization.
 
 - Installer host timestamp: 2026-11-02T01:57:24+03:00
+
+---
+
+## M8b — Real M7 events projected into existing 3D Mission Floor scene
+
+- Date (Asia/Riyadh): 2026-11-02; installer records actual Mac timestamp below.
+- Development branch: `develop/auto-optimizer-v1`; required pre-install GitHub/local HEAD: `f5024844d4af2a6527bf53761e21be13918f841d`. New HEAD and remote push must be verified after installation. Historical `main` SHA `710f4f152f00983db4e822df466fa1ea3325d5ba` untouched.
+- User confirmed M8a UI displays real M7c job `a5a70c3cfd64405a918fa419985c9339`: 9 actual backend events; `COMPLETED_REVIEW_ONLY`, `SELECT_ONNX_FP32_REVIEW_ONLY`, verified offline package download. Screenshot evidence is from user's Mac; not reproduced in patch-author environment.
+- M8b adds `AutoOptimizer3DLab.jsx`, a small 3D viewport in Auto-Optimizer screen, using the existing `GameMissionFloor` LabScene, station geometry, worker characters and CourierCapsule. CAPTAIN=queued/analyze, MAKO=optimize, VERA=verify, METRI=deliver. Event history selection is explicitly a recorded event, not fake live processing. Live polling from M8a is unchanged. Failed/rejected states are never celebrated as successful delivery. Unknown events do not invent a worker station. No independent AI agents or fabricated reasoning.
+- Existing `GameMissionFloor.jsx` exports its LabScene with an opt-in follow-worker camera mode (default false keeps legacy behavior). `AutoOptimizerLive.jsx` gains an optional 3D panel, `main.jsx` forwards existing theme. The legacy workspace / 3D mission flow, backend endpoints, gates, artifacts, and all Python model experiments are not modified.
+- UI follows the real backend M7 status/event streams, not a fake percentage. Includes Overview/Follow, actual-event focus, read-only event history, and explicit connection-loss warning. 3D activation is manual to avoid unnecessary WebGL resource usage; historical stage inspection never reruns model inference.
+- Tests: patch author ran Node pure-state tests for event mappings and branch guard separately; Mac installer runs Node tests, Vite production build and full pytest before commit. No macOS browser E2E performed by patch author. Browser WebGL/camera and live polling must be verified by user.
+- Current constraints: local-only HTTP API on 127.0.0.1:8005, speed/ONNX FP32 path, review-only packaging, no production deployment, no INT8 auto-selection, no energy/FLOPs/billing claims. Visual worker movement = visualization of real events, not an AI agent. No image worker is required for text optimizer Lab; do not touch port 8011 or any unrelated services.
+- Exact next step: open NIMBO development UI (existing port 5173), Auto-Optimizer tab, load known completed job, click Open 3D Lab. Inspect each event and camera. Start a new real job only if needed for observing live transitions. If the 3D view proves stable, implement a service-specific Dev Launcher as separate milestone and later add opt-in short recorded user voice. `main` must not be edited or merged without explicit authorization.
+
+- Installer host timestamp: 2026-11-02T04:03:29+03:00

@@ -2,6 +2,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Activity, CheckCircle2, Download, ExternalLink, FileArchive, RefreshCcw, ShieldCheck, XCircle } from 'lucide-react';
 import './auto-optimizer-live.css';
+import AutoOptimizer3DLab from './AutoOptimizer3DLab';
 import { stageState, canReviewDownload } from './autoOptimizerJobView.mjs';
 
 const BASE = 'http://127.0.0.1:8005';
@@ -21,7 +22,7 @@ async function jsonGet(path, signal) {
 }
 function pct(value) { return typeof value === 'number' && Number.isFinite(value) ? `${(value * 100).toFixed(2)}%` : 'Not reported'; }
 
-export default function AutoOptimizerLive() {
+export default function AutoOptimizerLive({ theme = 'night' }) {
   const [form, setForm] = useState({ model_id: '', revision: '', pilot_file: 'pilot.csv', heldout_file: 'tweeteval_sentiment_test_200.csv', preprocess: 'cardiff_tweet', objective: 'speed' });
   const [lookup, setLookup] = useState('');
   const [id, setId] = useState('');
@@ -114,6 +115,7 @@ export default function AutoOptimizerLive() {
         </> : <p className="nimautoEmpty">Enter a previously issued job ID or start a new job. Status appears only after the API responds.</p>}
       </div>
     </div>
+    <AutoOptimizer3DLab job={job} events={events} connected={connected} theme={theme} />
     <div className="nimautoCard nimautoEvidence"><h2>Backend event stream <span>{events.length} actual events</span></h2>{events.length ? <ol>{events.map(e => <li key={e.seq}><time>{e.at || ''}</time><b>{e.stage?.toUpperCase()} · {e.state}</b><span>{e.message}</span>{e.evidence && <code>{JSON.stringify(e.evidence)}</code>}</li>)}</ol> : <p>No recorded events loaded yet.</p>}</div>
     <footer>Local M7a only · Source model may have seen public evaluation data · Warm forward timing is not electrical energy, FLOPs or cloud billing. INT8 remains separate and unapproved.</footer>
   </section>;
