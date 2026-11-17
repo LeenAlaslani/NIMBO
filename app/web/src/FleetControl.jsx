@@ -1,13 +1,12 @@
 // NIMBO_V17_OPERATIONAL_FLEET
 import React,{useEffect,useMemo,useState} from 'react';
 import './fleet-control.css';
-const API='http://127.0.0.1:8000';
 const num=(v,d=1)=>Number.isFinite(v)?v.toLocaleString(undefined,{maximumFractionDigits:d}):'—';
 const readable=id=>{const end=String(id||'').split('/').pop();return end.replace(/^distilbert-base-uncased-finetuned-sst-2-english$/i,'DistilBERT · SST-2').replace(/^bert-base-uncased-SST-2$/i,'BERT · SST-2').replace(/^Qwen3-0\.6B$/i,'Qwen3 · 0.6B')};
 export default function FleetControl({onBack}){
  const [registry,setRegistry]=useState(null),[data,setData]=useState(null),[error,setError]=useState(''),[loading,setLoading]=useState(false),[tab,setTab]=useState('models'),[search,setSearch]=useState(''),[selected,setSelected]=useState(null);
  async function refresh(){setLoading(true);setError('');try{
-  const [r,d]=await Promise.all([fetch(`${API}/api/registry`,{cache:'no-store'}),fetch(`${API}/nimbo/evidence/unified`,{cache:'no-store'})]);
+  const [r,d]=await Promise.all([fetch('/api/registry',{cache:'no-store'}),fetch('/nimbo/evidence/unified',{cache:'no-store'})]);
   if(!r.ok||!d.ok)throw Error(`Backend unavailable: registry HTTP ${r.status}, evidence HTTP ${d.status}`);
   const [models,evidence]=await Promise.all([r.json(),d.json()]);setRegistry(models);setData(evidence);
  }catch(e){setError(String(e.message))}finally{setLoading(false)}}
@@ -20,7 +19,7 @@ export default function FleetControl({onBack}){
  const counts=new Map();for(const x of runtime)counts.set(x.workload,(counts.get(x.workload)||0)+1);
  return <section className="fleet17">
   <header className="fleet17Header"><div><span className="fleet17Eyebrow">NIMBO / MODEL OPERATIONS</span><h1>Fleet Control</h1><p>Registered models, connected infrastructure and measured request history.</p>{onBack&&<button className="fleet17Back" onClick={onBack}>← Mission Floor</button>}</div><button className="fleet17Refresh" disabled={loading} onClick={refresh}>{loading?'Refreshing…':'↻ Refresh status'}</button></header>
-  {error&&<div className="fleet17Error" role="alert">{error}. Start the NIMBO backend on port 8000.</div>}
+  {error&&<div className="fleet17Error" role="alert">{error}. Start the local NIMBO backend.</div>}
   <div className="fleet17Kpis">
    <article><small>Registered models</small><b>{registry?models.length:'—'}</b><span>Configuration · not a health check</span></article>
    <article><small>Recorded API requests</small><b>{data?runtime.length:'—'}</b><span>Completed historical calls</span></article>

@@ -1,0 +1,95 @@
+/* NIMBO M13.2 — High-contrast, camera-friendly Future Garden shell */
+.nimboGardenWorld{position:absolute;inset:0;overflow:hidden;isolation:isolate;
+  color:#e9fcff;background:#071a2b}
+.nimboGardenCanvas{position:absolute!important;inset:0;touch-action:none}
+.gardenArchitectureLogo{border-radius:16px;border:1px solid #66e0d7;
+  padding:12px 21px;color:#dcffff;background:#082437e8;
+  text-shadow:0 0 10px #4ef5eb;box-shadow:0 0 24px #37cfc342;
+  font-size:22px;letter-spacing:.15em;font-weight:900;white-space:nowrap;text-align:center}
+.gardenArchitectureLogo small{display:block;color:#7ee9df;font-size:8px;
+  font-weight:700;letter-spacing:.22em;margin-top:5px}
+.gardenZoneTitle{border-radius:12px;background:#082c3bdc;
+  border:1px solid #8cebd3aa;color:#f5ffff;
+  padding:8px 12px;text-align:center;white-space:nowrap;
+  box-shadow:0 8px 24px #001726a0}
+.gardenZoneTitle strong{display:block;font-size:12px;letter-spacing:.08em}
+.gardenZoneTitle span{display:block;font-size:9px;margin-top:3px;color:#96d8d9}
+.gardenWorkerTag{--glow:#6fe6d5;display:flex;flex-direction:column;
+  gap:3px;align-items:center;white-space:nowrap;color:#eaffff;
+  background:#081d30e8;border:1px solid var(--glow);
+  padding:7px 10px;border-radius:11px;box-shadow:0 8px 20px #001523ad}
+.gardenWorkerTag strong{color:var(--glow);font-size:12px;letter-spacing:.08em}
+.gardenWorkerTag small{color:#c5e3ec;font-size:10px}
+.gardenWorkerActive{box-shadow:0 0 18px var(--glow),0 6px 20px #001523;
+  border-width:2px}
+.gardenPicoTag{background:#062c3df0;border:1px solid #65eadb;
+  border-radius:12px;padding:7px 13px;font-weight:900;color:#b4fff3;
+  white-space:nowrap;font-size:11px;text-align:center;box-shadow:0 0 14px #1ec7ba77}
+.gardenPicoTag small{font-size:8px;color:#b3d8de;display:block;margin-top:2px}
+.gardenMissionScreen{position:absolute;z-index:3;top:14px;
+  left:50%;transform:translateX(-50%);width:min(43%,650px);box-sizing:border-box;
+  color:#f3ffff;pointer-events:none;padding:13px 15px;
+  background:linear-gradient(145deg,#082138ee,#0b3443e9);
+  border:1px solid #5cd4dc;border-radius:16px;
+  box-shadow:0 0 0 3px #49d4d218,0 18px 35px #00172399;
+  backdrop-filter:blur(14px)}
+.gardenScreenTop,.gardenScreenFooter{display:flex;align-items:center;
+  justify-content:space-between;gap:9px;color:#9bdbe8;
+  font-size:10px;font-weight:700;letter-spacing:.055em}
+.gardenScreenTop b{white-space:nowrap;color:#6cf1c7}
+.gardenMissionScreen h3{font-size:clamp(15px,1.4vw,23px);
+  margin:9px 0 11px;line-height:1.23;font-weight:850;color:#f5fdff}
+.gardenCheckpointGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.gardenCheckpointGrid>div{min-width:0;background:#173448;border:1px solid #4e7185;
+  border-radius:9px;padding:8px}
+.gardenCheckpointGrid>div.passed{background:#15443f;border-color:#64d5a9}
+.gardenCheckpointGrid strong{font-size:10px;line-height:1.2;display:block}
+.gardenCheckpointGrid small{display:block;font-size:9px;color:#a9c5d1;margin-top:4px}
+.gardenAgentWarning,.gardenAgentReview{padding:8px 11px;border-radius:9px;
+  font-size:11px;margin-top:9px}
+.gardenAgentWarning{color:#ffe1c3;background:#5c362b;
+  border:1px solid #edab7d}
+.gardenAgentReview{background:#174737;color:#b0f8d0}
+.gardenScreenFooter{margin-top:9px;border-top:1px solid #52768a44;padding-top:8px}
+.gardenScreenIdle{width:min(35%,495px)}
+.gardenReadyLine{display:flex;gap:12px;justify-content:space-between;
+  font-size:11px;color:#cdeef1;margin-top:10px}
+.gardenReadyLine>span:first-child{font-weight:800;color:#74eacc}
+.gardenDay .gardenMissionScreen{background:#06344af2}
+/* Existing Mission Floor overlays remain functional. */
+.nimLiving:fullscreen,.nimLiving.nimLivingExpanded{
+  position:fixed!important;inset:0!important;z-index:2147483000!important;
+  width:100vw!important;max-width:none!important;height:100dvh!important;
+  max-height:none!important;margin:0!important;border-radius:0!important;
+  display:flex!important;flex-direction:column!important;
+  overflow:hidden!important;background:#071726!important}
+.nimLiving:fullscreen .nimLivingWorld,.nimLiving.nimLivingExpanded .nimLivingWorld{
+  flex:1 1 auto!important;min-height:0!important;height:auto!important;overflow:hidden!important}
+.nimLiving:fullscreen .nimboGardenWorld,.nimLiving.nimLivingExpanded .nimboGardenWorld{
+  width:100%;height:100%}
+@media(max-width:1100px){
+  .gardenMissionScreen{width:43%;padding:10px}
+  .gardenCheckpointGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .gardenScreenTop{font-size:9px}
+  .gardenWorkerTag small{display:none}
+  .gardenZoneTitle span{display:none}
+}
+@media(max-width:740px){
+  .gardenMissionScreen{top:9px;left:51%;width:51%;padding:8px}
+  .gardenMissionScreen h3{font-size:14px;margin:5px 0}
+  .gardenCheckpointGrid small{display:none}
+  .gardenCheckpointGrid strong{font-size:9px}
+  .gardenReadyLine{font-size:9px;display:block}
+  .gardenReadyLine>span{display:block}
+  .gardenScreenFooter{display:none}
+}
+@media(max-height:610px){
+  .gardenMissionScreen{top:5px;padding:7px}
+  .gardenMissionScreen h3{font-size:14px;margin:5px 0}
+  .gardenCheckpointGrid small{display:none}
+  .gardenWorkerTag{padding:4px 7px}
+}
+
+/* M13.3: small legible active/interaction accents, reduced motion option */
+.gardenWorkerTag.gardenWorkerActive{background:#103d49ef}
+@media(prefers-reduced-motion: reduce){.gardenWorkerActive{box-shadow:none}}

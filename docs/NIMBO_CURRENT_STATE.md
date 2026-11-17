@@ -1,4 +1,47 @@
-# NIMBO CURRENT STATE — Auto-Optimizer V1 Milestone 1
+# NIMBO current state
+
+## Portfolio release · 2026-11-17
+
+The development branch is `develop/auto-optimizer-v1`. Local and GitHub development HEAD both started at `9a5f6a963c9b28fe77416a7bb15f9915e3e1b298`. This release carries the local M10–M13 work forward and uses one loopback FastAPI instance for optimizer, registry and evidence. See the [reviewer setup](../README.md#quick-start).
+
+The installed files matched M13.2 at the start. The two attempts to install M13.3 had restored the M13.2 source after the M11 regression test rejected the switch from the original scene to Future Garden. The release applies the manifest-verified M13.3 motion and replay files. The updated regression checks that both optimizer modes share one Mission Floor and that the Garden receives the selected event sequence. The legacy Mission Floor still handles the other workloads.
+
+Replay limits the evidence wall, station briefings, mission journal and handoffs to events visible at the current sequence. The HUD and download control only use the recorded job outcome once playback reaches its final event. A historically failed agentic job cannot offer a ZIP through its agentic result. The associated standard optimizer can separately hold a verified package.
+
+### Recorded DistilBERT optimizer run
+
+The historical standard job used `distilbert/distilbert-base-uncased-finetuned-sst-2-english` at revision `714eb0fa89d2f80546fda750413ed43d93601a13`. Its receipt identifies 240 labeled SST-2 validation records, three paired rounds, two threads per runtime and a maximum length of 256 tokens. Dataset provenance is a recorded metadata claim. This validation split is public and its independence from model training and selection has not been established.
+
+| Metric | PyTorch FP32 | ONNX Runtime FP32 |
+| --- | ---: | ---: |
+| Accuracy | 90.8333% | 90.8333% |
+| Mean warm forward latency | 22.9205 ms | 8.6485 ms |
+| p95 warm forward latency | 47.1251 ms | 28.6595 ms |
+| Total process CPU time across 720 calls per path | 17,310.324 ms | 9,397.965 ms |
+
+The receipt records 100% prediction agreement, zero repeat mismatches and an offline package reload. The historical M7 engine ended `COMPLETED_REVIEW_ONLY` with `SELECT_ONNX_FP32_REVIEW_ONLY`. Its package checkpoint is event 14 of the enclosing M11 recording. M11 then stopped during agent review and recorded `FAILED / AGENT_EXECUTION_FAILED` at event 17. The earlier isolated VERA/METRI review described in the local audit was a separate check. The raw job records, datasets and package remain local.
+
+**Archive audit.** The original `gold_final.csv` error was reproduced by putting the standalone audit script's directory before the repository on the Python import path. An unrelated `app.py` there imported that CSV when Python attempted to load NIMBO's `app` namespace. Running the package guard from the repository root passed. The archive SHA-256 matched the M7 receipt, the ZIP CRC check passed, and the file hashes inside matched the manifest. The manifest's evaluation hash matched the staged 240-row SST-2 file. The local download route returned the ZIP header with HTTP 206 on a four-byte range request. No inference was run for the archive audit.
+
+- Archive SHA-256 `3b59042e339423852079bc1e9859404cf36a8e4f6a95220bfa1f2caa129f606c`
+- Evidence screenshots at [event 14](assets/recorded-replay.jpg) and [event 17](assets/resource-monitor.jpg)
+
+### Portfolio release verification
+
+| Check | Result |
+| --- | --- |
+| Fresh Python setup and `python -m pytest -q` | Python 3.11 in a clean source copy, with `.[dev,optimizer,text]` installed from cached package wheels. `pip check` passed, and PyTorch, Transformers, ONNX Runtime CPU and Datasets imported successfully. 447 tests passed, zero skipped. Four dependency deprecation warnings. |
+| `npm ci`, `npm test`, `npm run build` | Locked install and production build passed in a clean source copy on Node 22.23.5. All 55 Node tests passed with zero skips. Vite emitted a bundle-size warning. |
+| Published evidence checks | `tools.verify_public_proof_v1` and `tools.verify_cross_domain_public_v1` passed. These verify summary consistency. |
+| Local FastAPI and Vite production preview | Health, registry, evidence, standard and agentic history/events, finished-resource endpoints, missing-job checks and review-only download guards exercised. The standard API rejected absent staged files before launching work. The readiness endpoint showed the standard fallback with no model configured, and a separate localhost probe found the configured Qwen model. |
+| Public example preparation | Downloaded public IMDb and TweetEval data in an isolated checkout and staged 12 pilot and 200 held-out examples. Both sets passed label checks against the pinned RoBERTa model metadata without loading weights. |
+| Browser smoke | Playwright with Chrome loaded Workspace and the Garden WebGL scene, exercised Follow PICO and fullscreen entry/exit, checked the journal and replay at events 5, 14 and 17, and opened Evidence. Clicking VERA opened a briefing while playback continued. Captured four genuine screenshots. No jobs were submitted. |
+
+A new full benchmark, a complete Qwen agentic job, live resource measurements on a new job and browser frame-rate benchmarking were outside this pass. The package and replay checks refer to completed historical records. See [development branch Actions](https://github.com/LeenAlaslani/NIMBO/actions?query=branch%3Adevelop%2Fauto-optimizer-v1) for checks tied to the published SHA.
+
+---
+
+## Auto-Optimizer V1 Milestone 1
 
 - Updated (Asia/Riyadh): 2026-11-01 21:50:02 +0300
 - Development branch: `develop/auto-optimizer-v1`
@@ -374,3 +417,114 @@ This is a verified source-code checkpoint, **not** evidence that model execution
 - Do not merge/force-push/modify main without explicit user authorization.
 
 - Installer host timestamp: 2026-11-02T04:33:32+03:00
+
+
+---
+
+## M11 — agentic multi-role execution (local uncommitted implementation; date 2026-11-05T13:36:23)
+
+- Branch: develop/auto-optimizer-v1; verified GitHub preimage HEAD: 9a5f6a963c9b28fe77416a7bb15f9915e3e1b298; M10 changes remain LOCAL ONLY. No commit/push.
+- Added CAPTAIN/FORGE/VERA/METRI/DOCTOR separate local Ollama LLM decisions via allowlisted actions. No remote arbitrary shell or model code.
+- FORGE invokes existing REAL M7 PyTorch/ONNX/heldout/offline packaging worker. VERA and METRI can veto but cannot override acceptance or package checks.
+- DOCTOR retries at most one time for preclassified transient infrastructure failures, never quality failures.
+- Frontend retains M10 three-room UX; auto-selects LLM agents only if configured/running, otherwise labels existing deterministic M7 mode explicitly. Legacy jobs remain readable.
+- AUTO-OPTIMIZATION SCOPE: supported public text classifiers, ONNX FP32 speed only. NO agentic LoRA/Qwen fine-tuning, no automatic INT8/size optimization, no deployment.
+- Source may pass unit tests with mock engine; real local LLM/model/GPU/UI E2E are NOT VERIFIED until run on Mac.
+- Backup: local installer backup. Local/GitHub sync: local ahead and uncommitted. CI: not run for M11.
+- Next: start configured local Ollama model, run REAL agentic model job, inspect stage events/quality/package, negative-case test, and browser interaction. Add new audited optimization tools (INT8, QLoRA etc.) only with real evaluation gates.
+
+---
+
+## M11.1 — Evidence-consistent multi-agent explanations (local patch)
+
+- Installed at (local host time): 2026-11-14T20:41:02+03:00.
+- Expected development branch: `develop/auto-optimizer-v1`; verified preinstall Git HEAD `9a5f6a963c9b28fe77416a7bb15f9915e3e1b298`.
+- Local changes only; GitHub main and development branch were not modified by the installer. Existing M10 and M11 files, API, mission UI and all prior job results are preserved.
+- Source of change: uploaded local M11 source reviewed on 2026-11-14 following real Qwen 2.5 3B job `b9ad0ad1d8214b94bff7fac9c09e4a5c` (`COMPLETED_REVIEW_ONLY`). Qwen output had VERA impersonating METRI and METRI claiming rejection while M7 quality gates passed.
+- Changed files: `app/nimbo_agentic_core_v1.py`, `app/nimbo_agentic_jobs_v1.py`, `tests/test_nimbo_agentic_v1.py`, appended this checkpoint.
+- Implementation: bounded, explicit role/explanation checks; one LLM reason correction request (never retries heavy M7 execution); fail-closed if repeated; deterministic backend-grounded event headline instead of LLM prose; raw model reason retained only as `evidence.llm_reason_not_evidence`, labeled non-authoritative. METRI action gate now requires the exact M7 review-only decision. True agent veto remains allowed.
+- Tests: installer runs uploaded M11 pytest file after patch and Python compile. Browser, fresh Qwen inference, GPU and M7 benchmark **NOT** rerun by this source patch. The isolated patch author test run excluded the UI static check because the full Mac UI was not available; actual host test output should be recorded separately.
+- No change to original M7 heldout acceptance criteria or package SHA verification. Prior M7 and M11 receipts are immutable historical records. This guard catches a defined class of observable English contradictions, not every possible semantic LLM hallucination. Never present free-form LLM explanations as proof of performance.
+- Required next step: restart only localhost 8005 Backend; check `/nimbo/agentic/ready`, read-only inspect historic job, verify new agent reasons with a new opt-in E2E job only when desired. Do not edit `main` without explicit approval.
+
+
+## M12.1 — Clean Workspace (local)
+- Installed: 2026-11-14T22:17:03.612309+03:00
+- Branch: develop/auto-optimizer-v1
+- Changed: UnifiedWorkspace.jsx, unified-nimbo.css
+- Tests: node --test unifiedIntake.test.mjs PASS; npm run build PASS
+- Scope: presentation/intake only; no backend change.
+- Real browser validation: pending.
+- GitHub synchronization: not committed or pushed.
+- Next: M12 Mission Floor timeline/replay/light-mode.
+
+
+## M12.2 — Autonomous Recorded Replay
+- Installed locally: 2026-11-15T10:25:38.049981+03:00
+- Branch: develop/auto-optimizer-v1
+- Changes: UnifiedAutoMission.jsx, living-lab.css, nimboM12Replay.mjs and its tests.
+- Playback uses saved backend events only; no new inference or optimization.
+- Node replay tests and frontend build: PASS.
+- Browser verification: pending.
+- GitHub: no commit or push.
+- Next: monitor updates, light-mode visibility, and camera/animation review.
+
+
+## M12.3 — Non-interrupting worker inspection
+- Local install: 2026-11-15T10:41:09.965584+03:00
+- Branch: develop/auto-optimizer-v1
+- Worker clicks show recorded evidence without changing the active replay sequence.
+- Existing replay tests and frontend build: PASS.
+- Browser interaction test: pending.
+- Backend, saved jobs and model artifacts: unchanged.
+- GitHub: no commit/push.
+- Next: real live mission and dynamic monitor.
+
+
+## M11.2 — Bounded Agent Decision Recovery
+- Installed locally: 2026-11-15T12:22:42.356229+03:00
+- Branch: develop/auto-optimizer-v1
+- Added one bounded out-of-policy response repair.
+- Existing evidence consistency and fail-closed rules preserved.
+- Python compilation and agentic regression tests: PASS.
+- Real Ollama correction test: pending.
+- DistilBERT M7 evidence remains unchanged.
+- GitHub: local changes only; no commit or push.
+
+
+## M12.4 — Viewer-Polled Live Resource Monitor & Real Checkpoint Wall
+- Installed at: 2026-11-15T13:16:40.150786+03:00
+- Verified current local branch: develop/auto-optimizer-v1; local HEAD: 9a5f6a963c9b28fe77416a7bb15f9915e3e1b298
+- GitHub last observed develop HEAD: 9a5f6a963c9b28fe77416a7bb15f9915e3e1b298; local changes NOT pushed.
+- Backend: `app/nimbo_resource_monitor_v1.py`; read-only `/nimbo/agentic/jobs/{id}/resources` and `/nimbo/auto/jobs/{id}/resources`.
+- Telemetry: real psutil job worker process tree CPU/RSS, Ollama separately, host CPU/RAM; GPU/MPS explicitly uninstrumented.
+- Live only: sample-based observed peak, not a durable lifetime peak or model benchmark. Historical replay has no fabricated resource history.
+- UI: Mission Floor live resource panel, real recorded M7 checkpoint wall, legacy missions unchanged.
+- Verification: Python py_compile PASS; agentic+resource pytest PASS; JS unit tests PASS; Vite build PASS (installer).
+- Browser manual QA / Mac live resource measurements: NOT YET VERIFIED. No ONNX run; no deployment or GPU verification.
+- Backup: local installer backup
+- Next: restart API on port 8005, verify `/resources` on a NEW job, capture real sampled CPU/RAM, test finish and replay labels.
+
+
+## M13.1 — Future Garden World
+- Installed: 2026-11-16T09:42:21.930234+03:00
+- Branch: develop/auto-optimizer-v1, local only.
+- Replaced Auto-Optimizer scene with a procedural garden world.
+- Distinct stations, animated robots, moving PICO, observed role handoffs.
+- Fullscreen via browser Fullscreen API with CSS fallback.
+- Evidence screen uses recorded backend milestones only.
+- Original engine, job history and resource API unchanged.
+- New Node evidence tests and Vite build: PASS.
+- Browser visual verification: pending.
+- No model benchmark, GitHub commit or push.
+
+
+## M13.2 — Future Garden Operations World redesign
+- Local installation time: 2026-11-16T10:01:48.902734+03:00
+- Branch: develop/auto-optimizer-v1 (local-only, no push).
+- Updated: app/web/src/NimboGardenWorld.jsx and nimbo-garden-world.css.
+- 3D greenhouse architecture, workstations, expressive workers, recorded handoffs.
+- Historical M7/M11 outcomes remain distinct; no fake resource data.
+- Existing Node tests and npm build: PASS. Browser review: pending.
+- No backend, artifacts, benchmark, model execution or main-branch change.
+- Next: browser review at presentation resolution; GLB art upgrade.

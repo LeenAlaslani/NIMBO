@@ -1,7 +1,6 @@
 import React,{useEffect,useState} from 'react';
 import './optimization-game.css';
 
-const API='http://127.0.0.1:8000';
 export const CHALLENGES=[
  {id:'sentiment',name:'Pick the lightweight route',kind:'classification',level:'Starter',focus:'Model routing',prompt:'The customer support was excellent and I am very happy with the service.',goal:'Observe whether the saved routing policy uses DistilBERT or escalates to BERT.',worker:'ROUTA'},
  {id:'hard_sentiment',name:'Can confidence be trusted?',kind:'classification',level:'Explorer',focus:'Quality guardrail',prompt:'The movie was beautiful but the story was painfully slow.',goal:'Review model confidence, route, and whether quality is independently certified.',worker:'VERA'},
@@ -44,7 +43,7 @@ export function OptimizationReceipt({report,events,mode,onSeeEvidence}){
  const [err,setErr]=useState('');
  useEffect(()=>{
   const controller=new AbortController();
-  fetch(`${API}/nimbo/evidence/unified`,{signal:controller.signal}).then(r=>{if(!r.ok)throw Error('Evidence service unavailable');return r.json()}).then(setBench).catch(e=>{if(e.name!=='AbortError')setErr(e.message)});
+  fetch(`/nimbo/evidence/unified`,{signal:controller.signal}).then(r=>{if(!r.ok)throw Error('Evidence service unavailable');return r.json()}).then(setBench).catch(e=>{if(e.name!=='AbortError')setErr(e.message)});
   return ()=>controller.abort();
  },[report]);
  const route=report?.route||'Not selected';

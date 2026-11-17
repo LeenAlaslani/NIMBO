@@ -1,0 +1,74 @@
+.nimLiving{color:#dbefff;position:relative;background:#0c1b2e;border:1px solid #34536d;border-radius:16px;overflow:hidden}.nimLivingTop{display:flex;align-items:center;gap:12px;justify-content:space-between;background:#14243a;padding:12px 16px;flex-wrap:wrap}.nimLivingTop button,.nimLivingActions button{color:#cee6f7;background:#1d354d;border:1px solid #40647e;border-radius:9px;padding:9px 12px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;font:inherit;font-size:12px}.nimLivingKicker{font-size:12px;color:#8fdfeb;letter-spacing:.1em;font-weight:800}.nimLivingTopActions{display:flex;gap:8px;flex-wrap:wrap}.nimLivingWorld{position:relative;height:min(70vw,680px);min-height:480px;overflow:hidden;background:#051b2e}.nimLivingWorld canvas{width:100%!important;height:100%!important;display:block}.nimLivingHUD{position:absolute;top:18px;left:18px;width:min(320px,calc(100% - 36px));background:rgba(7,26,44,.88);border:1px solid #3d6988;border-radius:15px;padding:18px;backdrop-filter:blur(8px)}.nimLivingHUD>span{font-size:11px;letter-spacing:.12em;color:#8de5ea;font-weight:800}.nimLivingHUD h2{font-size:20px;line-height:1.25;margin:12px 0 7px}.nimLivingHUD p{font-size:13px;line-height:1.5;color:#bdd5e8;margin:0 0 12px}.nimLivingStatus{padding:10px 12px;border-radius:10px;background:#16354d;display:flex;flex-direction:column;gap:5px}.nimLivingStatus b{font-size:13px}.nimLivingStatus small{font-size:11px;color:#b5d0e2;line-height:1.45}.nimLivingStatus.verified{border-left:3px solid #67e3b8}.nimLivingStatus.rejected,.nimLivingStatus.failed{border-left:3px solid #ffc183}.nimLivingStatus.running{border-left:3px solid #8dbafb}.nimLivingStart{background:#1e93b8;color:white;border:0;padding:12px;border-radius:9px;cursor:pointer;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:12px;width:100%}.nimLivingStart:disabled{opacity:.6}.nimLivingJob{font-size:11px;color:#aec6d8;margin-top:12px}.nimLivingError{font-size:12px;color:#ffd5d8}.nimLivingPico{position:absolute;bottom:18px;left:18px;background:rgba(8,34,54,.85);color:#a6f7e9;border:1px solid #408b8a;border-radius:10px;padding:11px 15px;font-size:13px;pointer-events:none}.nimLivingTalk{position:absolute;right:18px;top:18px;width:min(315px,calc(100% - 36px));background:rgba(8,31,53,.96);border:1px solid #79d8d1;border-radius:14px;padding:16px;box-shadow:0 20px 50px #0008}.nimLivingTalk>div,.nimLivingJournalTitle{display:flex;align-items:center;justify-content:space-between;gap:10px}.nimLivingTalk b{font-size:11px;color:#a2efe9}.nimLivingTalk button,.nimLivingJournalTitle button{border:0;background:transparent;color:#d8f8ff;cursor:pointer}.nimLivingTalk h3{font-size:19px;margin:13px 0 7px}.nimLivingTalk p{font-size:13px;line-height:1.6}.nimLivingTalk small{font-size:11px;color:#9cb9cd}.nimLivingJournal{position:absolute;right:18px;bottom:18px;top:18px;width:min(365px,calc(100% - 36px));background:rgba(7,25,43,.97);border:1px solid #5685a0;border-radius:13px;padding:14px;overflow-y:auto;box-shadow:0 20px 50px #0008}.nimLivingJournalTitle{margin-bottom:12px}.nimLivingJournal>button{display:flex;flex-direction:column;width:100%;gap:5px;margin:6px 0;padding:10px;border:1px solid #3a5971;border-radius:8px;background:#142e45;color:#e5f4ff;text-align:left;cursor:pointer;font-size:12px}.nimLivingJournal>button span{color:#a8c4d8;font-size:11px}.nimLivingJournal>small{color:#9db6c8}.nimLivingBottom{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:16px;flex-wrap:wrap}.nimLivingOutcome{display:flex;flex-direction:column;gap:4px}.nimLivingOutcome b{font-size:15px}.nimLivingOutcome span{font-size:12px;color:#9fb9cc}.nimLivingActions{display:flex;flex-wrap:wrap;gap:8px}.nimLivingActions form{display:flex;gap:8px;flex-wrap:wrap}.nimLivingActions input{min-width:200px;background:#1a3349;border:1px solid #3b657d;border-radius:8px;color:#fff;padding:9px}.nimLivingActions a{display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:#eafff5;background:#167d6e;border-radius:9px;padding:10px 14px;font-size:13px}.nimLivingCaveat{padding:0 16px 14px;display:flex;gap:7px;align-items:flex-start;color:#94b3c9;font-size:11px}.nimLivingExpanded .nimLivingWorld{height:80vh;min-height:600px}@media(max-width:780px){.nimLivingWorld{height:75vh;min-height:550px}.nimLivingHUD{top:8px;left:8px;padding:12px;width:min(260px,calc(100% - 16px))}.nimLivingHUD h2{font-size:16px}.nimLivingTalk{top:auto;bottom:55px;right:8px}.nimLivingPico{left:8px;bottom:8px}.nimLivingJournal{right:8px;top:8px;bottom:8px}}
+
+
+/* M12.2: recorded replay toolbar */
+.nimLivingReplayBar{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:12px;
+  padding:12px 16px;
+  margin:8px 0;
+  border:1px solid var(--nimbo-stroke,#38546a);
+  border-radius:10px;
+  background:var(--nimbo-surface,#122238);
+  color:var(--nimbo-text,#e4f2ff);
+}
+.nimLivingReplayBar strong{
+  font-size:11px;
+  letter-spacing:.06em;
+  color:var(--nimbo-secondary,#adc2d6);
+}
+.nimLivingReplayBar>span{
+  font-size:12px;
+}
+.nimLivingReplayBar button,
+.nimLivingReplayBar select{
+  border:1px solid var(--nimbo-stroke,#44627b);
+  border-radius:8px;
+  background:var(--nimbo-soft,#20354a);
+  color:var(--nimbo-text,#e4f2ff);
+  font:inherit;
+  font-size:12px;
+  padding:8px 12px;
+}
+.nimLivingReplayBar label{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-size:12px;
+}
+.nimLivingReplayBar small{
+  width:100%;
+  color:var(--nimbo-secondary,#adc2d6);
+}
+
+/* M12.4: Live system resources, visually distinct from optimization evidence. */
+.nimResourcePanel{margin:10px 12px;color:#dceefe;border:1px solid #385873;background:#0d233a;border-radius:12px;overflow:hidden}
+.nimResourceHeading{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;padding:11px 15px;background:#16324c}
+.nimResourceHeading>div{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font-size:12px;letter-spacing:.035em}
+.nimResourceHeading strong{font-size:12px;letter-spacing:.075em}
+.nimResourceHeading span{font-size:10px;border:1px solid #627b91;color:#bed1df;border-radius:7px;padding:4px 7px}
+.nimResourceHeading .nimResourceLive{border-color:#66bdab;color:#94f4de}
+.nimResourceHeading button{color:#d5eafa;background:#233e58;border:1px solid #476781;border-radius:8px;padding:7px 11px;font:inherit;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px}
+.nimResourceBody{padding:12px 14px 14px}
+.nimResourceGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.nimResourceTile{display:flex;flex-direction:column;gap:7px;min-width:0;padding:10px;background:#173550;border:1px solid #305470;border-radius:9px}
+.nimResourceTileTitle{display:flex;gap:6px;align-items:center;color:#a0d5eb;font-size:11px}
+.nimResourceTile>strong{font-size:19px;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.nimResourceTile>small,.nimResourceMeter>small{font-size:10px;color:#9dbed3;line-height:1.4}
+.nimResourceSecondary{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.nimResourceMeter{display:flex;flex-direction:column;gap:6px}
+.nimResourceMetricHead{display:flex;justify-content:space-between;gap:12px;font-size:11px;color:#d4eaf7}
+.nimResourceMetricHead strong{font-variant-numeric:tabular-nums}
+.nimResourceTrack{height:7px;border-radius:100px;background:#254b64;overflow:hidden}
+.nimResourceTrack span{display:block;height:100%;border-radius:inherit;background:#66d5e5;transition:width .3s ease}
+.nimResourceGraphs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.nimResourceCurve{display:flex;flex-direction:column;gap:4px;color:#8bd6e9}
+.nimResourceCurve small{font-size:10px;color:#b0d4e7}
+.nimResourceCurve svg{width:100%;height:55px;min-width:0;border-bottom:1px solid #33546c;background:#102c45;border-radius:6px}
+.nimResourceNotice{font-size:12px;line-height:1.5;color:#bad1e3;margin:0}
+.nimResourceFootnote{display:block;margin-top:12px;font-size:10px;color:#93b4ca;line-height:1.45}
+.nimResourceError{font-size:11px;color:#ffc5c5;margin:8px 0 0}
+@media(max-width:850px){.nimResourceGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:580px){.nimResourceSecondary,.nimResourceGraphs{grid-template-columns:1fr}.nimResourceTile>strong{font-size:16px}}

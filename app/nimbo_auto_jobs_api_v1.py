@@ -9,6 +9,7 @@ from fastapi import APIRouter, HTTPException, Request, Query
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field, ConfigDict
 from app.nimbo_auto_pipeline_jobs_v1 import submit, read_job, read_events, package_for_download
+from app.nimbo_resource_monitor_v1 import sample_job_resources
 
 router = APIRouter(prefix='/nimbo/auto', tags=['auto-optimizer-local'])
 
@@ -52,6 +53,13 @@ def get_auto_job_events(request: Request, job_id: str, after: int = Query(defaul
         return read_events(root,job_id,after)
     except (FileNotFoundError,ValueError) as exc:
         raise HTTPException(404,'Unknown job ID') from exc
+
+@router.get('/jobs/{job_id}/resources')
+def get_auto_job_resources(request: Request, job_id: str):
+    try:
+        return sample_job_resources(_local(request), job_id, 'auto')
+    except (FileNotFoundError, ValueError):
+        raise HTTPException(404, 'Unknown job or unavailable resource record')
 
 @router.get('/jobs/{job_id}/package')
 def get_auto_job_package(request: Request, job_id: str):

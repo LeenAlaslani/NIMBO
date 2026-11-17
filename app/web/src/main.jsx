@@ -16,7 +16,7 @@ function App(){
  const [registryError,setRegistryError]=useState('');
  const [theme,setTheme]=useState(()=>{try{return localStorage.getItem('nimbo-ui-theme-v1')==='night'?'night':'day'}catch{return 'day'}});
  useEffect(()=>{try{localStorage.setItem('nimbo-ui-theme-v1',theme)}catch{};document.documentElement.style.colorScheme=theme==='night'?'dark':'light';document.documentElement.classList.toggle('nimbo-dark',theme==='night');document.documentElement.classList.toggle('nimbo-light',theme==='day')},[theme]);
- useEffect(()=>{fetch('http://127.0.0.1:8000/api/registry').then(async r=>{if(!r.ok)throw Error(`HTTP ${r.status}`);return r.json()}).then(setRegistry).catch(e=>setRegistryError(e.message))},[]);
+ useEffect(()=>{fetch('/api/registry').then(async r=>{if(!r.ok)throw Error(`HTTP ${r.status}`);return r.json()}).then(setRegistry).catch(e=>setRegistryError(e.message))},[]);
  const nav=[['mission',LayoutDashboard,'Workspace'],['evidence',Database,'Evidence']];
  if(view==='home')return <NimboLanding theme={theme} onEnter={()=>setView('mission')} onThemeChange={()=>setTheme(t=>t==='night'?'day':'night')}/>;
  return <div className={'shell theme-'+theme}>

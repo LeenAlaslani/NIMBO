@@ -5,7 +5,6 @@ import './auto-optimizer-live.css';
 import AutoOptimizer3DLab from './AutoOptimizer3DLab';
 import { stageState, canReviewDownload } from './autoOptimizerJobView.mjs';
 
-const BASE = 'http://127.0.0.1:8005';
 const JOB_ID = /^[0-9a-f]{32}$/;
 const TERMINAL = new Set(['COMPLETED_REVIEW_ONLY','COMPLETED_REJECTED','FAILED','INTERRUPTED']);
 const FILENAME = /^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,90}\.(csv|jsonl)$/;
@@ -16,7 +15,7 @@ const STAGES = [
   { id: 'deliver', label: 'DELIVER', worker: 'METRI', hint: 'Package and offline-reload evidence' },
 ];
 async function jsonGet(path, signal) {
-  const response = await fetch(BASE + path, { signal, cache: 'no-store' });
+  const response = await fetch(path, { signal, cache: 'no-store' });
   if (!response.ok) throw new Error(`Local optimizer returned HTTP ${response.status}`);
   return response.json();
 }
@@ -50,7 +49,7 @@ export default function AutoOptimizerLive({ theme = 'night' }) {
     } catch (err) {
       if (signal?.aborted || token !== activeRequest.current) return;
       setConnected(false);
-      setMessage(`Cannot read the local M7 API. ${err.message}. Check that port 8005 is running.`);
+      setMessage(`Cannot read the local M7 API. ${err.message}. Start the local NIMBO backend.`);
     }
   }, []);
 
@@ -80,7 +79,7 @@ export default function AutoOptimizerLive({ theme = 'night' }) {
     }
     setBusy(true); setMessage('');
     try {
-      const response = await fetch(BASE + '/nimbo/auto/jobs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, model_id: form.model_id.trim(), revision: form.revision.trim(), pilot_file: form.pilot_file.trim(), heldout_file: form.heldout_file.trim() }) });
+      const response = await fetch('/nimbo/auto/jobs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...form, model_id: form.model_id.trim(), revision: form.revision.trim(), pilot_file: form.pilot_file.trim(), heldout_file: form.heldout_file.trim() }) });
       const result = await response.json().catch(() => ({}));
       if (response.status !== 202 || !JOB_ID.test(result.job_id || '')) throw new Error(result.detail || `HTTP ${response.status}`);
       setJob(null); setEvents([]); setLookup(result.job_id); setId(result.job_id); setConnected(true);
@@ -92,7 +91,7 @@ export default function AutoOptimizerLive({ theme = 'night' }) {
   const last = events[events.length - 1];
   return <section className="nimauto" aria-label="Auto-Optimizer live jobs">
     <header className="nimautoHeader"><span className="nimautoKicker"><Activity size={16}/> MODEL ENGINEERING / LIVE JOBS</span><h1>Auto-Optimizer</h1><p>One real job: inspect baseline, generate ONNX, verify quality and CPU, then deliver a review-only package when every gate passes. No synthetic agent reasoning or progress.</p>
-      <span className={'nimautoConnection ' + (connected ? 'ok' : 'notReady')}>{connected ? 'M7 API connected · local only' : 'Connect to M7 API on 127.0.0.1:8005'}</span>
+      <span className={'nimautoConnection ' + (connected ? 'ok' : 'notReady')}>{connected ? 'M7 API connected · local only' : 'Local M7 API unavailable'}</span>
     </header>
     <div className="nimautoColumns">
       <form className="nimautoCard" onSubmit={submit}>
@@ -111,7 +110,7 @@ export default function AutoOptimizerLive({ theme = 'night' }) {
           <div className="nimautoStages">{STAGES.map(stage => { const state = stageState(stage.id,events,job.state); return <div key={stage.id} className={'nimautoStage state-'+state}><span>{state === 'rejected' ? <XCircle size={17}/> : state === 'verified' ? <CheckCircle2 size={17}/> : <ShieldCheck size={17}/>}</span><div><b>{stage.label}</b><small>{stage.worker} · {stage.hint}</small><em>{state}</em></div></div>; })}</div>
           <div className="nimautoResult"><b>Decision:</b> {job.decision || (ended ? job.state : 'Pending verification')}<small>{last?.message || 'Waiting for real backend events'}</small></div>
           {last?.evidence?.accuracy != null && <p>Latest measured labeled accuracy: <b>{pct(last.evidence.accuracy)}</b></p>}
-          {connected && canReviewDownload(job) ? <a className="nimautoDownload" href={`${BASE}/nimbo/auto/jobs/${job.job_id}/package`}><Download size={17}/> Download checksum-verified ONNX review ZIP <ExternalLink size={15}/></a> : <p className="nimautoNoRelease"><FileArchive size={16}/> No package available until offline verification succeeds. No production approval.</p>}
+          {connected && canReviewDownload(job) ? <a className="nimautoDownload" href={`/nimbo/auto/jobs/${job.job_id}/package`}><Download size={17}/> Download checksum-verified ONNX review ZIP <ExternalLink size={15}/></a> : <p className="nimautoNoRelease"><FileArchive size={16}/> No package available until offline verification succeeds. No production approval.</p>}
         </> : <p className="nimautoEmpty">Enter a previously issued job ID or start a new job. Status appears only after the API responds.</p>}
       </div>
     </div>

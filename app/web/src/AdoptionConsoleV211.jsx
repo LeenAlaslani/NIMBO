@@ -2,7 +2,7 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {Activity, ArrowRight, CheckCircle2, CircleAlert, GitCompareArrows, RotateCcw, ShieldCheck, Zap} from 'lucide-react';
 import './adoption-v21-1.css';
-const URL='http://127.0.0.1:8000/nimbo/adoption/v21';
+const URL='/nimbo/adoption/v21';
 const EXAMPLES=[
   'The customer support team solved my problem quickly.',
   'I waited for hours and the service was disappointing.',

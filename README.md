@@ -1,74 +1,163 @@
 # NIMBO — Neural Intelligence for Multimodal Budget Optimization
 
-**HUMAIN Hackathon · Challenge 2 — Deliver AI with Less Compute**
+**Improve AI model execution while preserving acceptable task quality.**
 
-NIMBO is a local, quality-aware AI inference optimization lab. It compares baseline and candidate execution paths on identical inputs; records route choices, quality evidence, and CPU/GPU inference timing; and refuses to label unproven resource or task-quality claims as verified.
+A faster runtime is useful only if it still produces reliable predictions. NIMBO takes a supported text classifier, measures its PyTorch baseline, exports the same weights to ONNX, and compares both runtimes on labeled data. If the candidate passes the quality and performance gates, NIMBO verifies a runnable review package offline. Otherwise it keeps the original model as the reference and records why the candidate was rejected.
 
-## Why NIMBO solves Challenge 2
+NIMBO started during the HUMAIN Hackathon's 'Deliver AI with Less Compute' challenge and has continued as an independent AI engineering project.
 
-**Business scenario:** A team classifies large volumes of customer feedback using an existing pretrained sentiment model. Replacing the model or making an unmeasured speed claim is not sufficient: NIMBO evaluates an execution-path optimization against a comparable baseline, checks labeled accuracy and runtime gates, and records when the candidate is eligible for review rather than silently deploying it. This is a **local demonstrator**, not an integrated production customer deployment.
+![NIMBO Workspace with the pinned RoBERTa example and staged evaluation filenames](docs/assets/workspace.jpg)
 
-**Optimization mechanism:** In the principal validated case, NIMBO executes the *same* fixed model and tokenizer using PyTorch FP32 and ONNX Runtime FP32. It compares the same IMDb evaluation inputs using alternating execution order and repeated runs. Lower warm CPU latency is a measured **runtime efficiency improvement**; this result alone is **not** a measurement of reduced arithmetic operations (FLOPs), electrical energy, or cloud billing.
+*Workspace with model revision, pilot and held-out files, and the ONNX FP32 speed objective.*
 
-**What judges can inspect:** Source and comparison gate in `app/nimbo_validate_v21.py`, regression tests in `tests/`, the summary at [`results/judging/LATEST_HELDOUT_EVIDENCE.md`](results/judging/LATEST_HELDOUT_EVIDENCE.md), the methods in [`docs/REPRODUCE_RESULTS.md`](docs/REPRODUCE_RESULTS.md), and the scope of every claim in [`docs/JUDGING_CLAIMS.md`](docs/JUDGING_CLAIMS.md).
+## Optimization workflow
 
-<!-- NIMBO_FINAL_PROOF_BEGIN -->
-## Primary proof: lower warm inference latency and process CPU time
+```mermaid
+flowchart LR
+    A[Select supported model and staged data] --> B[Measure PyTorch CPU baseline]
+    B --> C[Export ONNX FP32 candidate]
+    C --> D[Benchmark on identical inputs]
+    D --> E{Pass held-out quality and performance gates?}
+    E -->|No| F[Reject candidate and retain baseline]
+    E -->|Yes| G{Pass offline package reload?}
+    G -->|No| H[Record failure and withhold export]
+    G -->|Yes| I[Offer runnable review ZIP]
+```
 
-With PyTorch FP32 (4 threads) versus ONNX Runtime FP32 (2 threads), the locked local 800-example evaluation measured **14.79% lower mean warm forward latency** and **2.54% lower process CPU time**, with **91.75% accuracy on both paths**. The candidate is *eligible for review*, not deployed. CPU-time savings are small and not an energy or billing measurement.
+The held-out gate requires at least 5% lower mean warm forward latency, no p95 or process CPU-time regression, no accuracy loss, full prediction agreement, and bounds on logit differences and repeatability. A successful package contains the ONNX graph, tokenizer, model configuration, file hashes, a verification receipt and a Python runner.
 
-Full lineage and caveats: [`docs/FINAL_JUDGING_EVIDENCE.md`](docs/FINAL_JUDGING_EVIDENCE.md).
-<!-- NIMBO_FINAL_PROOF_END -->
+## Recorded results
 
-## Earlier latency-only comparison (not CPU-time evidence)
+| Model and evaluation | Accuracy, PyTorch → ONNX | Mean warm forward latency | Process CPU time | Evidence |
+| --- | ---: | ---: | ---: | --- |
+| DistilBERT SST-2, 240 validation examples, three paired rounds | 90.83% → 90.83% | 62.27% lower | 45.71% lower | [Recorded optimizer run and package audit](docs/NIMBO_CURRENT_STATE.md#recorded-distilbert-optimizer-run) |
+| DistilBERT IMDb, 800 IMDb test examples, three paired rounds | 91.75% → 91.75% | 14.79% lower | 2.54% lower | [IMDb run summary](docs/FINAL_JUDGING_EVIDENCE.md) |
+| Same IMDb model on 800 binary TweetEval test examples | 82.88% → 82.88% | 61.79% lower | 52.72% lower | [Cross-domain run summary](docs/CROSS_DOMAIN_PUBLIC_EVIDENCE.md) |
 
-This earlier 37.78% speedup was measured under a different execution configuration. It is **latency-only evidence**, not evidence of reduced process CPU time. The primary dual-objective result above is the judged compute-efficiency claim.
+These are local CPU measurements from separate recorded runs. Warm forward latency excludes tokenization, model startup and HTTP overhead. Process CPU time is a separate measure. Results depend on the hardware, thread settings and input data.
 
-On a fixed **800-example IMDb held-out** set, the same pretrained model was evaluated using **PyTorch FP32 versus ONNX Runtime FP32**, with three paired warm CPU rounds. In the renewed 2026-10-31 local run, recorded mean forward latency fell **28.5501 → 17.7637 ms** (**37.78% lower**), and labeled accuracy remained **91.75%** (734/800 per path). P95 improved from 36.6819 to 23.6119 ms; all local decision gates passed. The candidate is **eligible for human review, not production deployed**. Older runs measured different latency improvements; hardware and runtime effects matter.
+The recorded SST-2 optimizer completed and verified a review ZIP at event 14. Its enclosing agentic job failed during review at event 17. Replay shows both outcomes at their recorded checkpoints.
 
-**Important boundaries:** This is evidence of lower *warm CPU inference latency*, not electrical energy, FLOPs, cloud cost, or external quality certification. The evaluation is disjoint from a 200-example development subset of the same IMDb source; it is not an independent third-party assessment. Full HTTP and setup costs are not included in the quoted warm times.
+<details>
+<summary>Mission Floor, Replay and Resource Monitor screenshots</summary>
+
+![Future Garden Mission Floor before a job starts](docs/assets/future-garden.jpg)
+
+*Future Garden before submission. PICO and the stations visualize model job events.*
+
+![Recorded replay at event 14 showing the four passed optimizer checkpoints](docs/assets/recorded-replay.jpg)
+
+*Replay at event 14. The optimizer has verified its package, and the agentic workflow is still in progress.*
+
+![Resource Monitor during finished replay with no historical samples and a separate agent review failure](docs/assets/resource-monitor.jpg)
+
+*Replay at event 17. The agent review failed after the optimizer verified its ZIP. The Resource Monitor indicates that this recording has no CPU or RAM history.*
+
+</details>
 
 ## Architecture
 
-- **CAPTAIN:** intake & requirements
-- **TOKI:** context/token work when applicable
-- **ROUTA:** routing and alternative comparisons
-- **MAKO:** real model inference
-- **VERA:** label-based guardrails and uncertainty
-- **METRI:** measured performance and provenance
+- **Workspace and Mission Floor** use React, JavaScript, CSS, Vite, Three.js and React Three Fiber. The UI polls backend job status and events. Replay reads saved events without starting inference.
+- **Local API and job runner** use Python and FastAPI. A single-worker subprocess runs the deterministic optimizer and writes job events, decisions and evidence to ignored `results/` folders.
+- **Optimizer and export** use Hugging Face Transformers and PyTorch for intake and the baseline, ONNX for export, and ONNX Runtime for CPU benchmarking and offline reload.
+- **Resource Monitor** uses psutil to sample the worker process tree and host CPU/RAM while the UI is open. Ollama is sampled separately. GPU/MPS telemetry and persisted resource history are outside its current scope.
 
-UI: React + React Three Fiber (`app/web/`). API: FastAPI (`app/mission_api.py`). Text: DistilBERT/BERT, Qwen, ONNX Runtime and experimental INT8 paths. Image: Stable Diffusion 1.5 with LCM-LoRA via optional real local GPU gateway and VERA. The VERA image pathway does **not** certify all attributes or scene relationships; `UNVERIFIED` is not a success or failure label.
+### Optional agents
 
-## Reproduce
+| Agent | Responsibility |
+| --- | --- |
+| CAPTAIN | Checks the request and scopes it to the supported speed objective. |
+| FORGE | Starts the deterministic ONNX optimization pipeline. |
+| VERA | Reviews measured quality and offline package evidence. |
+| METRI | Records the evidence verdict for review. |
+| DOCTOR | Can request one retry after a classified transient infrastructure failure. |
 
-See [`docs/REPRODUCE_RESULTS.md`](docs/REPRODUCE_RESULTS.md) for tested commands and [`docs/JUDGING_CLAIMS.md`](docs/JUDGING_CLAIMS.md) for claim limits. After an actual local validation:
+These roles use separately prompted local Ollama calls when enabled. Deterministic checks control candidate and package eligibility. MAKO, BUNDLE, TOKI and ROUTA represent stations in the UI, and PICO is the guide.
+
+## Quick start
+
+Use Python 3.11 and Node.js 22 on macOS or Linux. The local worker depends on POSIX process and file-locking APIs. Run the backend from the repository root so it can find staged files and local receipts.
 
 ```bash
-python -m pytest -q
-python -m app.nimbo_validate_v21 --samples 800 --rounds 3 --no-export
-python tools/judging_evidence.py
+git clone -b develop/auto-optimizer-v1 https://github.com/LeenAlaslani/NIMBO.git
+cd NIMBO
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e '.[api]'
+python -m uvicorn app.mission_api:app --host 127.0.0.1 --port 8005
 ```
 
-Read `results/judging/LATEST_HELDOUT_EVIDENCE.md` and keep dated raw logs. Some model dependencies and weights are not bundled; the GPU is a separate optional worker. The entire platform has **not** been independently certified or exhaustively browser-tested.
+In a second terminal, from the clone:
 
-## Judging map
+```bash
+cd app/web
+npm ci
+npm run dev -- --port 5173 --strictPort
+```
 
-- **Task Performance:** label-aware held-out accuracy and latency gates.
-- **Robustness & Adaptation:** multiple paths, conservative uncertainty handling, fail-closed decision gates, staged local rollout; outstanding cases documented.
-- **Evaluation & Iteration:** unit tests, reproducible commands, model revision, dataset fingerprint, recorded measurements and explicit limits.
+Open `http://127.0.0.1:5173`. Choose **Enter workspace → Use verified RoBERTa example → Continue to Mission Floor** to explore the lab without model downloads, staged data or Ollama. **Begin real mission** submits a job. Replay requires a job ID from this checkout's local records. The screenshots use records from the development machine.
 
-See [`docs/ROBUSTNESS_MATRIX.md`](docs/ROBUSTNESS_MATRIX.md) and [`docs/GITHUB_PREP.md`](docs/GITHUB_PREP.md). This repository is a local development/review system, not a production SaaS offering.
+Vite proxies `/api` and `/nimbo` to the one local API in dev and preview. Set `NIMBO_API_TARGET=http://127.0.0.1:<port>` when starting Vite if you changed the backend port.
 
-## Continuous integration and repository review
+### Run a real supported optimization job
 
-The [GitHub Actions checks](.github/workflows/ci.yml) run dependency-light Python regression tests and build the React frontend from a clean checkout. They **do not** download large model weights, run the local Mac GPU image worker, or reproduce the measured 800-example ONNX benchmark. For what is (and is not) automated, see [`docs/CI_AND_SUBMISSION.md`](docs/CI_AND_SUBMISSION.md).
+Install the model runtime dependencies in the backend environment. Stage a labeled pilot of 2–100 examples and a separate held-out set of 200–800 examples. Use UTF-8 CSV with `text,label` columns or JSONL with those keys. Labels must match the model's configured names or class IDs.
 
-A first-time reviewer can inspect the repository without GPU access; real measured inference must be reproduced separately on a compatible machine with model dependencies and downloads available.
+| Input | Stage under |
+| --- | --- |
+| Pilot | `results/auto_optimizer_job_inputs_v1/` |
+| Held-out | `results/auto_optimizer_heldout_v1/` |
 
-<!-- NIMBO_CROSS_DOMAIN_RELEASE_BEGIN -->
-## New-domain check — TweetEval (locked settings)
+To prepare the public-data example on a fresh clone, run these commands from the repository root:
 
-The pinned ONNX Runtime FP32 2-thread candidate retained **82.88% binary TweetEval accuracy** (PyTorch: **82.88%**; **100.00%** prediction agreement) on a precommitted 800-row positive/negative TEST subset. It measured **61.79% lower mean warm inference latency** and **52.72% lower process CPU time** in this local test. **Review-only; not deployed.** TweetEval accuracy is below IMDb's 91.75% due to domain/task differences; neutral class excluded. No electrical-energy or cloud-cost claim.
+```bash
+python -m pip install -e '.[optimizer,text]'
+python -m tools.prepare_real_pilot_dataset_v1 \
+  --output results/auto_optimizer_job_inputs_v1/pilot.csv
+python -m tools.prepare_nimbo_tweeteval_holdout_v1
+```
 
-See [`docs/CROSS_DOMAIN_PUBLIC_EVIDENCE.md`](docs/CROSS_DOMAIN_PUBLIC_EVIDENCE.md) for the source digest, fixed protocol, limitations and audited fields. The full three-class TweetEval task was **not** evaluated.
-<!-- NIMBO_CROSS_DOMAIN_RELEASE_END -->
+This stages a 12-example IMDb pilot and a 200-example TweetEval sentiment evaluation with provenance sidecars. The Workspace example selects a pinned CardiffNLP RoBERTa revision and TweetEval preprocessing. Start the API using the same environment, open the example in Mission Floor and choose **Begin real mission**. The first run downloads the model and tokenizer unless cached. The CPU run can take time and may reject the candidate on your machine. TweetEval also informed the source model's training, so use an independently collected evaluation set for a new quality claim. [IMDb dataset](https://huggingface.co/datasets/stanfordnlp/imdb) · [TweetEval dataset](https://huggingface.co/datasets/cardiffnlp/tweet_eval) · [Pinned RoBERTa files](https://huggingface.co/cardiffnlp/twitter-roberta-base-sentiment-latest/tree/b995b77f45ae7ed76649b47d04952ec8be9f3591)
+
+For a shorter CPU check with the staged pilot, run the following baseline alone:
+
+```bash
+python -m tools.run_nimbo_baseline_v1 \
+  --model-id cardiffnlp/twitter-roberta-base-sentiment-latest \
+  --revision b995b77f45ae7ed76649b47d04952ec8be9f3591 \
+  --dataset results/auto_optimizer_job_inputs_v1/pilot.csv
+```
+
+### Enable local Qwen agents
+
+The standard optimizer runs by default. To enable agents, start Ollama locally, make the model available, and start the backend with the model name set:
+
+```bash
+ollama pull qwen2.5:3b
+NIMBO_AGENTIC_MODEL=qwen2.5:3b \
+  python -m uvicorn app.mission_api:app --host 127.0.0.1 --port 8005
+```
+
+Run `ollama serve` if Ollama is not already serving locally. Check `/nimbo/agentic/ready` before starting the mission. An unconfigured or unavailable model leaves Workspace on the standard deterministic route. Agent review can still fail after successful optimization.
+
+### Run tests
+
+```bash
+python -m pip install -e '.[dev]'
+python -m pytest -q
+python -m tools.verify_public_proof_v1
+python -m tools.verify_cross_domain_public_v1
+npm --prefix app/web ci
+npm --prefix app/web test
+npm --prefix app/web run build
+```
+
+These checks run without model weight downloads, Ollama inference or local job history. The two evidence commands check the published summary files. [Release verification](docs/NIMBO_CURRENT_STATE.md#portfolio-release-verification)
+
+## Support and next steps
+
+Import currently covers compatible public BERT, DistilBERT, RoBERTa, ALBERT and ELECTRA sequence classifiers at an immutable Hugging Face revision. Intake requires safetensors weights within the 750 MiB cap and disables remote model code. The automatic path optimizes speed with ONNX FP32 on a single local CPU worker. Browser uploads into this path, arbitrary model formats, automatic INT8, authenticated hosting and production deployment are outside the current scope. The recorded metrics cover latency and process CPU time. Energy, FLOPs and billing were outside the measurement scope.
+
+Next steps are direct evaluation-file staging from Workspace, a clean-machine run with an independently assembled evaluation set, and broader package and CPU measurements across supported architectures. Quantization remains a separate experiment with its own quality gates.
+
+[Current state and milestone history](docs/NIMBO_CURRENT_STATE.md) · [Earlier experiment reproduction](docs/REPRODUCE_RESULTS.md)

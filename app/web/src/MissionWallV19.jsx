@@ -16,7 +16,7 @@ function AccentPanel({x,title,value,sub,color='#fff',active=false}){const frame=
   <Text anchorX="left" position={[-1.43,.04,.03]} fontSize={.78} color={color}>{value}</Text>
   <Text anchorX="left" position={[-1.43,-.58,.04]} fontSize={.23} color="#c0dced">{sub}</Text>
  </group>}
-export default function MissionWallV19({route,reported=false,theme='night',metrics={},comparison=null,imageComparison=null,events=[],guideStep=0,quality='UNVERIFIED',busy=false}){
+export default function MissionWallV19({route,reported=false,theme='night',metrics={},comparison=null,imageComparison=null,events=[],guideStep=0,quality='UNVERIFIED',busy=false,missionState=null}){
  const frame=useRef(),progress=useRef(),glow=useRef();const [latest,setLatest]=useState(null);
  const numEvents=events.filter(e=>/Evaluated input\s+(\d+)\/(\d+)/i.test(String(e?.message||'')));
  const lastProgress=numEvents.length?/(\d+)\/(\d+)/.exec(String(numEvents.at(-1).message||'')):null;
@@ -48,7 +48,7 @@ export default function MissionWallV19({route,reported=false,theme='night',metri
   if(glow.current)glow.current.opacity=.35+.25*Math.sin(clock.elapsedTime*1.8)**2;
   if(progress.current){const n=THREE.MathUtils.damp(progress.current.scale.x,Math.max(.006,progressRatio),4,Math.min(delta,.05));progress.current.scale.x=n;progress.current.position.x=-5.05+n*5.05;}
  });
- const header=adaptiveReady?(adaptiveAccepted?'FAST ACCEPTED · NO FALLBACK':adaptiveFallback?(adaptiveReviewed?'FALLBACK REVIEWED':'STANDARD FALLBACK EXECUTED'):'FAST IMAGE · REVIEW AND DECIDE'):finished?'MODEL COMPARISON COMPLETE':busy?'RUNNING THE EVALUATION':'READY FOR AN EVALUATION';
+ const header=missionState?missionState:adaptiveReady?(adaptiveAccepted?'FAST ACCEPTED · NO FALLBACK':adaptiveFallback?(adaptiveReviewed?'FALLBACK REVIEWED':'STANDARD FALLBACK EXECUTED'):'FAST IMAGE · REVIEW AND DECIDE'):finished?'MODEL COMPARISON COMPLETE':busy?'RUNNING THE EVALUATION':'READY FOR AN EVALUATION';
  return <group position={[0,2.68,-4.51]} rotation={[0,.017,0]}>
   <RoundedBox args={[11.9,4.38,.24]} radius={.16} smoothness={5} castShadow><meshStandardMaterial color={theme==='day'?'#258cce':'#194a79'} metalness={.53} roughness={.21} emissive="#286bc4" emissiveIntensity={.15}/></RoundedBox>
   <mesh position={[0,0,.133]}><planeGeometry args={[11.53,4.06]}/><meshStandardMaterial ref={frame} color="#061831" emissive="#0b3564" emissiveIntensity={.11} roughness={.39}/></mesh>

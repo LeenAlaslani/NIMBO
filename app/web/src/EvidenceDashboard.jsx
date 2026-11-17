@@ -4,7 +4,7 @@ import {createPortal} from 'react-dom';
 import './evidence-dashboard.css';
 import {latestWorkspacePair,latencyPercent} from './evidencePresentation.mjs';
 
-const API = 'http://127.0.0.1:8000/nimbo/evidence/unified';
+const API = '/nimbo/evidence/unified';
 const LABELS = {
   runtime_measurement:'Live runtime',
   offline_labeled_benchmark:'Human-labeled benchmark',
@@ -37,7 +37,7 @@ export default function EvidenceDashboard({onBack}){
     }catch(e){setError('Evidence service unavailable: '+e.message)}finally{setLoading(false)}
   };
   useEffect(()=>{load()},[]);
-  useEffect(()=>{fetch('http://127.0.0.1:8000/nimbo/image/v22/evidence').then(r=>r.ok?r.json():null).then(setImageEvidence).catch(()=>{});},[data]);
+  useEffect(()=>{fetch('/nimbo/image/v22/evidence').then(r=>r.ok?r.json():null).then(setImageEvidence).catch(()=>{});},[data]);
   useEffect(()=>{
     if(!selected)return;
     const escape=(e)=>{if(e.key==='Escape')setSelected(null)};
@@ -54,7 +54,7 @@ export default function EvidenceDashboard({onBack}){
   const latest=runtime.length?runtime[runtime.length-1]:null;
   return <div className="evRoot">
     <div className="evTop"><div><div className="evEyebrow">NIMBO / EVIDENCE CENTER</div>{onBack&&<button className="nim16BackButton" onClick={onBack}>← Back to Mission Floor</button>}<h2>One source. Clear provenance.</h2><p>Real requests and offline experiments are separate. No invented savings or quality claims.</p></div><button className="evRefresh" onClick={load} disabled={loading}>{loading?'Loading…':'↻ Refresh evidence'}</button></div>
-    {error&&<div className="evError" role="alert">{error}<div>Run the main NIMBO backend: <code>python -m uvicorn app.mission_api:app --reload --port 8000</code>.</div></div>}
+    {error&&<div className="evError" role="alert">{error}<div>Run the main NIMBO backend: <code>python -m uvicorn app.mission_api:app --port 8005</code>.</div></div>}
     <div className="evMetrics">
       <div><small>LIVE API REQUESTS</small><strong>{formatNumber(data?.runtime_summary?.request_count,0)}</strong><span>Actual completed requests; no quality label implied</span></div>
       <div><small>OFFLINE LABELED RECORDS</small><strong>{formatNumber(offline.length,0)}</strong><span>Human-reviewed experiments, not live traffic</span></div>

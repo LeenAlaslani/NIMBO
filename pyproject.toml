@@ -10,7 +10,23 @@ requires-python = ">=3.10"
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=7"]
+dev = [
+    "pytest>=7,<10",
+    "httpx>=0.28,<1",
+    "numpy>=1.26,<3",
+    "torch>=2.6,<3",
+    "nimbo-compute-agent[api]",
+]
+api = ["fastapi>=0.115,<1", "uvicorn>=0.30,<1", "psutil>=5.9,<8"]
+optimizer = [
+    "torch>=2.6,<3",
+    "transformers>=4.46,<5",
+    "huggingface-hub>=0.26,<1",
+    "safetensors>=0.4,<1",
+    "numpy>=1.26,<3",
+    "onnx>=1.16,<2",
+    "onnxruntime>=1.18,<2",
+]
 ui = ["streamlit>=1.35"]
 text = ["transformers>=4.40,<5", "torch>=2.2", "datasets>=2.19,<5"]
 

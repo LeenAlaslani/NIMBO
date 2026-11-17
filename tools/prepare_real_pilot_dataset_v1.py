@@ -4,6 +4,7 @@ Reviews are downloaded locally from the source. Not bundled or invented, and
 this small product demo is NOT a new independent benchmark or certification.
 """
 from __future__ import annotations
+import argparse
 import csv,hashlib,json,random
 from pathlib import Path
 
@@ -38,7 +39,10 @@ def prepare(dataset=None,output=OUTPUT):
     return output,meta
 
 if __name__=='__main__':
-    path,meta=prepare()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output', type=Path, default=OUTPUT)
+    args = parser.parse_args()
+    path,meta=prepare(output=args.output)
     print('REAL DATASET:',meta['dataset'],meta['split'],'|',meta['rows'],'original labeled reviews')
     print('FILE:',path)
     print('SOURCE FILE:',path.with_suffix('.source.json'))

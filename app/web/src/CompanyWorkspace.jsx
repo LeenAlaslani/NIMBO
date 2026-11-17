@@ -6,7 +6,6 @@ import './nimbo-v20.css';
 import './nimbo-image-gateway-v22.css';
 import AdoptionConsoleV211 from './AdoptionConsoleV211';
 import VerifiedModelArtifact from './VerifiedModelArtifact';
-const API='http://127.0.0.1:8000';
 const SMALL='distilbert/distilbert-base-uncased-finetuned-sst-2-english';
 const LARGE='textattack/bert-base-uncased-SST-2';
 const EXTERNAL='lvwerra/distilbert-imdb'; // allowlisted NIMBO v20
@@ -58,10 +57,10 @@ export default function CompanyWorkspace({registry,onLaunch,onThemeChange,theme}
  const [fileName,setFileName]=useState('');
  const [error,setError]=useState('');
  const [apiConnected,setApiConnected]=useState(false);
- useEffect(()=>{let active=true;fetch(`${API}/nimbo/bench/catalog`).then(r=>{if(!r.ok)throw Error('Catalog unavailable');return r.json()}).then(j=>{if(active){setCatalog((j.models||[]).map(m=>m.id));setApiConnected(true)}}).catch(()=>{if(active)setApiConnected(false)});return ()=>{active=false}},[]);
- useEffect(()=>{fetch(`${API}/nimbo/optimize/v20/catalog`).then(r=>{if(!r.ok)throw Error('Offline');return r.json()}).then(()=>setTrialReady(true)).catch(()=>setTrialReady(false));},[]);
- useEffect(()=>{fetch(`${API}/nimbo/optimize/onnx/catalog`).then(r=>{if(!r.ok)throw Error('Offline');return r.json()}).then(()=>setOnnxReady(true)).catch(()=>setOnnxReady(false));},[]);
- useEffect(()=>{fetch(`${API}/nimbo/validate/v21/catalog`).then(r=>{if(!r.ok)throw Error('Offline');return r.json()}).then(()=>setValidationReady(true)).catch(()=>setValidationReady(false));},[]);
+ useEffect(()=>{let active=true;fetch('/nimbo/bench/catalog').then(r=>{if(!r.ok)throw Error('Catalog unavailable');return r.json()}).then(j=>{if(active){setCatalog((j.models||[]).map(m=>m.id));setApiConnected(true)}}).catch(()=>{if(active)setApiConnected(false)});return ()=>{active=false}},[]);
+ useEffect(()=>{fetch('/nimbo/optimize/v20/catalog').then(r=>{if(!r.ok)throw Error('Offline');return r.json()}).then(()=>setTrialReady(true)).catch(()=>setTrialReady(false));},[]);
+ useEffect(()=>{fetch('/nimbo/optimize/onnx/catalog').then(r=>{if(!r.ok)throw Error('Offline');return r.json()}).then(()=>setOnnxReady(true)).catch(()=>setOnnxReady(false));},[]);
+ useEffect(()=>{fetch('/nimbo/validate/v21/catalog').then(r=>{if(!r.ok)throw Error('Offline');return r.json()}).then(()=>setValidationReady(true)).catch(()=>setValidationReady(false));},[]);
  function chooseProblem(p){setProblem(p);setInputMode(p==='classification'?'':'single');setRequest('');setBatch(null);setFileName('');setError('');setOperation(p==='classification'?'':'live');setImageMode('');setGoal('');setBaseline('');setCandidate('');}
  async function upload(e){const f=e.target.files?.[0];if(!f)return;setError('');try{
    if(!/\.(csv|jsonl)$/i.test(f.name)||f.size>1024*1024)throw Error('Choose a CSV or JSONL file under 1 MB.');

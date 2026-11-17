@@ -1,4 +1,4 @@
-"""Local NIMBO Mission Control API. Run: uvicorn app.mission_api:app --reload --port 8000"""
+"""Local Mission Control API. Run: python -m uvicorn app.mission_api:app --port 8005"""
 from __future__ import annotations
 import json
 import os
@@ -285,3 +285,5 @@ app.include_router(company_model_pilot_router)
 # NIMBO_M7A_AUTO_OPTIMIZER_LOCAL_ONLY
 from app.nimbo_auto_jobs_api_v1 import router as nimbo_auto_optimizer_m7_router
 app.include_router(nimbo_auto_optimizer_m7_router)
+from app.nimbo_agentic_api_v1 import router as nimbo_agentic_m11_router
+app.include_router(nimbo_agentic_m11_router)

@@ -2,7 +2,6 @@
 // After Fast the backend checks, falls back and records; the UI only follows real stages.
 import React, {useEffect, useRef, useState} from 'react';
 import './nimbo-vera-v26.css';
-const API='http://127.0.0.1:8000';
 const fmt=(v)=>v===null||v===undefined||!Number.isFinite(Number(v))?'—':`${(Number(v)/1000).toFixed(2)} s`;
 const STATES={
   queued:'Waiting for the local VERA worker',
@@ -20,7 +19,7 @@ const DECISIONS={
   NO_VERIFIED_RESULT:{title:'Required elements were not established',tone:'fail',description:'Both generation paths ran. The final local detector did not establish success; no successful result is claimed.'}
 };
 async function request(url,method='GET',payload){
- const response=await fetch(API+url,{method,headers:{'Content-Type':'application/json'},body:payload?JSON.stringify(payload):undefined});
+ const response=await fetch(url,{method,headers:{'Content-Type':'application/json'},body:payload?JSON.stringify(payload):undefined});
  const data=await response.json().catch(()=>({}));
  if(!response.ok)throw new Error(typeof data.detail==='string'?data.detail:`HTTP ${response.status}`);
  return data;

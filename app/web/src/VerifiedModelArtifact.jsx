@@ -1,8 +1,8 @@
 import React,{useEffect,useState} from 'react';
 import {Download,FileCheck2,FolderOpen,RefreshCw,ShieldAlert,PlayCircle} from 'lucide-react';
 import './nimbo-model-artifact-v1.css';
-const ARTIFACT_API='http://127.0.0.1:8000/nimbo/demo/model-artifact';
-const COMPANY_API='http://127.0.0.1:8000/nimbo/demo/company-model';
+const ARTIFACT_API='/nimbo/demo/model-artifact';
+const COMPANY_API='/nimbo/demo/company-model';
 const MAX_BYTES=420*1024*1024;
 
 /** Supported real-model pilot: actually loads the SHA-pinned uploaded ONNX bytes. */
