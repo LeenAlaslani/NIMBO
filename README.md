@@ -8,7 +8,11 @@ NIMBO started during the HUMAIN Hackathon's 'Deliver AI with Less Compute' chall
 
 ![NIMBO Workspace with the pinned RoBERTa example and staged evaluation filenames](docs/assets/workspace.jpg)
 
-*Workspace with model revision, pilot and held-out files, and the ONNX FP32 speed objective.*
+*Workspace with the pinned model and staged evaluation files.*
+
+![Future Garden Mission Floor before a job starts](docs/assets/future-garden.jpg)
+
+*Future Garden Mission Floor, ready for a model job.*
 
 ## Optimization workflow
 
@@ -38,20 +42,16 @@ These are local CPU measurements from separate recorded runs. Warm forward laten
 
 The recorded SST-2 optimizer completed and verified a review ZIP at event 14. Its enclosing agentic job failed during review at event 17. Replay shows both outcomes at their recorded checkpoints.
 
-<details>
-<summary>Mission Floor, Replay and Resource Monitor screenshots</summary>
-
-![Future Garden Mission Floor before a job starts](docs/assets/future-garden.jpg)
-
-*Future Garden before submission. PICO and the stations visualize model job events.*
-
 ![Recorded replay at event 14 showing the four passed optimizer checkpoints](docs/assets/recorded-replay.jpg)
 
-*Replay at event 14. The optimizer has verified its package, and the agentic workflow is still in progress.*
+*Recorded Replay at event 14, when the optimizer verified the review package.*
+
+<details>
+<summary>Resource Monitor screenshot</summary>
 
 ![Resource Monitor during finished replay with no historical samples and a separate agent review failure](docs/assets/resource-monitor.jpg)
 
-*Replay at event 17. The agent review failed after the optimizer verified its ZIP. The Resource Monitor indicates that this recording has no CPU or RAM history.*
+*Resource Monitor at event 17, with no recorded CPU or RAM history.*
 
 </details>
 
