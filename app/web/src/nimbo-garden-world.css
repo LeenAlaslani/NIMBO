@@ -2,6 +2,7 @@
 .nimboGardenWorld{position:absolute;inset:0;overflow:hidden;isolation:isolate;
   color:#e9fcff;background:#071a2b}
 .nimboGardenCanvas{position:absolute!important;inset:0;touch-action:none}
+.gardenLabels{position:absolute;inset:0;pointer-events:none;z-index:1}
 .gardenArchitectureLogo{border-radius:16px;border:1px solid #66e0d7;
   padding:12px 21px;color:#dcffff;background:#082437e8;
   text-shadow:0 0 10px #4ef5eb;box-shadow:0 0 24px #37cfc342;

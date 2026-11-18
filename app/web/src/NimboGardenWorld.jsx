@@ -4,7 +4,7 @@
  * Movement and idle expressions are visual presentation only. They do not
  * assert that inference, gate verification, or LLM reasoning has occurred.
  */
-import React, {useMemo, useRef, useEffect} from 'react';
+import React, {createContext, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {Canvas, useFrame, useThree} from '@react-three/fiber';
 import {Html, OrbitControls} from '@react-three/drei';
 import * as THREE from 'three';
@@ -12,6 +12,13 @@ import {gardenEvidence, gardenHandoffs} from './nimboGardenEvidence.mjs';
 import {walkStep, dampYaw, stationFacingYaw} from './nimboGardenMotion.mjs';
 import {replayEventsUntil, isAtRecordedEnd} from './nimboGardenReplay.mjs';
 import './nimbo-garden-world.css';
+
+const GardenLabelPortal = createContext(null);
+
+function GardenLabel(props) {
+  const portal = useContext(GardenLabelPortal);
+  return <Html {...props} portal={portal}/>;
+}
 
 const STATIONS = Object.freeze({
   toki:    {p:[-6.9, -3.25], color:'#c4a6ff', label:'TOKI',    sub:'Context studio',   symbol:'◈'},
@@ -166,9 +173,9 @@ function Atrium({day}) {
       [-7.9,.55],[-9.0,2.8],[-7.9,4.9],[-7.8,-4.7],
       [7.9,.6],[9.0,2.8],[7.9,4.9],[8,-4.7]
     ].map(([x,z],i)=><Planter key={i} x={x} z={z} s={i%3===0?.75:.95}/>)}
-    <Html position={[0,7.95,-7.1]} center distanceFactor={13} style={{pointerEvents:'none'}}>
+    <GardenLabel position={[0,7.95,-7.1]} center distanceFactor={13} style={{pointerEvents:'none'}}>
       <div className="gardenArchitectureLogo">✦ NIMBO <small>LIVING OPERATIONS GARDEN</small></div>
-    </Html>
+    </GardenLabel>
   </group>;
 }
 
@@ -186,9 +193,9 @@ function ZonePod({x,z,w=4.2,d=2.8,accent='#65f4dd',title,subtitle}) {
       <boxGeometry args={[.045,.04,d-.18]}/>
       <meshBasicMaterial color={accent}/>
     </mesh>)}
-    <Html position={[0,2.0,-d/2]} center distanceFactor={12} style={{pointerEvents:'none'}}>
+    <GardenLabel position={[0,2.0,-d/2]} center distanceFactor={12} style={{pointerEvents:'none'}}>
       <div className="gardenZoneTitle"><strong>{title}</strong><span>{subtitle}</span></div>
-    </Html>
+    </GardenLabel>
   </group>;
 }
 
@@ -362,12 +369,12 @@ function Station({id,isActive,onSelect,warning,peer}) {
           faceYaw={faceYaw} reacting={Boolean(peer)}/>
       </group>
     </group>
-    <Html position={[0,2.0,.7]} center distanceFactor={12} style={{pointerEvents:'none'}}>
+    <GardenLabel position={[0,2.0,.7]} center distanceFactor={12} style={{pointerEvents:'none'}}>
       <div className={'gardenWorkerTag'+(isActive?' gardenWorkerActive':'')}
         style={{'--glow':s.color}}>
         <strong>{s.symbol} {s.label}</strong><small>{s.sub}</small>
       </div>
-    </Html>
+    </GardenLabel>
   </group>;
 }
 
@@ -390,9 +397,9 @@ function Pico({target,onArrive}) {
   return <group ref={group} position={[0,.15,.5]} scale={.8}>
     <Character id="pico" color="#69e8f4" active locomotionRef={motion}/>
     <pointLight position={[0,.5,.2]} color="#5fffe6" intensity={1.1} distance={2.8}/>
-    <Html center position={[0,2.1,0]} distanceFactor={12} style={{pointerEvents:'none'}}>
+    <GardenLabel center position={[0,2.1,0]} distanceFactor={12} style={{pointerEvents:'none'}}>
       <div className="gardenPicoTag">✦ PICO <small>MISSION GUIDE</small></div>
-    </Html>
+    </GardenLabel>
   </group>;
 }
 
@@ -450,6 +457,9 @@ export default function NimboGardenWorld({
 }) {
   const day=theme==='light'||theme==='day';
   const controlsRef=useRef();
+  // Keep the labels' DOM outside React Three Fiber's canvas wrapper during teardown.
+  const [labelRoot,setLabelRoot]=useState(null);
+  const labelPortal=useMemo(()=>({current:labelRoot}),[labelRoot]);
   const sourceEvents=modelMission?.events||events;
   const historical=modelMission?.mode==='historical';
   const visibleEvents=useMemo(()=>replayEventsUntil(sourceEvents,selectedRecordSeq,historical),
@@ -466,9 +476,11 @@ export default function NimboGardenWorld({
     ['Offline package',evidence.package]
   ];
   return <div className={'nimboGardenWorld '+(day?'gardenDay':'gardenNight')}>
-    <Canvas className="nimboGardenCanvas" dpr={[1,1.6]}
+    <div className="gardenLabels" ref={setLabelRoot}/>
+    {labelRoot&&<Canvas className="nimboGardenCanvas" dpr={[1,1.6]}
       camera={{position:[0,10,16.6],fov:44,near:.1,far:100}}
       shadows gl={{antialias:true,powerPreference:'high-performance'}}>
+      <GardenLabelPortal.Provider value={labelPortal}>
       <color attach="background" args={[day?'#b7d8d3':'#091d2e']}/>
       <fog attach="fog" args={[day?'#a9d4cf':'#0a2635',22,53]}/>
       <ambientLight intensity={day?1.45:.92}/>
@@ -500,7 +512,8 @@ export default function NimboGardenWorld({
         minPolarAngle={.4} maxPolarAngle={Math.PI/2.07}
         target={[0,1,0]}/>
       <CameraDirector controlsRef={controlsRef} follow={followWorker} target={target}/>
-    </Canvas>
+      </GardenLabelPortal.Provider>
+    </Canvas>}
     <div className={'gardenMissionScreen '+(!evidence.count?'gardenScreenIdle':'')}
       aria-live="polite">
       <div className="gardenScreenTop"><span>NIMBO · REAL OPTIMIZATION EVIDENCE</span>

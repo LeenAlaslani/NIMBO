@@ -312,7 +312,7 @@ class Reviewer:
                     status = self.refresh(job_id, job)
                     self.measure(job, now)
                     limit = next((label for hit, label in [
-                        (now - job.started > WALL_SECONDS, 'Worker exceeded the six-minute wall limit'),
+                        (now - job.started > WALL_SECONDS, f'Worker exceeded the {WALL_SECONDS}-second wall limit'),
                         (job.peak_rss > WORKER_RSS, 'Worker exceeded the memory limit'),
                         (job.peak_disk > WORKSPACE_BYTES, 'Worker exceeded the temporary storage limit'),
                     ] if hit), None)
