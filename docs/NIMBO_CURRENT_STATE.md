@@ -1,5 +1,46 @@
 # NIMBO current state
 
+## Public reviewer deployment candidate · 2026-11-18
+
+Deploy from `deploy/public-reviewer`, created from verified development commit `82bf0797940347a39b753b0990eb09764b2950b9`. The tested application source is commit `5dc6e74ded479989d406a922e80793b96cef9cd7`. The separate public FastAPI application serves the hosted React build and the `/api/reviewer` routes on one origin. The local Mission Control server and optional Qwen workflow continue to run through their original entry points. The public build displays a read-only recording separately from new jobs.
+
+### Workload and controls
+
+- The catalog allows one exact Hugging Face DistilBERT revision, `714eb0fa89d2f80546fda750413ed43d93601a13`, and the `stanfordnlp/sst2` snapshot at `8d51e7e4887a4caaa95b3fbebbf53c0490b58bbb`. The image build prepares a 24-row train pilot and a 200-row labeled validation sample with no duplicate texts between them. The worker loads the baked safetensors snapshot offline. It uses one thread per runtime, a 128-token limit, and three repetitions. The dataset is part of the model's source task, so assess generalization separately.
+- Same-origin submission accepts one catalog identifier in a request body capped at 256 bytes. The reviewer app exposes its catalog, recorded replay, job status, events, process telemetry, and guarded package download. It mounts the built assets and health check. The local development, agentic, workload upload, and API documentation routes are absent.
+- One supervised optimizer or package transfer is active at a time on one service instance. The SQLite ledger enforces a 20-minute global start interval, up to six starts per day and one per browser per day. Package transfer is limited to two attempts per job and 3 GiB per rolling 30 days. The ledger persists on the instance filesystem until that filesystem is replaced.
+- The non-root image starts a subprocess with its own workspace and a minimal environment. CPU-time and output-file limits are enforced by the OS. The supervisor enforces a six-minute deadline and checks worker-tree RSS and aggregate job storage. It deletes intermediate files after completion and expires the remaining package and job state after one hour. The initiating browser has an HTTP-only, same-site session cookie, marked Secure under HTTPS.
+- Results are computed per job. The API returns measured comparison fields and sanitized stage events. The existing acceptance gates and separate-process offline verification determine download eligibility. Hosted exports include the source model notice and Apache license.
+
+### Fresh local reviewer verification
+
+An unsigned-in Chrome session started job `eb911c9d793745fdbdb0cd817f900ebe` against the production application on localhost. The candidate passed all held-out quality and performance gates and stayed at 92.5% accuracy, with 100% prediction agreement, zero repeatability mismatches and a maximum logit error of 0.00001299.
+
+| Held-out metric | PyTorch FP32 | ONNX Runtime FP32 |
+| --- | ---: | ---: |
+| Mean warm forward latency | 16.3232 ms | 7.2366 ms |
+| p95 warm forward latency | 23.1819 ms | 11.6496 ms |
+| Process CPU time across 600 calls per runtime | 9,382.372 ms | 4,186.838 ms |
+| Labeled accuracy | 92.5% | 92.5% |
+
+The macOS job finished in 34.32 s. Sampled peak worker-tree RSS was 1,052.8 MiB and peak temporary storage was 1,024.4 MiB. The browser downloaded a 268,264,851-byte review ZIP and verified its SHA-256, `373e89fc89c5e0fb4591dfe50b1a681162bd77ac0de4dc05c89a19fbb1e77908`. An independent offline reload of the extracted download reproduced 92.5% on 200 samples. Browser checks exercised live process telemetry, historical Replay, and the job/session boundaries. A separate session received 404 for job data and packages and 409 when attempting a concurrent start. After completion, the global cooldown returned 429.
+
+The final Linux amd64 image completed a second browser-run verification in local Docker, under a one-CPU and 2,000,000,000-byte memory limit with swap disabled. Job `5c5bb18b4b534401897eb1631775b377` passed both gates over 200 examples and three paired rounds. Both runtimes reached 92.5% accuracy, with 100% prediction agreement, zero repeat mismatches and a maximum logit difference of 0.00001585. Mean warm forward latency fell from 54.7106 ms to 37.5293 ms, p95 fell from 86.3171 ms to 65.0902 ms, and total process CPU time across 600 calls fell from 32,126.4254 ms to 22,172.3430 ms. The job finished in 101.18 s. Its sampled peak worker RSS was 1,472.1 MiB and peak temporary job storage was 1,024.3 MiB. Cgroup counters showed no OOM events. These timings describe the local Docker environment, which ran amd64 on an ARM host.
+
+The final image verified an offline reload before publishing its 268,269,465-byte ZIP. Chrome downloaded it and confirmed SHA-256 `3dda89e11fdb2a27390e745bb980065bb91b5edd7774d130fe92a3ff3976d237`. The same Chrome session passed six Replay/Workspace/Live navigation cycles after the Garden label teardown fix. A separate container intentionally set a one-second wall limit for job `cd3ecad7c2344128ae81ba465222057f`. The real worker entered baseline, was terminated, recorded `FAILED`, and returned 404 for the package.
+
+Verification also passed 453 Python tests, 55 Node tests, the local and hosted Vite production builds, both published evidence-summary checks, and validation against Render's current public Blueprint schema. Vite reported the existing large-chunk warning.
+
+### Production release flow
+
+1. Build and test on the deployment branch. `python -m pytest -q`, `npm --prefix app/web test`, and the local and hosted production builds are included in regression checks. Build the production image with `docker build --platform linux/amd64 -t nimbo-public-reviewer .`. Test the image using the planned CPU and memory limits.
+2. Use the versioned `render.yaml` for one Frankfurt Docker web service, health path `/healthz`, and manual deploys. The current Render plan proposal is `1c-2g` at $25/month for compute. Workspace usage such as bandwidth can add charges. A free or Starter instance has 512 MB of RAM. [Compute plans](https://render.com/docs/compute-plans) · [Pricing](https://render.com/pricing.md#compute)
+3. After cost approval, create the production service from the deployment branch. Confirm the running commit and verify `/healthz` and a fresh job in an external, unsigned-in browser. Check live events, gates, download and negative route checks against that exact production URL before linking it anywhere.
+4. Set `NIMBO_PRODUCTION_URL` in the portfolio's Netlify Production environment to the verified HTTPS origin, redeploy the portfolio, and check the project card and case study. Use the same Render service for later releases to preserve the public URL.
+5. Apply updates manually after checking that the current job has finished. A restart or deploy can discard ephemeral jobs and reset the on-instance quota ledger. Roll back through the same service if the new revision fails its checks.
+
+A hosted service and production portfolio link require approval for the proposed paid compute and a verified remote run. These steps are pending. The recorded measurements above are from the local reviewer environment.
+
 ## Portfolio release · 2026-11-17
 
 The development branch is `develop/auto-optimizer-v1`. Local and GitHub development HEAD both started at `9a5f6a963c9b28fe77416a7bb15f9915e3e1b298`. This release carries the local M10–M13 work forward and uses one loopback FastAPI instance for optimizer, registry and evidence. See the [reviewer setup](../README.md#quick-start).
