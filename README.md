@@ -6,6 +6,8 @@ A faster runtime is useful only if it still produces reliable predictions. NIMBO
 
 NIMBO started during the HUMAIN Hackathon's 'Deliver AI with Less Compute' challenge and has continued as an independent AI engineering project.
 
+[Run NIMBO in Google Colab](https://colab.research.google.com/github/LeenAlaslani/NIMBO/blob/8de511a6f9e1b01ad5dfcc1c58216d54fd0b6483/notebooks/NIMBO_Real_Optimization.ipynb) on a free CPU runtime. The notebook runs a fresh PyTorch-to-ONNX comparison on pinned public SST-2 data, displays the measured results, and offers a verified ZIP if the candidate passes. [Notebook validation](docs/NIMBO_CURRENT_STATE.md#free-cpu-review-2026-11-18)
+
 ![NIMBO Workspace with the pinned RoBERTa example and staged evaluation filenames](docs/assets/workspace.jpg)
 
 *Workspace with the pinned model and staged evaluation files.*

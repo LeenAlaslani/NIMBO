@@ -1,5 +1,22 @@
 # NIMBO current state
 
+## Free CPU review · 2026-11-18
+
+[Run NIMBO in Google Colab](https://colab.research.google.com/github/LeenAlaslani/NIMBO/blob/8de511a6f9e1b01ad5dfcc1c58216d54fd0b6483/notebooks/NIMBO_Real_Optimization.ipynb). The free CPU runtime needs no billing account or API token. Each session downloads pinned public inputs to temporary storage and runs the existing optimizer at source commit `5dc6e74ded479989d406a922e80793b96cef9cd7`. Free runtime availability depends on Google's current limits. [Colab FAQ](https://research.google.com/colaboratory/faq.html)
+
+The verified Docker workload needs approximately one CPU, 2 GB RAM, 1 GiB of working storage, and support for a 268 MB download. Render, Koyeb and Back4app publish lower RAM limits for their free containers. Hugging Face CPU Basic has no hourly charge, with a paid plan required to create a Docker Space. Northflank's 1 vCPU and 2 GB configuration costs $24 per month continuously against a $20 Sandbox allowance. Cloud Run requires a billing account. [Render](https://render.com/docs/compute-plans) · [Koyeb](https://www.koyeb.com/docs/reference/instances) · [Back4app](https://www.back4app.com/pricing/container-as-a-service) · [Hugging Face](https://huggingface.co/docs/hub/spaces-overview) · [Northflank](https://northflank.com/pricing) · [Cloud Run](https://cloud.google.com/run/pricing)
+
+All three notebook code cells ran from scratch on Linux x86-64 with Python 3.13.18, a two-vCPU container limit and one inference thread per path. Job `0f8e8f40f5d94fcba6a7223d03549165` benchmarked 200 SST-2 validation rows over three paired rounds.
+
+| Metric | PyTorch FP32 | ONNX Runtime FP32 |
+| --- | ---: | ---: |
+| Mean warm forward latency | 48.13 ms | 34.91 ms |
+| p95 warm forward latency | 75.04 ms | 58.18 ms |
+| Total process CPU time | 28,888.80 ms | 20,932.62 ms |
+| Accuracy | 92.50% | 92.50% |
+
+Predictions agreed on all 200 examples. NIMBO selected ONNX FP32 for review and wrote a 268,269,461-byte ZIP. The final cell matched the ZIP's SHA-256 to the job receipt, extracted it into a fresh directory and verified the bundled model offline at 92.50% accuracy. The tested ZIP hash is `796c1a4ab33e9e572e14f0dad88c72b3d252aa61099d27c5897cef6cef836da3`. The browser download inside a signed-in Colab session requires separate verification.
+
 ## Portfolio release · 2026-11-17
 
 The development branch is `develop/auto-optimizer-v1`. Local and GitHub development HEAD both started at `9a5f6a963c9b28fe77416a7bb15f9915e3e1b298`. This release carries the local M10–M13 work forward and uses one loopback FastAPI instance for optimizer, registry and evidence. See the [reviewer setup](../README.md#quick-start).
