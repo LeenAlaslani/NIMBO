@@ -4,6 +4,7 @@ import FleetControl from './FleetControl';
 import EvidenceDashboard from './EvidenceDashboard';
 import GameMissionFloor from './GameMissionFloor';
 import NimboLanding from './NimboLanding';
+import ReviewerApp from './ReviewerApp';
 import './style.css';
 import './game-mission-floor.css';
 import './nimbo-design-system-v1.css';
@@ -36,4 +37,4 @@ function App(){
    </main>
  </div>
 }
-createRoot(document.getElementById('root')).render(<App/>);
+createRoot(document.getElementById('root')).render(import.meta.env.VITE_NIMBO_REVIEWER === '1' ? <ReviewerApp/> : <App/>);

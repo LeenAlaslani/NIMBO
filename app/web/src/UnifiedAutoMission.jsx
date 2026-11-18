@@ -10,10 +10,20 @@ import {nextRecordedSeq,m12PickWorker} from './nimboM12Replay.mjs';
 import {isAtRecordedEnd,replayEventsUntil} from './nimboGardenReplay.mjs';
 import {gardenEvidence} from './nimboGardenEvidence.mjs';
 import NimboResourceMonitor from './NimboResourceMonitor.jsx';
+import ReviewerEvidence from './ReviewerEvidence.jsx';
 const JOB=/^[0-9a-f]{32}$/;
+const REVIEWER_API='/api/reviewer/jobs';
+const REVIEWER_JOB='nimbo-reviewer-active-job';
 const NAMES={captain:'CAPTAIN',toki:'TOKI',routa:'ROUTA',model:'MAKO',forge:'FORGE',vera:'VERA',metri:'METRI',bundle:'BUNDLE'};
-async function request(path,opts){const response=await fetch(path,{cache:'no-store',...opts});let value=await response.json().catch(()=>({}));if(!response.ok)throw Error(typeof value.detail==='string'?value.detail:`Optimizer HTTP ${response.status}`);return value}
-export default function UnifiedAutoMission({config,onBack,theme='night'}){
+async function request(path,opts){const response=await fetch(path,{cache:'no-store',...opts});let value=await response.json().catch(()=>({}));if(!response.ok)throw Object.assign(Error(typeof value.detail==='string'?value.detail:`Optimizer HTTP ${response.status}`),{status:response.status});return value}
+function rememberReviewerJob(value){
+ try{
+  if(value===undefined)return sessionStorage.getItem(REVIEWER_JOB);
+  if(value===null)sessionStorage.removeItem(REVIEWER_JOB);
+  else sessionStorage.setItem(REVIEWER_JOB,value);
+ }catch{return null}
+}
+export default function UnifiedAutoMission({config,onBack,theme='night',reviewer=false}){
  const [job,setJob]=useState(null),[events,setEvents]=useState([]),[id,setId]=useState(''),[oldId,setOldId]=useState('');
  const [error,setError]=useState(''),[submitting,setSubmitting]=useState(false),[camera,setCamera]=useState('room');
  const [jobApi,setJobApi]=useState('/nimbo/agentic/jobs'),[agenticMode,setAgenticMode]=useState('checking');
@@ -35,24 +45,45 @@ export default function UnifiedAutoMission({config,onBack,theme='night'}){
  },[]);
  useEffect(()=>{setId('');setJob(null);setEvents([]);setDialogue(null);setSelectedSeq(null);setResource(null);setResourceHistory([]);setResourceError('');setError('')},[config]);
  useEffect(()=>{
-  if(!id)return;
+  if(!reviewer)return;
+  const controller=new AbortController();
+  setJobApi(REVIEWER_API);
+  setAgenticMode(config.replay?'historical':'standard');
+  if(config.replay){
+   request('/api/reviewer/replay',{signal:controller.signal}).then(record=>{
+    setId(record.job.job_id);setJob(record.job);setEvents(realEvents(record.events));setM12Playing(true);
+   }).catch(err=>{if(!controller.signal.aborted)setError(err.message)});
+  }else{
+   const saved=rememberReviewerJob();
+   if(JOB.test(saved||''))setId(saved);
+  }
+  return()=>controller.abort();
+ },[config,reviewer]);
+ useEffect(()=>{
+  if(!id||(reviewer&&config.replay))return;
   const controller=new AbortController();let handle;const token=++runRef.current;
   const poll=async()=>{try{
-   const [j,e]=await Promise.all([request(`${jobApi}/${id}`,{signal:controller.signal}),request(`${jobApi}/${id}/events`,{signal:controller.signal})]);
+   const readStatus=request(`${jobApi}/${id}`,{signal:controller.signal});
+   const [j,e]=reviewer?[await readStatus,null]:await Promise.all([readStatus,request(`${jobApi}/${id}/events`,{signal:controller.signal})]);
    if(controller.signal.aborted||runRef.current!==token)return;
-   setJob(j);setEvents(realEvents(e.events));setError('');
+   setJob(j);setEvents(realEvents(reviewer?j.events:e.events));setError('');
    if(!finalJob(j))handle=setTimeout(poll,1800);
-  }catch(err){if(!controller.signal.aborted){setError(err.message);handle=setTimeout(poll,4000)}}};
+  }catch(err){if(!controller.signal.aborted){
+   setError(err.message);
+   if(reviewer&&err.status===404){rememberReviewerJob(null);setId('');setJob(null);setEvents([])}
+   else handle=setTimeout(poll,4000);
+  }}};
   poll();return()=>{controller.abort();clearTimeout(handle);runRef.current++};
- },[id,jobApi]);
+ },[id,jobApi,reviewer,config.replay]);
  async function start(){if(id||submitting)return;setSubmitting(true);setError('');try{
-  const body={model_id:config.model_id,revision:config.revision,pilot_file:config.pilot_file,heldout_file:config.heldout_file,preprocess:config.preprocess,objective:'speed'};
-  const preflight=await request('/nimbo/agentic/ready').catch(()=>({ready:false}));
-  const path=preflight.ready?'/nimbo/agentic/jobs':'/nimbo/auto/jobs';
+  const body=reviewer?{case:config.id}:{model_id:config.model_id,revision:config.revision,pilot_file:config.pilot_file,heldout_file:config.heldout_file,preprocess:config.preprocess,objective:'speed'};
+  const preflight=reviewer?{ready:false}:await request('/nimbo/agentic/ready').catch(()=>({ready:false}));
+  const path=reviewer?REVIEWER_API:preflight.ready?'/nimbo/agentic/jobs':'/nimbo/auto/jobs';
   setJobApi(path);setAgenticMode(preflight.ready?'agentic':'standard');
   const response=await fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
   const data=await response.json().catch(()=>({}));
   if(response.status!==202||!JOB.test(data.job_id||''))throw Error(typeof data.detail==='string'?data.detail:`Job not accepted: HTTP ${response.status}`);
+  if(reviewer)rememberReviewerJob(data.job_id);
   setResource(null);setResourceHistory([]);setResourceError('');
   setId(data.job_id);setJob(null);setEvents([]);setSelectedSeq(null);
  }catch(err){setError(err.message)}finally{setSubmitting(false)}}
@@ -141,7 +172,7 @@ export default function UnifiedAutoMission({config,onBack,theme='night'}){
  }
  return <div ref={gardenFullRef} className={'nimLiving '+(expanded?'nimLivingExpanded':'')}>
   <div className="nimLivingTop"><button type="button" onClick={onBack}><ArrowLeft size={16}/> Workspace</button>
-   <span className="nimLivingKicker">{agenticMode==='agentic'?'NIMBO · MULTI-AGENT MODEL FORGE':agenticMode==='standard'?'NIMBO · STANDARD MODEL FORGE':'NIMBO · LIVING LABORATORY / MODEL FORGE'}</span><div className="nimLivingTopActions">
+   <span className="nimLivingKicker">{reviewer?'NIMBO · PUBLIC REVIEWER':agenticMode==='agentic'?'NIMBO · MULTI-AGENT MODEL FORGE':agenticMode==='standard'?'NIMBO · STANDARD MODEL FORGE':'NIMBO · LIVING LABORATORY / MODEL FORGE'}</span><div className="nimLivingTopActions">
    <button type="button" onClick={()=>setCamera(v=>v==='room'?'follow':'room')}><Camera size={16}/> {camera==='room'?'Follow PICO':'Room view'}</button>
    <button type="button" onClick={()=>setJournal(v=>!v)}><BookOpen size={16}/> Mission journal {visibleEvents.length?`(${visibleEvents.length})`:''}</button>
    <button type="button" onClick={toggleGardenFullscreen}><Expand size={16}/> {expanded?'Normal':'Expand'}</button></div></div>
@@ -198,7 +229,7 @@ export default function UnifiedAutoMission({config,onBack,theme='night'}){
       </small>}
     </div>}
 
-  <NimboResourceMonitor jobId={id} historical={agenticMode==='historical'}
+  <NimboResourceMonitor jobId={id} historical={agenticMode==='historical'} reviewer={reviewer}
    data={resource} history={resourceHistory} error={resourceError}/>
 
   <div className="nimLivingWorld">
@@ -209,7 +240,7 @@ export default function UnifiedAutoMission({config,onBack,theme='night'}){
     <h2>{missionActive?(agenticMode==='historical'?`Recorded stage · ${NAMES[worker]}`:` ${NAMES[worker]} is at work`):'Welcome to Model Forge'}</h2>
     <p>{missionActive?String(current.message||'Backend stage recorded').slice(0,190):'I will guide your model through the laboratory. Each glowing station shows a real step, not simulated compute.'}</p>
     <div className={'nimLivingStatus '+status.kind}><b>{status.title}</b><small>{status.description}</small></div>
-    {!id?<button className="nimLivingStart" type="button" disabled={submitting} onClick={start}><Play size={16}/>{submitting?'Submitting real job…':'Begin real mission'}</button>:<div className="nimLivingJob">Job <code>{id.slice(0,8)}…</code> · {visibleJob?.state||(replaying?'Recorded playback':'Connecting')}</div>}
+    {!id&&!replaying?<button className="nimLivingStart" type="button" disabled={submitting} onClick={start}><Play size={16}/>{submitting?'Submitting real job…':reviewer?'Run Real Optimization':'Begin real mission'}</button>:<div className="nimLivingJob">{id&&<>Job <code>{id.slice(0,8)}…</code> · </>}{visibleJob?.state||(replaying?'Recorded playback':'Connecting')}</div>}
     {error&&<p className="nimLivingError" role="alert">{error}</p>}
    </aside>
    <div className="nimLivingPico">✦ {missionActive?`PICO leads you to ${NAMES[worker]}`:'PICO is ready to guide you'}</div>
@@ -221,7 +252,8 @@ export default function UnifiedAutoMission({config,onBack,theme='night'}){
   <div className="nimLivingBottom"><div className="nimLivingOutcome"><b>{status.title}</b><span>{visibleJob?.decision||(replaying?'Playback reveals the recorded decision in sequence.':'Backend will decide using measured quality and CPU gates.')}</span></div>
    <div className="nimLivingActions">{scene.historical&&<button type="button" onClick={()=>{setSelectedSeq(null);setDialogue(null)}}><RotateCcw size={15}/> Latest live event</button>}
    {canDownload&&<a href={`${jobApi}/${id}/package`}><Download size={16}/> Verified review package</a>}
-   {!id&&<form onSubmit={openExisting}><input aria-label="Existing job ID" placeholder="Existing 32-character job ID" value={oldId} onChange={e=>setOldId(e.target.value)} maxLength={32}/><button type="submit">Replay a real job</button></form>}</div></div>
-  <p className="nimLivingCaveat"><Info size={14}/> {agenticMode==='agentic'?'LLM agents are making bounded tool decisions.':agenticMode==='standard'?'No local reasoning model connected; the original deterministic engine is running.':'Historical tasks preserve their recorded execution mode.'} Supported public text classifiers on local CPU. Automatic ONNX FP32 speed optimization only. Results are review-only; no production, energy, FLOPs or billing claim.</p>
+   {!id&&!reviewer&&<form onSubmit={openExisting}><input aria-label="Existing job ID" placeholder="Existing 32-character job ID" value={oldId} onChange={e=>setOldId(e.target.value)} maxLength={32}/><button type="submit">Replay a real job</button></form>}</div></div>
+  {reviewer&&!replaying&&<ReviewerEvidence job={job}/>}
+  <p className="nimLivingCaveat"><Info size={14}/> {reviewer?(replaying?'Historical recording. No new compute is running.':'Hosted deterministic CPU optimization. Optional Qwen agents are unavailable. Packages are for review.'):agenticMode==='agentic'?'LLM agents are making bounded tool decisions.':agenticMode==='standard'?'No local reasoning model connected; the original deterministic engine is running.':'Historical tasks preserve their recorded execution mode.'} {!reviewer&&'Supported public text classifiers on local CPU. Automatic ONNX FP32 speed optimization only. Results are review-only; no production, energy, FLOPs or billing claim.'}</p>
  </div>;
 }

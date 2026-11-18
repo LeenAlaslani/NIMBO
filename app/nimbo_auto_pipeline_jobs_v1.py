@@ -221,7 +221,8 @@ def submit(root: Path, request: dict, *, spawn=subprocess.Popen) -> dict:
             'eligible_for_deployment':False}
 
 
-def run_worker(root: Path, job_id: str, *, baseline=None, candidate=None, heldout=None, packager=None) -> dict:
+def run_worker(root: Path, job_id: str, *, baseline=None, candidate=None, heldout=None, packager=None,
+               runtime=None, license_file=None) -> dict:
     """All stages execute REAL original modules; injections used only by unit tests."""
     from app.nimbo_model_intake_v1 import run_real_baseline
     from app.nimbo_onnx_candidate_v1 import run_paired_candidate
@@ -231,6 +232,10 @@ def run_worker(root: Path, job_id: str, *, baseline=None, candidate=None, heldou
     candidate = candidate or run_paired_candidate
     heldout = heldout or validate_existing_candidate
     packager = packager or package_model
+    baseline_options = {} if runtime is None else {'cpu_threads': runtime['threads'], 'max_length': runtime['length']}
+    candidate_options = {} if runtime is None else {'threads': runtime['threads'], 'max_length': runtime['length'],
+                                                    'rounds': runtime['rounds']}
+    heldout_options = {} if runtime is None else {'rounds': runtime['rounds']}
     root = root.expanduser().resolve(strict=True)
     folder = job_folder(root, job_id)
     req = _load(folder/'request.json')
@@ -242,12 +247,13 @@ def run_worker(root: Path, job_id: str, *, baseline=None, candidate=None, heldou
     reports = {}
     try:
         _event(folder,'RUNNING','analyze','Starting real pinned PyTorch CPU baseline')
-        m1, m1_report = baseline(req['model_id'], pilot, revision=req['revision'])
+        m1, m1_report = baseline(req['model_id'], pilot, revision=req['revision'], **baseline_options)
         reports['baseline_report'] = str(m1)
         _event(folder,'RUNNING','analyze','PyTorch baseline measured',extra={
             'accuracy':m1_report['metrics']['accuracy'], 'mean_forward_ms':m1_report['metrics']['mean_warm_forward_ms']})
         _event(folder,'RUNNING','optimize','Starting ONNX FP32 graph export and paired benchmark')
-        m2, candidate_report = candidate(req['model_id'], pilot, revision=req['revision'], baseline_report=m1)
+        m2, candidate_report = candidate(req['model_id'], pilot, revision=req['revision'], baseline_report=m1,
+                                                         **candidate_options)
         reports['candidate_report'] = str(m2)
         pilot_disposition = pilot_gate_disposition(candidate_report)
         if pilot_disposition is None:
@@ -265,7 +271,7 @@ def run_worker(root: Path, job_id: str, *, baseline=None, candidate=None, heldou
             _event(folder,'RUNNING','optimize','ONNX paired benchmark passed local gates',extra={
                 'decision':candidate_report['decision']['decision']})
         _event(folder,'RUNNING','verify','Starting new heldout paired evaluation using the exact ONNX graph')
-        m3, heldout_report = heldout(m2, hold, root=root, preprocess=req['preprocess'])
+        m3, heldout_report = heldout(m2, hold, root=root, preprocess=req['preprocess'], **heldout_options)
         reports['heldout_report'] = str(m3)
         if not heldout_report['decision']['heldout_gates_passed']:
             reason = 'ONNX rejected by heldout quality/resource gates'
@@ -275,7 +281,8 @@ def run_worker(root: Path, job_id: str, *, baseline=None, candidate=None, heldou
             'decision':heldout_report['decision']['decision'],
             'accuracy':heldout_report['candidate']['accuracy']})
         _event(folder,'RUNNING','deliver','Creating and independently offline-verifying ONNX FP32 package')
-        package, summary = packager(m3, hold, root=root)
+        package_options = {} if license_file is None else {'license_file': license_file}
+        package, summary = packager(m3, hold, root=root, **package_options)
         if summary.get('status') != 'RUNNABLE_PACKAGE_VERIFIED_REVIEW_ONLY' or summary.get('verified_offline_after_extract') is not True:
             raise RuntimeError('Packager did not certify offline reload')
         reports['package_path'] = str(package)

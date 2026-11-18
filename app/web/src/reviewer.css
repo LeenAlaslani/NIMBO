@@ -1,0 +1,11 @@
+.reviewerShell { width: min(100% - 2rem, 1380px); margin: 0 auto; padding: 1rem 0 3rem; }
+.reviewerShell .nimuniCleanAction > button[type="button"] {
+  display: inline-flex; align-items: center; gap: .5rem; padding: .6rem .8rem; border-radius: 6px;
+}
+.reviewerShell .nimuniCleanPanel h3, .reviewerShell .nimuniCleanPanel p { margin: 0; }
+.reviewerEvidence { padding: 1.15rem; margin: .65rem; border: 1px solid #41677d; border-radius: .75rem; background: #102439; color: #e7f4ff; }
+.reviewerEvidence h2 { font-size: 1.25rem; margin: 0 0 .5rem; }
+.reviewerEvidence p { margin: .55rem 0; }
+.reviewerEvidenceTable { overflow-x: auto; }
+.reviewerEvidence table { border-collapse: collapse; width: 100%; min-width: 360px; font-variant-numeric: tabular-nums; }
+.reviewerEvidence th, .reviewerEvidence td { text-align: left; padding: .6rem; border-bottom: 1px solid #41677d; }

@@ -2,7 +2,7 @@ name: NIMBO judging checks
 
 on:
   push:
-    branches: [main, judging-submission-20261031, develop/auto-optimizer-v1]
+    branches: [main, judging-submission-20261031, develop/auto-optimizer-v1, deploy/public-reviewer]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -67,4 +67,9 @@ jobs:
       - name: Run frontend regression tests
         run: npm test
       - name: Build frontend
+        run: npm run build
+      - name: Build hosted reviewer frontend
+        if: github.ref_name == 'deploy/public-reviewer'
+        env:
+          VITE_NIMBO_REVIEWER: '1'
         run: npm run build

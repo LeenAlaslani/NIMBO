@@ -12,11 +12,13 @@ import csv
 import hashlib
 import json
 import math
+import os
 import re
 import statistics
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
+from types import SimpleNamespace
 
 MAX_DATASET_BYTES = 1024 * 1024
 MAX_MODEL_WEIGHT_BYTES = 750 * 1024 * 1024
@@ -108,6 +110,17 @@ def inspect_public_classifier(model_id: str, *, revision: str | None = None,
     requested = validate_requested_revision(revision)
     from huggingface_hub import HfApi
     from transformers import AutoConfig
+    prepared = os.environ.get('NIMBO_PREPARED_MODEL')
+    if prepared:
+        info_path = Path(prepared)
+        metadata = json.loads(info_path.read_text(encoding='utf-8'))
+        if not requested or (model_id, requested) != (metadata['model_id'], metadata['revision']):
+            raise ValueError('Model does not match the prepared deployment snapshot')
+        weights = Path(metadata['snapshot']) / 'model.safetensors'
+        info = SimpleNamespace(sha=requested, private=False, cardData={'license': metadata['license']},
+                               siblings=[SimpleNamespace(rfilename=weights.name, size=weights.stat().st_size)])
+        config = AutoConfig.from_pretrained(str(weights.parent), local_files_only=True, trust_remote_code=False)
+        return inspect_hub_metadata(model_id, info, config, max_weight_bytes=max_weight_bytes)
     info = HfApi().model_info(model_id, revision=requested or "main", files_metadata=True)
     sha = getattr(info, "sha", None)
     if not isinstance(sha, str) or not REVISION_RE.fullmatch(sha):

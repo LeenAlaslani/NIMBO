@@ -1,0 +1,112 @@
+{
+  "job": {
+    "job_id": "61a2b4ab077b4555937b2e0e80a1e719",
+    "state": "FAILED",
+    "decision": "AGENT_EXECUTION_FAILED",
+    "eligible_for_review_download": false
+  },
+  "events": [
+    {
+      "seq": 1,
+      "stage": "queued",
+      "state": "QUEUED",
+      "message": "CAPTAIN accepted a real model optimization mission"
+    },
+    {
+      "seq": 2,
+      "stage": "analyze",
+      "state": "RUNNING",
+      "message": "CAPTAIN is evaluating the supported model and requested objective"
+    },
+    {
+      "seq": 3,
+      "stage": "analyze",
+      "state": "RUNNING",
+      "message": "CAPTAIN decision: run_onnx_pipeline"
+    },
+    {
+      "seq": 4,
+      "stage": "optimize",
+      "state": "RUNNING",
+      "message": "FORGE decision: run_onnx_pipeline"
+    },
+    {
+      "seq": 5,
+      "stage": "optimize",
+      "state": "RUNNING",
+      "message": "FORGE invoked the existing real M7 CPU ONNX pipeline (attempt 1)"
+    },
+    {
+      "seq": 6,
+      "stage": "queued",
+      "state": "RUNNING",
+      "message": "M7 engine: Accepted one local supported-model speed optimization job"
+    },
+    {
+      "seq": 7,
+      "stage": "analyze",
+      "state": "RUNNING",
+      "message": "M7 engine: Starting real pinned PyTorch CPU baseline"
+    },
+    {
+      "seq": 8,
+      "stage": "analyze",
+      "state": "RUNNING",
+      "message": "M7 engine: PyTorch baseline measured"
+    },
+    {
+      "seq": 9,
+      "stage": "optimize",
+      "state": "RUNNING",
+      "message": "M7 engine: Starting ONNX FP32 graph export and paired benchmark"
+    },
+    {
+      "seq": 10,
+      "stage": "optimize",
+      "state": "RUNNING",
+      "message": "M7 engine: ONNX paired benchmark passed local gates"
+    },
+    {
+      "seq": 11,
+      "stage": "verify",
+      "state": "RUNNING",
+      "message": "M7 engine: Starting new heldout paired evaluation using the exact ONNX graph"
+    },
+    {
+      "seq": 12,
+      "stage": "verify",
+      "state": "RUNNING",
+      "message": "M7 engine: Heldout quality and performance gates passed"
+    },
+    {
+      "seq": 13,
+      "stage": "deliver",
+      "state": "RUNNING",
+      "message": "M7 engine: Creating and independently offline-verifying ONNX FP32 package"
+    },
+    {
+      "seq": 14,
+      "stage": "deliver",
+      "state": "RUNNING",
+      "message": "M7 engine: Offline model package verified; review only"
+    },
+    {
+      "seq": 15,
+      "stage": "verify",
+      "state": "RUNNING",
+      "message": "VERA is checking actual heldout and offline package evidence"
+    },
+    {
+      "seq": 16,
+      "stage": "verify",
+      "state": "RUNNING",
+      "message": "VERA explanation failed evidence-consistency checks; requesting one correction"
+    },
+    {
+      "seq": 17,
+      "stage": "error",
+      "state": "FAILED",
+      "message": "Agent execution failed during review (AgentDecisionError)"
+    }
+  ]
+}

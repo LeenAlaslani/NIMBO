@@ -21,7 +21,7 @@ function Curve({history,keyName,label}){
  </div>;
 }
 
-export default function NimboResourceMonitor({jobId,historical,data,history=[],error=''}){
+export default function NimboResourceMonitor({jobId,historical,data,history=[],error='',reviewer=false}){
  const [open,setOpen]=useState(true);
  const live=Boolean(jobId&&!historical&&data?.monitor_state==='live');
  const cpu=data?.job_cpu_percent_one_core;
@@ -48,13 +48,13 @@ export default function NimboResourceMonitor({jobId,historical,data,history=[],e
      <div className="nimResourceGrid">
       <div className="nimResourceTile"><div className="nimResourceTileTitle"><Cpu size={15}/> Job CPU</div><strong>{cpuLabel(cpu)}</strong><small>100% = one logical CPU core</small></div>
       <div className="nimResourceTile"><div className="nimResourceTileTitle"><MemoryStick size={15}/> Job RAM (RSS)</div><strong>{mibLabel(rss)}</strong><small>Observed peak: {mibLabel(peak)}</small></div>
-      <div className="nimResourceTile"><div className="nimResourceTileTitle"><HardDrive size={15}/> Ollama processes</div><strong>{mibLabel(ollama)}</strong><small>CPU: {cpuLabel(ollamaCpu)} · separate from job tree</small></div>
+      {!reviewer&&<div className="nimResourceTile"><div className="nimResourceTileTitle"><HardDrive size={15}/> Ollama processes</div><strong>{mibLabel(ollama)}</strong><small>CPU: {cpuLabel(ollamaCpu)} · separate from job tree</small></div>}
       <div className="nimResourceTile"><div className="nimResourceTileTitle"><Activity size={15}/> GPU / MPS</div><strong>Not measured</strong><small>Apple Unified Memory is not discrete VRAM</small></div>
      </div>
-     <div className="nimResourceSecondary">
+     {!reviewer&&<div className="nimResourceSecondary">
       <Meter title="Host CPU" value={percentLabel(hostCpu)} ratio={hostCpu} detail="Whole-system CPU usage"/>
       <Meter title="Host RAM" value={measured(ram)&&measured(ramTotal)?`${mibLabel(ram)} / ${mibLabel(ramTotal)}`:'—'} ratio={ramUsedPct} detail="Host memory usage (includes other apps and cache)"/>
-     </div>
+     </div>}
      <div className="nimResourceGraphs"><Curve history={history} keyName="cpu" label="Job CPU trend"/><Curve history={history} keyName="ram" label="Job RSS memory trend"/></div>
      <small className="nimResourceFootnote">Live samples from job PID and child processes only. CPU readings need two polls. RSS may double-count shared pages; observed peak is not a lifetime peak. Samples are not persisted, not model-quality evidence, and do not measure energy or billing.</small>
      {data?.note&&data?.monitor_state==='unavailable'&&<p className="nimResourceNotice">{data.note}</p>}

@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: nimbo-public-reviewer
+    repo: https://github.com/LeenAlaslani/NIMBO
+    branch: deploy/public-reviewer
+    runtime: docker
+    region: frankfurt
+    plan: 1c-2g
+    numInstances: 1
+    autoDeployTrigger: 'off'
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz

@@ -3,7 +3,7 @@ import {ArrowRight, Moon, Sun, CheckCircle2, Cpu, ShieldCheck} from 'lucide-reac
 import './nimbo-landing-v1.css';
 
 /** A real home screen: no request is sent and no model is selected. */
-export default function NimboLanding({theme,onEnter,onThemeChange}){
+export default function NimboLanding({theme,onEnter,onThemeChange,reviewer=false}){
  return <div className={'nimboIntro theme-'+theme}>
    <header className="nimboIntroHeader">
      <span className="nimboIntroIdentity">NIMBO <span className="nimboIntroSeparator"/> AI OPTIMIZATION LAB</span>
@@ -18,7 +18,7 @@ export default function NimboLanding({theme,onEnter,onThemeChange}){
        <h1>Optimize AI.<br/><strong>Prove the decision.</strong></h1>
        <p>Compare real execution paths. Preserve measurable quality. Make resource-aware choices with evidence you can inspect.</p>
        <button type="button" className="nimboIntroEnter" onClick={onEnter}>Enter workspace <ArrowRight size={19}/></button>
-       <div className="nimboIntroFootnote">LOCAL DEMONSTRATOR <span aria-hidden="true">·</span> NO AUTOMATIC DEPLOYMENT</div>
+       <div className="nimboIntroFootnote">{reviewer?'PUBLIC REVIEWER':'LOCAL DEMONSTRATOR'} <span aria-hidden="true">·</span> {reviewer?'DETERMINISTIC OPTIMIZER':'NO AUTOMATIC DEPLOYMENT'}</div>
      </div>
    </main>
    <footer className="nimboIntroFooter"><span><Cpu size={16}/> Measured execution</span><span><ShieldCheck size={16}/> Quality-aware gates</span><span><CheckCircle2 size={16}/> Auditable decisions</span></footer>

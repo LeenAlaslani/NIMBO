@@ -224,7 +224,7 @@ if __name__=='__main__':
 
 def package_model(m3_report: str | Path, dataset: str | Path, *, root: str | Path='.',
                   output_root: str | Path='results/auto_optimizer_packages_v1',
-                  runner_executable: str | None=None) -> tuple[Path,dict]:
+                  runner_executable: str | None=None, license_file: Path | None=None) -> tuple[Path,dict]:
     """Package same hash-pinned M2 ONNX only after M3 pass + fresh offline reload."""
     m3,m2,graph,rows,heldout_sha=check_review(m3_report,dataset,root=root)
     info=m3['model']
@@ -264,6 +264,12 @@ def package_model(m3_report: str | Path, dataset: str | Path, *, root: str | Pat
         if digest(staging/'model.onnx')!=m2['artifact']['sha256']:
             raise ValueError('Copied model ONNX does not match M2/M3 source')
         (staging/'run_model.py').write_text(_runner_source(),encoding='utf8')
+        if license_file is not None:
+            shutil.copyfile(license_file, staging/'LICENSE-Apache-2.0.txt')
+            (staging/'MODEL-NOTICE.txt').write_text(
+                f'Source model: https://huggingface.co/{spec.model_id}/tree/{spec.resolved_revision}\n'
+                'License: Apache-2.0 (see LICENSE-Apache-2.0.txt).\n'
+                'NIMBO converted the pinned source weights to ONNX FP32.\n', encoding='utf8')
         (staging/'README.md').write_text(
             '# NIMBO ONNX FP32 classifier — LOCAL REVIEW ONLY\n\n'
             'Extract the ZIP, install `numpy`, `transformers` and `onnxruntime`, then run:\n\n'
